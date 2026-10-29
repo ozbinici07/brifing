@@ -50,3 +50,5 @@
 .sidebar-identity .ruins{background:url("../assets/bbs-logo.png") center/contain no-repeat!important;opacity:1!important;filter:none!important}
 .login{background:linear-gradient(110deg,rgba(108,4,31,.88),rgba(12,37,65,.18)),url("../assets/bodrum-panorama.jpg") center/cover no-repeat!important}
 @media(max-width:650px){.overview-brand-logo{width:44px;height:44px}}
+/* Restore the original user-selected login background. */
+.login{background:url("../assets/mugla-login-background.png") center top/cover no-repeat!important}
