@@ -2,6 +2,12 @@
 
 Firebase Authentication ve Firestore kullanan web uygulaması.
 
+## Canlı uygulama
+
+https://ozbinici07.github.io/brifing/
+
+GitHub Pages, main dalının kök dizinini yayımlar. Main dalına gönderilen değişiklikler başarılı Pages derlemesinden sonra siteye yansır. Uygulamayı bu adresten kullanmak için Python veya açık bir ev bilgisayarı gerekmez.
+
 ## Yerel çalıştırma
 
 Python 3 ve internet bağlantısı gerekir. Windows'ta `Baslat.bat` dosyasına çift tıklayın. Uygulama `http://127.0.0.1:8765/` adresinde açılır. Sunucu penceresi kullanım boyunca açık kalmalıdır.
