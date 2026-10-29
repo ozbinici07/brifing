@@ -73,3 +73,10 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - AGENTS.md doğrudan GitHub’da güncellendi (9dcf8fa): değişiklikler GitHub’da yapılacak, her iş proje notlarına yazılacak, tercih/kurallar değiştiğinde AGENTS.md güncellenecek ve canlı yayın doğrulanmadan tamamlandı denmeyecek.
 - Otomatik Firebase yayını ve canlı görünüm bu kayıt sonrasında kontrol edilecek; henüz doğrulanmış sayılmamalı.
 - Sonuç: Logo yayını başarıyla tamamlandı: https://github.com/ozbinici07/brifing/actions/runs/40914391176 . Canlı giriş ekranında yeni BBS rozeti ve favicon/apple-touch-icon bağlantıları doğrulandı.
+## 29 Ekim 2026 — Arka planın geri alınması ve PWA
+- Logo isteği sırasında kapsam dışı değiştirilen giriş arka planı kullanıcının düzeltmesi üzerine eski mugla-login-background.png görseline geri alındı. Yeni BBS logosu korundu. Kullanıcı istemedikçe arka plan veya diğer tasarım alanları değiştirilmemelidir.
+- PWA için manifest.webmanifest, sw.js ve js/pwa.js GitHub’da oluşturuldu. Uygulama adı Brifing Bilgi Sistemi, kısa adı Muğla BBS, görüntüleme standalone ve simgesi yeni rozettir.
+- Tarayıcı beforeinstallprompt olayını destekleyip uygun gördüğünde giriş ekranında Uygulamayı yükle düğmesi görünür. iOS kendi Ana Ekrana Ekle akışını kullanır.
+- Servis çalışanı ağ üzerinden çalışır; Firebase verileri veya oturum bilgileri önbelleğe alınmaz. Çevrimdışı açılışta internet gerektiğini bildiren ekran gösterir.
+- scripts/build-hosting.mjs manifest ve servis çalışanını Firebase paketine ekler ve PWA istemcisini yayımlanan HTML’e bağlar.
+- Yayın başarıyla tamamlandı: https://github.com/ozbinici07/brifing/actions/runs/40916849612 . Canlı sayfada özgün arka plan, manifest bağlantısı ve PWA scripti doğrulandı. Gerçek cihazda kurulum son kullanıcı tarafından ayrıca denenmelidir.
