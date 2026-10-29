@@ -5,7 +5,7 @@ function install(){
 const side=document.querySelector('.side'),top=document.querySelector('.top'),actions=document.querySelector('.top-actions');
 if(!side||!top||!actions||document.getElementById('compact-layout-style'))return;
 const identity=side.querySelector('.sidebar-identity');
-if(identity){identity.innerHTML='<img src="assets/bbs-logo.png" alt="Muğla BBS logosu"><div>Muğla İl Millî Eğitim Müdürlüğü · Brifing Bilgi Sistemi</div>';side.prepend(identity);}
+if(identity){identity.innerHTML='<img src="assets/bbs-logo.png" alt="Muğla BBS logosu"><div>Muğla İl Millî Eğitim Müdürlüğü Brifing Bilgi Sistemi</div>';side.prepend(identity);}
 top.querySelector('.brand')?.remove();
 const status=document.querySelector('.overview-status'),avatar=actions.querySelector('.avatar');
 if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('top-period');period.querySelector('select').setAttribute('aria-label','Aktif dönem');actions.insertBefore(status,avatar);actions.insertBefore(period,avatar);}
