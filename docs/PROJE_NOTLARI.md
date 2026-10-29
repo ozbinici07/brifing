@@ -87,3 +87,10 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Firebase otomatik yayınları başarılı: https://github.com/ozbinici07/brifing/actions/runs/40961454322 ve https://github.com/ozbinici07/brifing/actions/runs/40961523544 .
 - Canlı https://brifingbilgisistemi.web.app/ Chrome tarayıcıda yenilendi; seçilen arka planın görünümü, hesaplanan CSS adresi ve ön yükleme bağlantısı doğrulandı. Canlı CSS HTTP 200.
 - Bu iş kapsamında bilinen sorun veya kalan iş yok. Hesapla giriş testi yapılmadı; Firebase verileri ve kuralları değiştirilmedi.
+## 30 Ekim 2026 — Giriş arka planını hızlandırma
+- Özgün 1672×940 PNG korunarak aynı çözünürlükte WebP (quality 85, method 6) sürümü assets/login-background-v2.webp olarak eklendi. Dosya 1.704.245 bayttan 91.432 bayta indi (%94,6 azalma).
+- Son giriş CSS kuralı WebP dosyasına bağlandı; ön yükleme HTML başına taşındı ve fetchpriority="high" verildi. CSS sürümü v10 yapıldı.
+- Değişiklikler uygulama içi GitHub tarayıcı oturumundan main dalına kaydedildi: 8ee01d4, 96649ea ve 6d71240.
+- Testler: Hosting paketi başarıyla oluşturuldu; çözünürlük eşitliği, paket görseli, CSS adresi, erken ön yükleme ve CRLF uyumlu diff kontrolü geçti.
+- Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/40962357126 . Canlı giriş ekranında WebP arka planı ve yüksek öncelikli ön yükleme tarayıcıda doğrulandı.
+- Süre kazanımı bağlantıya göre değişir; sabit bir hız çarpanı ölçülmedi. Bu iş için kalan sorun yok; Firebase verileri ve kuralları değiştirilmedi.
