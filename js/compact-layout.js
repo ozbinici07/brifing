@@ -61,7 +61,7 @@ function decorate(){document.querySelectorAll('.content .page .page-head,.conten
 if(head.classList.contains('compact-page-banner')||!head.querySelector('h2'))return;
 head.classList.add('compact-page-banner');
 const tools=[...head.children].filter(el=>el.matches('.actions,.student-header-actions'));
-if(tools.length){const row=document.createElement('div');row.className='page-header-tools';tools.forEach(el=>row.append(el));head.after(row);if(head.closest("#institutionsSystem")){const tabs=head.parentElement.querySelector(".mini-tabs");if(tabs){row.prepend(tabs);row.classList.add("module-toolbar");}}}
+if(tools.length){const row=document.createElement('div');row.className='page-header-tools';tools.forEach(el=>row.append(el));head.after(row);if(head.closest("#institutionsSystem,#students")){const tabs=head.parentElement.querySelector(".mini-tabs");if(tabs){row.prepend(tabs);row.classList.add("module-toolbar");}}}
 if(head.closest('#overview'))head.querySelectorAll('.overview-brand-logo,.overview-banner-flag,.banner-photo-credit').forEach(el=>el.remove());
 const flag=document.createElement('div');flag.className='compact-flag';flag.setAttribute('role','img');flag.setAttribute('aria-label','Türk bayrağı');flag.innerHTML='<svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="45" cy="40" r="27" fill="white"/><circle cx="53" cy="40" r="22" fill="#d30932"/><path d="m78 23 4 12 13 .1-10 8 4 12-11-8-10 8 4-12-10-8 13-.1z" fill="white"/></svg>';head.append(flag);
 });}
