@@ -52,7 +52,7 @@ const style=document.createElement('style');style.id='compact-layout-style';styl
 .top-actions>.avatar+span br{display:none}.top-actions>.avatar+span small{margin-left:5px;font-size:10px}
 
 .top-actions>.avatar{order:90}.top-actions>.avatar+span{order:89;font-size:13px!important}.top-actions>.avatar+span small{font-size:12px!important;margin-left:6px}
-.top-actions .top-period{background:#fff0f2;border:1px solid #f2d2d9;border-radius:6px;padding:3px 7px}.top-period select{background:#fff8f9!important;border-color:#ebc5ce!important}
+.top-actions .top-period{background:#fff0f2;border:1px solid #f2d2d9;border-radius:6px;padding:3px 7px}.top-period select{background:#fff8f9!important;border-color:#ebc5ce!important;font-weight:700!important}.top-period select option{font-weight:700}
 `;
 document.head.append(style);document.documentElement.style.setProperty('--compact-banner','url("data:image/svg+xml,'+encodeURIComponent(svg)+'")');
 function decorate(){document.querySelectorAll('.content .page .page-head,.content .personnel-hero').forEach(head=>{
