@@ -1,0 +1,9 @@
+Brifing Bilgi Sistemi - temiz yerel paket
+
+ZIP dosyasini bir klasore cikarin ve Baslat.bat dosyasini calistirin.
+Python ve internet baglantisi gereklidir. Windows varsayilan tarayicisi acilir.
+Mevcut Firebase yapilandirmasi korunmustur. Yuklenen Excel dosyalari, donemler ve birim verileri mevcut Firebase sisteminde tutulur; bu ZIP bulut verilerinin bagimsiz yedegi degildir.
+Gecici dosyalar, loglar, onbellek, eski yayin kopyalari, ZIPler ve tekrar eden kaynak Excel dosyalari pakete alinmamistir.
+
+Klasorler: js (uygulama kodlari), css (tasarim), config (yapilandirma), scripts (baslatma), assets (gorseller), vendor (kutuphaneler), docs (aciklamalar).
+Ana klasordeki Baslat.bat ile aciniz.

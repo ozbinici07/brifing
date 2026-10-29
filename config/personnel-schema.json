@@ -1,0 +1,9 @@
+{
+  "sections": [
+    {"id":"personnel","title":"Personel Dağılımı","description":"Dönem sonu mevcut personel sayıları. Ücretli öğretmenler ayrı gösterilir.","rows":["Kadrolu öğretmen","Sözleşmeli öğretmen","Ücretli öğretmen","Eğitim kurumu yöneticisi","İdari personel","Yardımcı hizmetler personeli"],"columns":[{"id":"official","label":"Resmî"},{"id":"private","label":"Özel"}],"total":true},
+    {"id":"norm","title":"İlçelere Göre Öğretmen Norm Kadro","description":"Resmî okul ve kurumlar. Açık ve fazla, ilçenin toplam normu ile mevcudunun farkıdır; branş bazlı ihtiyaç yerine geçmez.","rows":["Bodrum","Dalaman","Datça","Fethiye","Kavaklıdere","Köyceğiz","Marmaris","Menteşe","Milas","Ortaca","Seydikemer","Ula","Yatağan"],"columns":[{"id":"norm","label":"Norm Kadro"},{"id":"present","label":"Normla Karşılaştırılan Mevcut"}],"difference":true},
+    {"id":"appointments","title":"Atama ve Yer Değiştirme","description":"Bu dönemde tamamlanan işlem sayısı. Aynı kişi birden fazla işlemde yer alabilir.","rows":["İlk atama","İl içi yer değiştirme","İller arası yer değiştirme","Mazerete bağlı yer değiştirme","Alan değişikliği","Yönetici görevlendirme"],"columns":[{"id":"count","label":"İşlem Sayısı"}]},
+    {"id":"movements","title":"Özlük ve Personel Hareketleri","description":"Bu dönemde tamamlanan işlemler.","rows":["Emeklilik","İstifa","Göreve başlayan personel","Ayrılan personel","Adaylık işlemi tamamlanan personel","Hizmet belgesi / pasaport işlemi"],"columns":[{"id":"count","label":"İşlem Sayısı"}]},
+    {"id":"career","title":"Öğretmenlik Kariyer Basamakları","description":"Dönem sonu mevcut öğretmenler; bir öğretmen yalnızca kendi basamağında sayılır.","rows":["Öğretmen","Uzman öğretmen","Başöğretmen"],"columns":[{"id":"official","label":"Resmî"},{"id":"private","label":"Özel"}],"total":true}
+  ]
+}

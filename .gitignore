@@ -1,0 +1,16 @@
+logs/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+*service-account*.json
+*serviceAccount*.json
+*.pem
+*.key
+*.xlsx
+*.xls
+*.csv
+*.zip
+.DS_Store
+Thumbs.db

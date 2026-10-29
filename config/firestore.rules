@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signedIn() { return request.auth != null; }
+  function isAdmin() { return signedIn() && request.auth.token.email == 'admin@brifingbilgisistemi.firebaseapp.com'; }
+  function isPersonnel() { return signedIn() && request.auth.token.email == 'personel.hizmetleri.v3@brifingbilgisistemi.firebaseapp.com'; }
+  function serverTime(t) { return t == request.time; }
+  function validNumber(key) { let n = request.resource.data.payload.cells[key]; return n == null || (n is int && n >= 0 && n <= 10000000); }
+  function validPayload() {
+   return request.resource.data.draft is map && request.resource.data.draft.size() == 5 &&
+    request.resource.data.draft.source is string && request.resource.data.draft.source.size() <= 500 && request.resource.data.draft.asOf is string && request.resource.data.draft.asOf.size() <= 10 &&
+    request.resource.data.draft.notes is string && request.resource.data.draft.notes.size() <= 5000 && request.resource.data.draft.needs is string && request.resource.data.draft.needs.size() <= 5000 &&
+    request.resource.data.draft.cells is map && request.resource.data.draft.cells.size() == 56 &&
+    request.resource.data.draft.cells.keys().hasOnly(['personnel.0.official','personnel.0.private','personnel.1.official','personnel.1.private','personnel.2.official','personnel.2.private','personnel.3.official','personnel.3.private','personnel.4.official','personnel.4.private','personnel.5.official','personnel.5.private','norm.0.norm','norm.0.present','norm.1.norm','norm.1.present','norm.2.norm','norm.2.present','norm.3.norm','norm.3.present','norm.4.norm','norm.4.present','norm.5.norm','norm.5.present','norm.6.norm','norm.6.present','norm.7.norm','norm.7.present','norm.8.norm','norm.8.present','norm.9.norm','norm.9.present','norm.10.norm','norm.10.present','norm.11.norm','norm.11.present','norm.12.norm','norm.12.present','appointments.0.count','appointments.1.count','appointments.2.count','appointments.3.count','appointments.4.count','appointments.5.count','movements.0.count','movements.1.count','movements.2.count','movements.3.count','movements.4.count','movements.5.count','career.0.official','career.0.private','career.1.official','career.1.private','career.2.official','career.2.private']);
+  }
+  function validChunk(chunk) { return (chunk == '0' && validNumber('personnel.0.official') && validNumber('personnel.0.private') && validNumber('personnel.1.official') && validNumber('personnel.1.private') && validNumber('personnel.2.official') && validNumber('personnel.2.private') && validNumber('personnel.3.official') && validNumber('personnel.3.private') && validNumber('personnel.4.official') && validNumber('personnel.4.private')) || (chunk == '1' && validNumber('personnel.5.official') && validNumber('personnel.5.private') && validNumber('norm.0.norm') && validNumber('norm.0.present') && validNumber('norm.1.norm') && validNumber('norm.1.present') && validNumber('norm.2.norm') && validNumber('norm.2.present') && validNumber('norm.3.norm') && validNumber('norm.3.present')) || (chunk == '2' && validNumber('norm.4.norm') && validNumber('norm.4.present') && validNumber('norm.5.norm') && validNumber('norm.5.present') && validNumber('norm.6.norm') && validNumber('norm.6.present') && validNumber('norm.7.norm') && validNumber('norm.7.present') && validNumber('norm.8.norm') && validNumber('norm.8.present')) || (chunk == '3' && validNumber('norm.9.norm') && validNumber('norm.9.present') && validNumber('norm.10.norm') && validNumber('norm.10.present') && validNumber('norm.11.norm') && validNumber('norm.11.present') && validNumber('norm.12.norm') && validNumber('norm.12.present') && validNumber('appointments.0.count') && validNumber('appointments.1.count')) || (chunk == '4' && validNumber('appointments.2.count') && validNumber('appointments.3.count') && validNumber('appointments.4.count') && validNumber('appointments.5.count') && validNumber('movements.0.count') && validNumber('movements.1.count') && validNumber('movements.2.count') && validNumber('movements.3.count') && validNumber('movements.4.count') && validNumber('movements.5.count')) || (chunk == '5' && validNumber('career.0.official') && validNumber('career.0.private') && validNumber('career.1.official') && validNumber('career.1.private') && validNumber('career.2.official') && validNumber('career.2.private')); }
+  function checked(periodId,version) { return getAfter(/databases/$(database)/documents/personnelReports/$(periodId)/validation/0).data.version == version && getAfter(/databases/$(database)/documents/personnelReports/$(periodId)/validation/1).data.version == version && getAfter(/databases/$(database)/documents/personnelReports/$(periodId)/validation/2).data.version == version && getAfter(/databases/$(database)/documents/personnelReports/$(periodId)/validation/3).data.version == version && getAfter(/databases/$(database)/documents/personnelReports/$(periodId)/validation/4).data.version == version && getAfter(/databases/$(database)/documents/personnelReports/$(periodId)/validation/5).data.version == version; }
+  function ready(p) { return p.source.size() > 0 && p.asOf.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}') && (p.cells['personnel.0.official'] != null || p.cells['personnel.0.private'] != null || p.cells['personnel.1.official'] != null || p.cells['personnel.1.private'] != null || p.cells['personnel.2.official'] != null || p.cells['personnel.2.private'] != null || p.cells['personnel.3.official'] != null || p.cells['personnel.3.private'] != null || p.cells['personnel.4.official'] != null || p.cells['personnel.4.private'] != null || p.cells['personnel.5.official'] != null || p.cells['personnel.5.private'] != null || p.cells['norm.0.norm'] != null || p.cells['norm.0.present'] != null || p.cells['norm.1.norm'] != null || p.cells['norm.1.present'] != null || p.cells['norm.2.norm'] != null || p.cells['norm.2.present'] != null || p.cells['norm.3.norm'] != null || p.cells['norm.3.present'] != null || p.cells['norm.4.norm'] != null || p.cells['norm.4.present'] != null || p.cells['norm.5.norm'] != null || p.cells['norm.5.present'] != null || p.cells['norm.6.norm'] != null || p.cells['norm.6.present'] != null || p.cells['norm.7.norm'] != null || p.cells['norm.7.present'] != null || p.cells['norm.8.norm'] != null || p.cells['norm.8.present'] != null || p.cells['norm.9.norm'] != null || p.cells['norm.9.present'] != null || p.cells['norm.10.norm'] != null || p.cells['norm.10.present'] != null || p.cells['norm.11.norm'] != null || p.cells['norm.11.present'] != null || p.cells['norm.12.norm'] != null || p.cells['norm.12.present'] != null || p.cells['appointments.0.count'] != null || p.cells['appointments.1.count'] != null || p.cells['appointments.2.count'] != null || p.cells['appointments.3.count'] != null || p.cells['appointments.4.count'] != null || p.cells['appointments.5.count'] != null || p.cells['movements.0.count'] != null || p.cells['movements.1.count'] != null || p.cells['movements.2.count'] != null || p.cells['movements.3.count'] != null || p.cells['movements.4.count'] != null || p.cells['movements.5.count'] != null || p.cells['career.0.official'] != null || p.cells['career.0.private'] != null || p.cells['career.1.official'] != null || p.cells['career.1.private'] != null || p.cells['career.2.official'] != null || p.cells['career.2.private'] != null); }
+  function validReport(d, periodId) {
+   return d.keys().hasOnly(['period','name','unit','version','draft','pending','pending_version','approved','approved_version','status','updated_at','submitted_at','approved_at','review_note','archived']) &&
+    d.period == periodId && d.unit == 'personel.hizmetleri' && d.name is string && d.name.size() > 0 && d.name.size() <= 200 &&
+    d.version is int && d.version > 0 && validPayload() && checked(periodId,d.version) && serverTime(d.updated_at) && d.archived == false;
+  }
+  function unitCreate(d, periodId) {
+   return validReport(d,periodId) && d.version == 1 && d.approved == null && d.approved_version == null && d.approved_at == null && d.review_note == '' &&
+    ((d.status == 'draft' && d.pending == null && d.pending_version == null && d.submitted_at == null) ||
+     (d.status == 'pending' && d.pending == d.draft && d.pending_version == d.version && serverTime(d.submitted_at) && ready(d.draft)));
+  }
+  function unitUpdate(d, old, periodId) {
+   return validReport(d,periodId) && d.version == old.version + 1 && d.name == old.name &&
+    d.diff(old).affectedKeys().hasOnly(['version','draft','pending','pending_version','status','updated_at','submitted_at','review_note']) &&
+    ((d.pending == old.pending && d.pending_version == old.pending_version && d.submitted_at == old.submitted_at && d.review_note == old.review_note &&
+      ((old.status == 'pending' && d.status == 'pending') || (old.status != 'pending' && d.status == 'draft'))) ||
+     (d.status == 'pending' && d.pending == d.draft && d.pending_version == d.version && serverTime(d.submitted_at) && d.review_note == '' && ready(d.draft)));
+  }
+  match /periods/{periodId} {
+   allow read: if signedIn();
+   allow create, update, delete: if isAdmin();
+   match /{document=**} {
+    allow read: if signedIn();
+    allow create, update, delete: if isAdmin();
+   }
+  }
+  match /personnelReports/{periodId} {
+   allow read: if isAdmin() || isPersonnel();
+   allow create: if isAdmin() || (isPersonnel() && unitCreate(request.resource.data,periodId));
+   allow update: if isAdmin() || (isPersonnel() && unitUpdate(request.resource.data,resource.data,periodId));
+   allow delete: if false;
+   match /validation/{chunk} {
+    allow read: if isAdmin() || isPersonnel();
+    allow create,update: if isAdmin() || (isPersonnel() &&
+     request.resource.data.keys().hasOnly(['version','payload']) && validChunk(chunk) &&
+     request.resource.data.version == getAfter(/databases/$(database)/documents/personnelReports/$(periodId)).data.version &&
+     request.resource.data.payload == getAfter(/databases/$(database)/documents/personnelReports/$(periodId)).data.draft);
+    allow delete: if false;
+   }
+   match /history/{historyId} {
+    allow read: if isAdmin() || isPersonnel();
+    allow create: if isAdmin() || (isPersonnel() &&
+      request.resource.data.keys().hasOnly(['version','action','actor','payload','created_at']) &&
+      request.resource.data.actor == 'personel.hizmetleri' && request.resource.data.action in ['save','submit'] &&
+      serverTime(request.resource.data.created_at) &&
+      request.resource.data.version == getAfter(/databases/$(database)/documents/personnelReports/$(periodId)).data.version &&
+      request.resource.data.payload == getAfter(/databases/$(database)/documents/personnelReports/$(periodId)).data.draft);
+    allow update,delete: if false;
+   }
+  }
+  match /personnelSettings/{settingId} {
+   allow read: if isAdmin() || isPersonnel();
+   allow create,update: if isAdmin();
+   allow delete: if false;
+  }
+ }
+}
