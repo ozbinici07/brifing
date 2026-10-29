@@ -66,3 +66,9 @@ Proje farklı bilgisayarlarda GitHub üzerinden geliştirilecek. Bir bilgisayar�
 - Henüz belirtilmiş yeni bir uygulama özelliği veya başka bir açık geliştirme görevi yok.
 
 Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yalnızca proje için gerekli teknik durum ve kararları kaydedin.
+## 29 Ekim 2026 — Logo ve çalışma kuralları
+- Kullanıcının Muğla BBS rozeti assets/bbs-logo.png olarak GitHub’a eklendi; CSS ve genel bakış başlığı güncellendi.
+- index.html üst başlık, favicon ve apple-touch-icon aynı görsele bağlandı (0e1fc24). Eski amblemi içeren giriş arka planı yerine mevcut Bodrum panoraması kullanıldı.
+- GitHub araç bağlantısı kullanılamadığı için değişiklikler yetkili GitHub tarayıcı oturumundan kaydedildi.
+- AGENTS.md doğrudan GitHub’da güncellendi (9dcf8fa): değişiklikler GitHub’da yapılacak, her iş proje notlarına yazılacak, tercih/kurallar değiştiğinde AGENTS.md güncellenecek ve canlı yayın doğrulanmadan tamamlandı denmeyecek.
+- Otomatik Firebase yayını ve canlı görünüm bu kayıt sonrasında kontrol edilecek; henüz doğrulanmış sayılmamalı.
