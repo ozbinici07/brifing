@@ -52,3 +52,5 @@
 @media(max-width:650px){.overview-brand-logo{width:44px;height:44px}}
 /* Restore the original user-selected login background. */
 .login{background:url("../assets/mugla-login-background.png") center top/cover no-repeat!important}
+/* User-selected login background, 30 October 2026. */
+.login{background:url("../assets/ChatGPT%20G%C3%B6rseli%2029%20Eki%202026%2020_16_21.png") center top/cover no-repeat!important}
