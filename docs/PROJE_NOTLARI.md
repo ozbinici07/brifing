@@ -112,3 +112,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Çıkış düğmesi kırmızı zemin, beyaz 12px kalın yazı, belirgin kenarlık ve klavye odak çerçevesiyle güncellendi. Sağdaki konumu korundu.
 - Değişiklikler GitHub tarayıcı oturumunda kaydedildi. Sözdizimi, Hosting paketi ve diff kontrolleri çalıştırılır; son gönderim sonrası Firebase Actions ve canlı tarayıcı görünümü doğrulanır.
 - Ek düzeltme (654c691): sol logo altındaki kurum / uygulama adı arasındaki orta nokta kaldırıldı. Güncel yazı: “Muğla İl Millî Eğitim Müdürlüğü Brifing Bilgi Sistemi”. Sözdizimi, Hosting paketi ve diff kontrolü başarılı.
+- Ek hizalama (0b2bed9): Okul/Kurum Bilgi Tabloları ve Bilgi Sorgulama sekmeleri aynı sistem kökü içinde ekran raporu araçlarının satırına taşındı; solda sekmeler, sağda rapor araçları yer alır. Dar ekranlarda satır kırılabilir; mevcut sekme olayları korunur.
+- Canlı üst çubuk kontrolünde A simgesi yazının sağında, kullanıcı yazısı 13px, dönem yazısı 700 kalınlıkta, dönem arka planı rgb(255,240,242), yenileme yüksekliği 28px ve Çıkış kırmızı olarak doğrulandı. Ayarlar simgesi ve logo altı orta nokta yok.
