@@ -106,3 +106,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Üstte yinelenen boş-veri mesajının gizlendiği ve alttaki mesajın 16px / rgb(255,240,242) olarak göründüğü canlı Okul/Kurum ekranında doğrulandı. e24681f Firebase yayını başarılı.
 - ff7e2b0 ile üst durum etiketleri ve değerleri yan yana tek satır yapıldı; admin / Yönetici aynı satıra alındı. Üst çubuğun minimum yüksekliği 64px yerine 48px oldu. Zile “Bildirimler” etiketi eklendi.
 - Sözdizimi, Hosting paketi ve diff kontrolü başarılı. Bu ek kaydın ardından otomatik yayın ve canlı üst çubuk son kez kontrol edilir.
+### Kullanıcı alanı, dönem ve düğme görünümü
+- Kullanıcı yazısı 13px, rol 12px yapıldı; A simgesi CSS sıralamasıyla yazının sağına alındı. Birim oturumundaki dinamik etiket güncellemesi için DOM komşuluğu korundu. Dekoratif ayarlar simgesi kaldırıldı (7caab21).
+- Veriyi Yenile 28px yüksekliğe ve 6px yatay boşluğa daraltıldı. Aktif Dönem alanı ve seçicisi hafif kırmızı zemine alındı (e961714); dönem adları kalınlaştırıldı (d8dba5a).
+- Çıkış düğmesi kırmızı zemin, beyaz 12px kalın yazı, belirgin kenarlık ve klavye odak çerçevesiyle güncellendi. Sağdaki konumu korundu.
+- Değişiklikler GitHub tarayıcı oturumunda kaydedildi. Sözdizimi, Hosting paketi ve diff kontrolleri çalıştırılır; son gönderim sonrası Firebase Actions ve canlı tarayıcı görünümü doğrulanır.
