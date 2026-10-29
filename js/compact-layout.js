@@ -11,6 +11,7 @@ const status=document.querySelector('.overview-status'),avatar=actions.querySele
 if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('top-period');period.querySelector('select').setAttribute('aria-label','Aktif dönem');actions.insertBefore(status,avatar);actions.insertBefore(period,avatar);}
 const originalPeriod=document.getElementById('periodSelect'),visiblePeriod=document.getElementById('overviewPeriodSelect');
 if(originalPeriod&&visiblePeriod){const syncDisabled=()=>{visiblePeriod.disabled=originalPeriod.disabled;};syncDisabled();new MutationObserver(syncDisabled).observe(originalPeriod,{attributes:true,attributeFilter:['disabled']});}
+for(const node of [...actions.childNodes])if(node.nodeType===3&&node.textContent.includes('⚙'))node.remove();
 const logout=document.getElementById('logoutBtn');if(logout)actions.append(logout);
 const svg='<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="140" viewBox="0 0 1200 140"><defs><linearGradient id="b" x2="1" y2="1"><stop stop-color="#edf8ff"/><stop offset=".65" stop-color="#cce7f9"/><stop offset="1" stop-color="#8ac5e9"/></linearGradient></defs><path fill="url(#b)" d="M0 0h1200v140H0z"/><path d="M0 20Q330 210 810 40T1200 0M0 42Q350 215 850 62T1200 10M0 60Q360 225 950 70T1200 28" stroke="white" stroke-opacity=".6" fill="none"/><path d="M400 140Q830 160 1200 45v95" fill="#07568d" fill-opacity=".18"/><g fill="none" stroke="#1687c7" stroke-opacity=".23"><path d="m640 115 80-70 82 48 65-72 90 55 73-69 83 57 87-51M640 115l162-22 65-72 163-14-73 69 156-12M720 45l147-24 90 55 73-69M802 93l155-17 156-12-83-57"/></g><g fill="#1286c5"><circle cx="640" cy="115" r="3"/><circle cx="720" cy="45" r="3"/><circle cx="802" cy="93" r="4"/><circle cx="867" cy="21" r="3"/><circle cx="957" cy="76" r="4"/><circle cx="1030" cy="7" r="3"/><circle cx="1113" cy="64" r="4"/></g></svg>';
 const style=document.createElement('style');style.id='compact-layout-style';style.textContent=`
@@ -50,6 +51,7 @@ const style=document.createElement('style');style.id='compact-layout-style';styl
 .top .top-actions .overview-status .status-item b{font-size:11px;line-height:1.2}
 .top-actions>.avatar+span br{display:none}.top-actions>.avatar+span small{margin-left:5px;font-size:10px}
 
+.top-actions>.avatar{order:90}.top-actions>.avatar+span{order:89;font-size:13px!important}.top-actions>.avatar+span small{font-size:12px!important;margin-left:6px}
 `;
 document.head.append(style);document.documentElement.style.setProperty('--compact-banner','url("data:image/svg+xml,'+encodeURIComponent(svg)+'")');
 function decorate(){document.querySelectorAll('.content .page .page-head,.content .personnel-hero').forEach(head=>{
