@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Brifing Bilgi Sistemi",
+  "short_name": "Muğla BBS",
+  "lang": "tr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#bd1235",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "assets/bbs-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
