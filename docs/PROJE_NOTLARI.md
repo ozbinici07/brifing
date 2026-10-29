@@ -102,3 +102,7 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Doğrulama: JS ve iki HTML içi betiğin sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü geçti. Canlıda Genel Bakış, Öğrenci, Okul/Kurum, Öğretmen, Yönetici, Personel ve Yönetici Paneli başlıkları ve bayrakları kontrol edildi. Öğrenci başlığındaki altı rapor düğmesi korundu. 1024px ve 390px ekran genişliklerinde üst alan yatay taşmıyor. Dönem seçimi ve yenileme denendi; son seçim Ekim 2026.
 - İlk etkinleştirmede betik bağlantısı yanlışlıkla rapor HTML şablonuna girmişti; c583ec0 ile ana belgenin sonuna taşındı. Açılış ve oturum tekrar doğrulandı; kaynakta tek script bağlantısı olduğu kontrol edildi.
 - Firebase arayüz yayını c583ec0 için başarılı ve canlı oturumda doğrulandı. Son uyum yayını: https://github.com/ozbinici07/brifing/actions/runs/40965183814 . Kaynak veri dosyaları ve Firestore kuralları değiştirilmedi.
+### Üst çubuk ve boş-veri uyarısı ek düzeltmeleri
+- Üstte yinelenen boş-veri mesajının gizlendiği ve alttaki mesajın 16px / rgb(255,240,242) olarak göründüğü canlı Okul/Kurum ekranında doğrulandı. e24681f Firebase yayını başarılı.
+- ff7e2b0 ile üst durum etiketleri ve değerleri yan yana tek satır yapıldı; admin / Yönetici aynı satıra alındı. Üst çubuğun minimum yüksekliği 64px yerine 48px oldu. Zile “Bildirimler” etiketi eklendi.
+- Sözdizimi, Hosting paketi ve diff kontrolü başarılı. Bu ek kaydın ardından otomatik yayın ve canlı üst çubuk son kez kontrol edilir.
