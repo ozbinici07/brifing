@@ -20,7 +20,7 @@ Proje farklı bilgisayarlarda GitHub üzerinden geliştirilecek. Bir bilgisayar�
 - GitHub OAuth girişi başarıyla tamamlandı. CLI etkileşimsiz moda geçtiği için kurulum durmuştu; --interactive ile tamamlandı.
 - Firebase CLI yayın için github-action-1438532377 hizmet hesabını ve GitHub’da FIREBASE_SERVICE_ACCOUNT_BRIFINGBILGISISTEMI gizli bilgisini oluşturdu. Anahtar kaynak dosyalarına yazılmadı.
 - .github/workflows/firebase-hosting-merge.yml main dalına gönderimde veya elle tetiklendiğinde app hedefine canlı yayın yapar. Yalnızca contents:read depo izni kullanır; PR önizleme yayını kurulmadı.
-- Her gönderimden sonra GitHub Actions yayın sonucu kontrol edilmelidir. İlk otomatik çalışmanın doğrulaması kurulum sırasında yapılacak.
+- Her gönderimden sonra GitHub Actions yayın sonucu kontrol edilmelidir. İlk otomatik yayın başarıyla doğrulandı: https://github.com/ozbinici07/brifing/actions/runs/40909869902 (commit 44ece69). Canlı sayfa HTTP 200 ve doğru başlıkla yanıt verdi.
 - Firebase verileri ve Firestore kuralları değiştirilmedi. Hesapla giriş henüz doğrulanmadı.
 
 ## GitHub Pages yayını
