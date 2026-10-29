@@ -80,3 +80,10 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Servis çalışanı ağ üzerinden çalışır; Firebase verileri veya oturum bilgileri önbelleğe alınmaz. Çevrimdışı açılışta internet gerektiğini bildiren ekran gösterir.
 - scripts/build-hosting.mjs manifest ve servis çalışanını Firebase paketine ekler ve PWA istemcisini yayımlanan HTML’e bağlar.
 - Yayın başarıyla tamamlandı: https://github.com/ozbinici07/brifing/actions/runs/40916849612 . Canlı sayfada özgün arka plan, manifest bağlantısı ve PWA scripti doğrulandı. Gerçek cihazda kurulum son kullanıcı tarafından ayrıca denenmelidir.
+## 30 Ekim 2026 — Seçilen giriş arka planı
+- assets/ChatGPT Görseli 29 Eki 2026 20_16_21.png giriş ekranına center top/cover olarak bağlandı; index.html ön yüklemesi aynı görsele güncellendi.
+- Değişiklikler Burak hesabının yetkili GitHub tarayıcı oturumundan doğrudan main dalına kaydedildi: a352e56 ve c480c8b. Yerel kopya yalnızca kaydedilmiş GitHub kaynaklarını test etmek için kullanıldı.
+- Doğrulama: node scripts/build-hosting.mjs başarılı; paket içindeki son CSS kuralı, ön yükleme adresi ve görselin varlığı kontrol edildi. CRLF satır sonları dikkate alınarak git diff --check başarılı.
+- Firebase otomatik yayınları başarılı: https://github.com/ozbinici07/brifing/actions/runs/40961454322 ve https://github.com/ozbinici07/brifing/actions/runs/40961523544 .
+- Canlı https://brifingbilgisistemi.web.app/ Chrome tarayıcıda yenilendi; seçilen arka planın görünümü, hesaplanan CSS adresi ve ön yükleme bağlantısı doğrulandı. Canlı CSS HTTP 200.
+- Bu iş kapsamında bilinen sorun veya kalan iş yok. Hesapla giriş testi yapılmadı; Firebase verileri ve kuralları değiştirilmedi.
