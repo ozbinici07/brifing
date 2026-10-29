@@ -111,3 +111,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Veriyi Yenile 28px yüksekliğe ve 6px yatay boşluğa daraltıldı. Aktif Dönem alanı ve seçicisi hafif kırmızı zemine alındı (e961714); dönem adları kalınlaştırıldı (d8dba5a).
 - Çıkış düğmesi kırmızı zemin, beyaz 12px kalın yazı, belirgin kenarlık ve klavye odak çerçevesiyle güncellendi. Sağdaki konumu korundu.
 - Değişiklikler GitHub tarayıcı oturumunda kaydedildi. Sözdizimi, Hosting paketi ve diff kontrolleri çalıştırılır; son gönderim sonrası Firebase Actions ve canlı tarayıcı görünümü doğrulanır.
+- Ek düzeltme (654c691): sol logo altındaki kurum / uygulama adı arasındaki orta nokta kaldırıldı. Güncel yazı: “Muğla İl Millî Eğitim Müdürlüğü Brifing Bilgi Sistemi”. Sözdizimi, Hosting paketi ve diff kontrolü başarılı.
