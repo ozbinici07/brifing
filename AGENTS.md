@@ -8,3 +8,6 @@
 - Depo herkese açıktır. Şifre, özel anahtar, oturum bilgisi ve kişisel veri eklemeyin. Loglar, geçici dosyalar ve kaynak Excel dosyaları depoya alınmaz.
 - Firebase verilerini ve yayımlanmış kuralları değiştirmek kaynak kodu göndermekten ayrı bir işlemdir; kapsam dışı bulut değişikliği yapmayın.
 - Kullanıcıyla Türkçe ve kısa, açık ifadelerle iletişim kurun.
+- Kullanıcının açık tercihi: kod değişikliklerini doğrudan GitHub deposunda yapın. Bu bilgisayardaki kopyayı esas alarak bağımsız geliştirme yapmayın. GitHub araçları kullanılamıyorsa yetkili GitHub tarayıcı oturumunu kullanın; erişim yoksa canlıya alınmış gibi bildirmeyin.
+- Her değişiklikte docs/PROJE_NOTLARI.md içine yapılan değişiklikleri, doğrulamayı, yayın sonucunu ve kalan işleri kaydedin. Çalışma kuralları veya kullanıcı tercihleri değişirse AGENTS.md dosyasını da güncelleyin.
+- İş ancak GitHub kaydı, Firebase otomatik yayın sonucu ve canlı site doğrulaması tamamlandığında bitmiş sayılır. Başarısız veya bekleyen adımları açıkça belirtin.
