@@ -2,12 +2,23 @@
   "hosting": {
     "target": "app",
     "public": "dist",
-    "predeploy": ["node scripts/build-hosting.mjs"],
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "predeploy": [
+      "node scripts/build-hosting.mjs"
+    ],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "headers": [
       {
         "source": "**",
-        "headers": [{"key": "Cache-Control", "value": "no-cache"}]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
       }
     ]
   }

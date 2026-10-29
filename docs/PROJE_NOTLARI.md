@@ -17,7 +17,10 @@ Proje farklı bilgisayarlarda GitHub üzerinden geliştirilecek. Bir bilgisayar�
 - mbbs ve bbs site adları başka projelere ayrılmış; kullanıcının seçimi mevcut brifingbilgisistemi adresidir.
 - Kök firebase.json yalnızca Hosting içerir. .firebaserc içindeki app hedefi mevcut siteyi seçer. `firebase deploy --only hosting:app --project brifingbilgisistemi` ile yayın yapılır.
 - scripts/build-hosting.mjs yalnızca index.html, js, css, assets, vendor ve config/firebase-config.js dosyasını dist/ içine kopyalar. Loglar, geliştirme belgeleri ve kurallar Hosting paketine alınmaz.
-- Otomatik GitHub → Firebase yayını henüz kurulmadı. Firebase CLI GitHub OAuth oturumu hata verdi, yeni yetkilendirme kullanıcıya iletildi. Yetkilendirme tamamlanmadan otomatik yayın var denmemelidir.
+- GitHub OAuth girişi başarıyla tamamlandı. CLI etkileşimsiz moda geçtiği için kurulum durmuştu; --interactive ile tamamlandı.
+- Firebase CLI yayın için github-action-1438532377 hizmet hesabını ve GitHub’da FIREBASE_SERVICE_ACCOUNT_BRIFINGBILGISISTEMI gizli bilgisini oluşturdu. Anahtar kaynak dosyalarına yazılmadı.
+- .github/workflows/firebase-hosting-merge.yml main dalına gönderimde veya elle tetiklendiğinde app hedefine canlı yayın yapar. Yalnızca contents:read depo izni kullanır; PR önizleme yayını kurulmadı.
+- Her gönderimden sonra GitHub Actions yayın sonucu kontrol edilmelidir. İlk otomatik çalışmanın doğrulaması kurulum sırasında yapılacak.
 - Firebase verileri ve Firestore kuralları değiştirilmedi. Hesapla giriş henüz doğrulanmadı.
 
 ## GitHub Pages yayını
