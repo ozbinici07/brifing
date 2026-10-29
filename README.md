@@ -4,9 +4,11 @@ Firebase Authentication ve Firestore kullanan web uygulaması.
 
 ## Canlı uygulama
 
-https://ozbinici07.github.io/brifing/
+https://brifingbilgisistemi.web.app/
 
-GitHub Pages, main dalının kök dizinini yayımlar. Main dalına gönderilen değişiklikler başarılı Pages derlemesinden sonra siteye yansır. Uygulamayı bu adresten kullanmak için Python veya açık bir ev bilgisayarı gerekmez.
+Ana yayın Firebase Hosting üzerindedir. GitHub Pages kopyası https://ozbinici07.github.io/brifing/ adresinde ayrıca çalışır. Firebase için otomatik GitHub yayınının yetkilendirme kurulumu henüz tamamlanmadı. Uygulamayı kullanmak için Python veya açık bir ev bilgisayarı gerekmez.
+
+Elle yayın: `firebase deploy --only hosting:app --project brifingbilgisistemi`. Bu komut, `scripts/build-hosting.mjs` ile yalnızca uygulama dosyalarını dist/ klasörüne hazırlayıp Hosting’e gönderir; Firestore kurallarını yayımlamaz.
 
 ## Yerel çalıştırma
 

@@ -10,7 +10,17 @@ Ana depo: https://github.com/ozbinici07/brifing (herkese açık). Ana dal: main.
 
 Proje farklı bilgisayarlarda GitHub üzerinden geliştirilecek. Bir bilgisayarın diğerine uzaktan bağlanması veya açık tutulması gerekmez. Sohbet geçmişi yerine bu dosya ve Git geçmişi devamlılık sağlar. Tamamlanan her işte bu notlar güncellenir ve kodlarla birlikte GitHub'a gönderilir.
 
-## İnternet yayını
+## Firebase Hosting (ana yayın)
+
+- Ana adres: https://brifingbilgisistemi.web.app/
+- 29 Ekim 2026 tarihinde Hosting yayını başarıyla tamamlandı; ana sayfa HTTP 200 ve doğru başlıkla doğrulandı.
+- mbbs ve bbs site adları başka projelere ayrılmış; kullanıcının seçimi mevcut brifingbilgisistemi adresidir.
+- Kök firebase.json yalnızca Hosting içerir. .firebaserc içindeki app hedefi mevcut siteyi seçer. `firebase deploy --only hosting:app --project brifingbilgisistemi` ile yayın yapılır.
+- scripts/build-hosting.mjs yalnızca index.html, js, css, assets, vendor ve config/firebase-config.js dosyasını dist/ içine kopyalar. Loglar, geliştirme belgeleri ve kurallar Hosting paketine alınmaz.
+- Otomatik GitHub → Firebase yayını henüz kurulmadı. Firebase CLI GitHub OAuth oturumu hata verdi, yeni yetkilendirme kullanıcıya iletildi. Yetkilendirme tamamlanmadan otomatik yayın var denmemelidir.
+- Firebase verileri ve Firestore kuralları değiştirilmedi. Hesapla giriş henüz doğrulanmadı.
+
+## GitHub Pages yayını
 
 - GitHub Pages kaynağı main dalı / (root) olarak etkinleştirildi.
 - Uygulama adresi: https://ozbinici07.github.io/brifing/
