@@ -53,6 +53,7 @@ const style=document.createElement('style');style.id='compact-layout-style';styl
 
 .top-actions>.avatar{order:90}.top-actions>.avatar+span{order:89;font-size:13px!important}.top-actions>.avatar+span small{font-size:12px!important;margin-left:6px}
 .top-actions .top-period{background:#fff0f2;border:1px solid #f2d2d9;border-radius:6px;padding:3px 7px}.top-period select{background:#fff8f9!important;border-color:#ebc5ce!important;font-weight:700!important}.top-period select option{font-weight:700}
+.top .top-actions #logoutBtn{background:#c51136!important;color:#fff!important;border:1px solid #a90d2d!important;font-size:12px!important;font-weight:700;padding:5px 12px!important;box-shadow:0 2px 5px #a90d2d22}.top .top-actions #logoutBtn:hover{background:#a90d2d!important}.top .top-actions #logoutBtn:focus-visible{outline:2px solid #a90d2d;outline-offset:3px}
 `;
 document.head.append(style);document.documentElement.style.setProperty('--compact-banner','url("data:image/svg+xml,'+encodeURIComponent(svg)+'")');
 function decorate(){document.querySelectorAll('.content .page .page-head,.content .personnel-hero').forEach(head=>{
