@@ -249,3 +249,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın ve canlı dosya doğrulaması gönderim sonrası kontrol edilir; gerçek ağda sabit hız kazancı ölçülmedi.
 
 - Ek kullanıcı isteği: Giriş Yap düğmesindeki ok kaldırıldı; yazı yatay/dikey ortalandı. Giriş stili sürümü v4 yapıldı. Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.
+
+- Kullanıcının açık isteğiyle Şifremi Unuttum mesajına sistem yöneticisinin adı Burak ÖZBİNİCİ eklendi; teknik Firebase açıklaması yerine iletişim yönlendirmesi gösterilir. Referans UI betiği sürümü v5. JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.

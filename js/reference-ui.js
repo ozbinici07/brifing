@@ -8,7 +8,7 @@ document.querySelector('#overview .page-head').after(status);$('overviewRefresh'
 const schoolStatus=document.createElement('div');schoolStatus.className='school-status-row';document.querySelector('#overview .category-card .category-metrics').after(schoolStatus);
 const graphs=document.createElement('div');graphs.className='reference-distributions';document.querySelector('#overview .category-grid').after(graphs);
 const features=document.createElement('div');features.className='login-features';features.innerHTML='<div><b>▥</b>Güvenli<br>Erişim</div><div><b>▤</b>Güncel<br>Veri</div><div><b>▧</b>Doğru<br>Raporlama</div><div><b>♟</b>Etkili<br>Yönetim</div>';$('login').append(features);
-$('forgotLoginPassword').onclick=()=>alert('Şifrenizi yenilemek için sistem yöneticinizle iletişime geçiniz. Yönetici hesabı Firebase Authentication üzerinden yönetilir.');
+$('forgotLoginPassword').onclick=()=>alert('Şifrenizi yenilemek için sistem yöneticinizle iletişime geçiniz. Sistem yöneticiniz: Burak ÖZBİNİCİ.');
 try{const remembered=localStorage.getItem('brifing_remember_username');if(remembered){$('rememberUsername').checked=true;$('loginUserSelect').value=remembered;$('loginUser').value=remembered;}}catch(_){}
 $('loginBtn').addEventListener('click',()=>{try{if($('rememberUsername').checked)localStorage.setItem('brifing_remember_username',$('loginUserSelect').value);else localStorage.removeItem('brifing_remember_username');}catch(_){}});
 const colors=['#f68a2c','#48b66d','#318de7','#9148ea','#ed4968','#19a4aa'];
