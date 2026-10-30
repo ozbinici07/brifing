@@ -234,3 +234,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Doğrulama: iki HTML içi script ve yeni JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yerel Chrome headless 1440×1000 görüntüsü incelendi. Dar ekran genişliği viewport ile sınırlandı; gerçek cihaz ve hesapla giriş denenmedi. Yayın sonucu gönderim sonrası kontrol edilir.
 
 - Yayın sonucu: 8d8596a Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41055048139 . Canlı HTML ve CSS HTTP 200, CSS kaynakla eşleşiyor; yeni script ve stil bağlantıları doğrulandı. Canlı giriş ekranı Chrome headless 1440×1000 görüntüsünde kontrol edildi. Hesapla giriş yapılmadı; Firebase verileri ve kuralları değiştirilmedi.
+
+
+## 30 Ekim 2026 — Giriş arka planının geri yüklenmesi
+- Kullanıcı yalnızca giriş kartının düzenlenmesini istemişti; kapsam dışı değiştirilen arka plan önceki login-background-v2.webp görseline center top/cover olarak geri alındı. Erken ön yükleme ve ilk arka plan rengi eski değerlerine döndü. Yeni kart düzeni korundu; giriş stili sürümü v2 yapıldı.
+- Kullanıcı istemedikçe giriş arka planı değiştirilmemelidir. JS/HTML sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı; yayın sonucu gönderim sonrası kontrol edilir.
