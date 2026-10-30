@@ -130,3 +130,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcının ek isteği: büyük logo masaüstünde 126px yerine 142px, kurum yazısı 11px yerine 12px yapıldı. Dar ekran logo boyutları 114px / 96px, yazıları 11px / 10px olarak orantılı büyütüldü. 38px üst boşluk korundu.
 
 - Yayın sonucu: 221d09f Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41018605359 . Canlı JS HTTP 200 ve gönderilen kaynakla birebir eşleşiyor; 38px üst boşluk, 142px logo ve 12px kurum yazısı yayımlandı. Oturum içi görsel kontrol yapılmadı.
+
+
+## 30 Ekim 2026 — Öğretmen ve yönetici araç satırı
+- Öğretmen Bilgi Tabloları / Bilgi Sorgulama ve Yönetici Bilgi Tabloları / Bilgi Sorgulama sekmeleri, ilgili Ekran Görüntüsü ve rapor düğmeleriyle aynı araç satırına taşındı. Mevcut okul/öğrenci düzeni bu iki modüle de uygulandı; sekmeler solda, rapor araçları sağda. Dar ekranda satır kırılabilir; olay dinleyicileri korunur.
+- Doğrulama: JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın ve canlı kaynak kontrolü gönderim sonrası yapılır; oturum içi görsel kontrol yapılmadı.
