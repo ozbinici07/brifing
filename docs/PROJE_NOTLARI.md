@@ -247,3 +247,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - 1254×1254 RGBA logo PNG'si 2.242.949 bayttı. Özgün dosya korunarak 512×512 saydam WebP (quality 92) 108.712 bayt üretildi (%95,2 küçülme). Giriş ve uygulama logoları WebP'ye bağlandı, HTML başında yüksek öncelikli ön yükleme eklendi.
 - Favicon/apple-touch-icon için 192×192 PNG 85.606 bayt üretildi; bu alanlarda da büyük özgün PNG'nin gereksiz indirilmesi önlendi. Giriş ve referans stil sürümleri güncellendi. Arka plan değiştirilmedi.
 - JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın ve canlı dosya doğrulaması gönderim sonrası kontrol edilir; gerçek ağda sabit hız kazancı ölçülmedi.
+
+- Ek kullanıcı isteği: Giriş Yap düğmesindeki ok kaldırıldı; yazı yatay/dikey ortalandı. Giriş stili sürümü v4 yapıldı. Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.
