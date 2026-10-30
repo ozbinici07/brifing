@@ -9,7 +9,7 @@ if(identity){identity.innerHTML='<img src="assets/bbs-logo.png" alt="Muğla BBS 
 top.querySelector('.brand')?.remove();
 top.querySelector('.app-wordmark')?.remove();
 const status=document.querySelector('.overview-status'),avatar=actions.querySelector('.avatar');
-if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('top-period');period.querySelector('select').setAttribute('aria-label','Aktif dönem');actions.insertBefore(status,avatar);actions.insertBefore(period,avatar);}
+if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('top-period');period.querySelector('b').textContent='Aktif Dönem';period.querySelector('select').setAttribute('aria-label','Aktif dönem');actions.insertBefore(status,avatar);actions.insertBefore(period,avatar);}
 const originalPeriod=document.getElementById('periodSelect'),visiblePeriod=document.getElementById('overviewPeriodSelect');
 if(originalPeriod&&visiblePeriod){const syncDisabled=()=>{visiblePeriod.disabled=originalPeriod.disabled;};syncDisabled();new MutationObserver(syncDisabled).observe(originalPeriod,{attributes:true,attributeFilter:['disabled']});}
 for(const node of [...actions.childNodes])if(node.nodeType===3&&node.textContent.includes('⚙'))node.remove();
@@ -60,7 +60,7 @@ const style=document.createElement('style');style.id='compact-layout-style';styl
 .top-actions>.avatar+span br{display:none}.top-actions>.avatar+span small{margin-left:5px;font-size:10px}
 
 .top-actions>.avatar{order:90}.top-actions>.avatar+span{order:89;font-size:13px!important}.top-actions>.avatar+span small{font-size:12px!important;margin-left:6px}
-.top-actions .top-period{background:#fff0f2;border:1px solid #f2d2d9;border-radius:6px;padding:3px 7px}.top-period select{background:#fff8f9!important;border-color:#ebc5ce!important;font-weight:700!important}.top-period select option{font-weight:700}
+.top-actions .top-period{background:#fff;color:#15324f;border:1px solid #dbe5ef;border-radius:6px;padding:3px 9px}.top .top-period>b{color:#15324f!important}.top-period select{background:#fff!important;color:#15324f!important;border:0!important;font-weight:700!important;box-shadow:none!important}.top-period select option{font-weight:700}
 .top .top-actions #logoutBtn{background:#c51136!important;color:#fff!important;border:1px solid #a90d2d!important;font-size:12px!important;font-weight:700;padding:5px 12px!important;box-shadow:0 2px 5px #a90d2d22}.top .top-actions #logoutBtn:hover{background:#a90d2d!important}.top .top-actions #logoutBtn:focus-visible{outline:2px solid #a90d2d;outline-offset:3px}
 .page-header-tools.module-toolbar{justify-content:space-between;align-items:center;gap:12px}.module-toolbar>.mini-tabs{margin:0;flex-shrink:0}.module-toolbar>.student-header-actions{margin-left:auto}
 `;
