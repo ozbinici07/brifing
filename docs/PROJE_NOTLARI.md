@@ -177,3 +177,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcının açıklaması: eşitlik yükseklikte isteniyor. Çıkış ve Veriyi Yenile düğmelerinin sabit 180px genişliği kaldırıldı; içerik kadar dar genişlik ve 34px ortak yükseklik korundu.
 - Genel Bakış başlığı sayfa içindeki gizli birim başlığından alınıyordu. overview sayfasında ortak üst başlık artık her zaman yalnızca Genel Bakış gösterir.
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
+
+- Ek kullanıcı düzeltmesi: üst çubuktaki responsive iki satırlı grid kaldırıldı. Tüm sekmelerde başlık, esnek genişlikli arama, durum bilgileri ve düğmeler nowrap flex satırında yan yana kalır. Çok dar ekranda üst çubuk yatay kaydırılabilir; öğeler ikinci satıra düşmez. Çubuk minimum yüksekliği 44px.
