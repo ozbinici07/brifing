@@ -209,3 +209,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Sütun seçiminin filtrelere taşınması
 - Öğrenci sorgulamada Filtre Kullanımı bölümü kaldırıldı. Sütunlar — Göster / Gizle mevcut kutuları ve olayları korunarak filtre ızgarasında çoklu seçim açılır alanına taşındı. Diğer listeler gibi dışarı tıklanınca kapanır. Masaüstünde filtreler altı sütun; rapor düğmeleri altta sağda korunur.
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı; oturum içi görsel kontrol yapılmadı. Yayın sonucu gönderim sonrası kontrol edilir.
+
+- Yayın sonucu: c54262c Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41025682930 . Canlı JS HTTP 200 ve gönderilen kaynakla birebir aynı. Oturum içi görsel/etkileşim kontrolü yapılmadı.
