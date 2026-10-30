@@ -126,3 +126,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Yan menü logosunun yukarı taşınması
 - Kullanıcının ekran görüntüsü üzerine yan menünün üst boşluğu 82px yerine 38px yapıldı. Logo, kurum adı ve menü bağlantıları 44px yukarı taşınır.
 - Doğrulama: JavaScript sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
+
+- Kullanıcının ek isteği: büyük logo masaüstünde 126px yerine 142px, kurum yazısı 11px yerine 12px yapıldı. Dar ekran logo boyutları 114px / 96px, yazıları 11px / 10px olarak orantılı büyütüldü. 38px üst boşluk korundu.
