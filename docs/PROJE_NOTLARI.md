@@ -169,3 +169,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcının düzeltmesiyle tüm sayfa başlıkları hızlı aramanın solundaki ortak başlıkta gösterilir; etkin sekme değişince başlık güncellenir. Ayrı başlık bantları kapatıldı ve içerik üst boşluğu tüm sekmelerde daraltıldı.
 - Hızlı arama, Veriyi Yenile, Aktif Dönem ve Çıkış 180×34px ortak ölçüye, 6px köşe yarıçapına ve eşit iç boşluğa alındı. Dar ekranda ortak genişlik 150px olur. Avatar 34px yüksekliğe eşitlendi.
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Oturum içi görsel kontrol yapılmadı; otomatik yayın ve canlı kaynak kontrolü gönderim sonrası yapılır.
+
+- Yayın sonucu: 6aced56 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41023866083 . Canlı JS HTTP 200 ve kaynakla birebir eşleşiyor. Oturum içi görsel kontrol yapılmadı.
