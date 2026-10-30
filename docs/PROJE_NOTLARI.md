@@ -263,3 +263,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - JS sözdizimi, Hosting paketi, manifest JSON ve CRLF uyumlu diff kontrolü başarılı. Yayın ve canlı görüntü doğrulaması gönderim sonrası yapılır; kurulu PWA simgesi işletim sisteminin yenileme zamanına bağlıdır.
 
 - Yayın sonucu: 268eb08 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41056918429 . Canlı WebP HTTP 200 ve 51.588 bayt; manifest yeni 512px simgeyi gösteriyor. Canlı Chrome headless 1440×1000 giriş görüntüsünde yeni logo ve değişmeyen arka plan doğrulandı. Oturum içi sol menü ayrıca açılmadı; kaynak bağlantısı yeni WebP'ye güncellendi.
+
+
+## 30 Ekim 2026 — Logonun dış zemininin şeffaflaştırılması
+- ImageGen ile dairesel yeni logonun yalnızca dış beyaz zemini şeffaflaştırıldı; iç beyaz alan ve yazılar korundu. Tam boy çıktı assets/bbs-logo-transparent.png, WebP/PNG ekran ve uygulama simgeleri v3 dosyaları olarak eklendi. Tüm etkin bağlantılar ve kaynak sürümleri yenilendi.
+- Alfa kanalı 0–255 doğrulandı. JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; kurulu masaüstü kısayol simgesinin yenilenmesi işletim sistemine bağlıdır.

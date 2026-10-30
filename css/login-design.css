@@ -26,6 +26,6 @@
 #login .loginbox{min-width:0;max-width:100%}#login .loginbox select{min-width:0;max-width:100%}@media(max-width:600px){#login .loginbox h2{white-space:normal}}
 #login .loginbox{width:min(560px,calc(100vw - 40px))!important}@media(max-width:600px){#login .loginbox{width:calc(100vw - 28px)!important}}
 
-#login .login-seal{background-image:url('../assets/bbs-logo-v2.webp')!important}
+#login .login-seal{background-image:url('../assets/bbs-logo-v3.webp')!important}
 
 #login .loginbox #loginBtn{display:flex;align-items:center;justify-content:center;text-align:center}
