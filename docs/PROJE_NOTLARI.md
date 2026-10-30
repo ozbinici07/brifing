@@ -251,3 +251,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Ek kullanıcı isteği: Giriş Yap düğmesindeki ok kaldırıldı; yazı yatay/dikey ortalandı. Giriş stili sürümü v4 yapıldı. Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.
 
 - Kullanıcının açık isteğiyle Şifremi Unuttum mesajına sistem yöneticisinin adı Burak ÖZBİNİCİ eklendi; teknik Firebase açıklaması yerine iletişim yönlendirmesi gösterilir. Referans UI betiği sürümü v5. JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.
+
+- Kullanıcı isteği: giriş durum metni Sisteme bağlanıp giriş yapılıyor... olarak değiştirildi; giriş hata mesajındaki Firebase ön eki kaldırıldı. İstemci betik sürümü period-v27 yapıldı. Kimlik doğrulama mantığı değiştirilmedi; JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.
