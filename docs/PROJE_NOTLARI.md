@@ -181,3 +181,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Ek kullanıcı düzeltmesi: üst çubuktaki responsive iki satırlı grid kaldırıldı. Tüm sekmelerde başlık, esnek genişlikli arama, durum bilgileri ve düğmeler nowrap flex satırında yan yana kalır. Çok dar ekranda üst çubuk yatay kaydırılabilir; öğeler ikinci satıra düşmez. Çubuk minimum yüksekliği 44px.
 
 - Yayın sonucu: 4e7f81e Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41024407268 . Canlı JS HTTP 200 ve gönderilen kaynakla birebir eşleşiyor. Genel Bakış başlığı, dar düğmeler ve tek satır düzeni yayımlandı. Oturum içi görsel kontrol yapılmadı.
+
+
+## 30 Ekim 2026 — Aramanın bildirim yanına taşınması
+- Hızlı arama mevcut DOM öğesi korunarak sağdaki işlem grubunda Bildirimler'in hemen soluna taşındı. Sol alan etkin menü adına ayrıldı. Ortak 34px yükseklik ve tek satır düzeni korundu; arama genişliği 160px.
+- JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
