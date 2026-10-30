@@ -179,3 +179,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
 
 - Ek kullanıcı düzeltmesi: üst çubuktaki responsive iki satırlı grid kaldırıldı. Tüm sekmelerde başlık, esnek genişlikli arama, durum bilgileri ve düğmeler nowrap flex satırında yan yana kalır. Çok dar ekranda üst çubuk yatay kaydırılabilir; öğeler ikinci satıra düşmez. Çubuk minimum yüksekliği 44px.
+
+- Yayın sonucu: 4e7f81e Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41024407268 . Canlı JS HTTP 200 ve gönderilen kaynakla birebir eşleşiyor. Genel Bakış başlığı, dar düğmeler ve tek satır düzeni yayımlandı. Oturum içi görsel kontrol yapılmadı.
