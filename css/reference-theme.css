@@ -44,13 +44,16 @@
 .filters > .btn{height:34px;min-height:34px;align-self:end;padding:0 12px;line-height:normal;font-size:12px}
 
 /* Shared Muğla BBS identity. */
-.ministry-seal,.login-seal{background:url("../assets/bbs-logo.webp") center/contain no-repeat!important;border-radius:0;overflow:visible}
+.ministry-seal,.login-seal{background:url("../assets/bbs-logo-v2.webp") center/contain no-repeat!important;border-radius:0;overflow:visible}
 .brifing-chart-logo{width:36px;height:36px;object-fit:contain}
 .overview-brand-logo{width:64px;height:64px;object-fit:contain;flex-shrink:0}
-.sidebar-identity .ruins{background:url("../assets/bbs-logo.webp") center/contain no-repeat!important;opacity:1!important;filter:none!important}
+.sidebar-identity .ruins{background:url("../assets/bbs-logo-v2.webp") center/contain no-repeat!important;opacity:1!important;filter:none!important}
 .login{background:linear-gradient(110deg,rgba(108,4,31,.88),rgba(12,37,65,.18)),url("../assets/bodrum-panorama.jpg") center/cover no-repeat!important}
 @media(max-width:650px){.overview-brand-logo{width:44px;height:44px}}
 /* Restore the original user-selected login background. */
 .login{background:url("../assets/mugla-login-background.png") center top/cover no-repeat!important}
 /* User-selected login background, 30 October 2026. */
 .login{background:url("../assets/login-background-v2.webp") center top/cover no-repeat!important}
+
+/* Display the new circular badge without square image corners. */
+.ministry-seal,.login-seal,.brifing-chart-logo,.overview-brand-logo,.side .sidebar-identity>img{border-radius:50%!important}
