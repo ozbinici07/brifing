@@ -219,3 +219,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Oturum içi görsel kontrol yapılmadı; yayın sonucu gönderim sonrası kontrol edilir.
 
 - Yayın sonucu: 6ebd54b Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41026226157 . Canlı JS HTTP 200 ve gönderilen kaynakla birebir aynı. Oturum içi görsel/etkileşim kontrolü yapılmadı.
+
+
+## 30 Ekim 2026 — Sorgu raporlarının işlem satırına alınması
+- Öğrenci sorgulamada Yazdır, PDF, Excel ve sıralama listesi mevcut öğeleriyle Sorgula / Filtreleri Temizle grubunun sağına taşındı. Masaüstünde aynı filtre satırındadır; ortak kontrol yüksekliği 38px. Boş kalan alt satır gizlendi. Dar ekranda işlem satırı kırılabilir.
+- JS sözdizimi, Hosting paketi ve diff kontrolü başarılı; oturum içi görsel kontrol yapılmadı. Yayın sonucu gönderim sonrası kontrol edilir.
