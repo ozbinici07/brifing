@@ -135,3 +135,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Öğretmen ve yönetici araç satırı
 - Öğretmen Bilgi Tabloları / Bilgi Sorgulama ve Yönetici Bilgi Tabloları / Bilgi Sorgulama sekmeleri, ilgili Ekran Görüntüsü ve rapor düğmeleriyle aynı araç satırına taşındı. Mevcut okul/öğrenci düzeni bu iki modüle de uygulandı; sekmeler solda, rapor araçları sağda. Dar ekranda satır kırılabilir; olay dinleyicileri korunur.
 - Doğrulama: JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın ve canlı kaynak kontrolü gönderim sonrası yapılır; oturum içi görsel kontrol yapılmadı.
+
+- Yayın sonucu: a7eee1e Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41018826007 . Canlı js/compact-layout.js HTTP 200 ve kaynakla birebir eşleşiyor; öğretmen/yönetici seçicileri yayımlandı. Oturum içi görsel kontrol henüz yapılmadı. Bu sonuç kaydı yalnızca belge değişikliğidir.
