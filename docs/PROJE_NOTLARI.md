@@ -115,3 +115,10 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Ek hizalama (0b2bed9): Okul/Kurum Bilgi Tabloları ve Bilgi Sorgulama sekmeleri aynı sistem kökü içinde ekran raporu araçlarının satırına taşındı; solda sekmeler, sağda rapor araçları yer alır. Dar ekranlarda satır kırılabilir; mevcut sekme olayları korunur.
 - Canlı üst çubuk kontrolünde A simgesi yazının sağında, kullanıcı yazısı 13px, dönem yazısı 700 kalınlıkta, dönem arka planı rgb(255,240,242), yenileme yüksekliği 28px ve Çıkış kırmızı olarak doğrulandı. Ayarlar simgesi ve logo altı orta nokta yok.
 - Öğrenci Bilgi Sistemi tablo/sorgulama sekmeleri de aynı rapor araçları satırına alındı (291bebb). Okul/Kurum sayfasındaki ortak satır ve sorgulama sekmesi canlıda doğrulandı. Sözdizimi, paket ve diff kontrolleri başarılı; son öğrenci görünümü Firebase yayını sonrası kontrol edilir.
+
+## 30 Ekim 2026 — Üstteki yinelenen logo ve yazının kaldırılması
+- Kullanıcının ikinci görseline göre üst çubuktaki küçük BBS logosu ve Brifing Bilgi Sistemi yazısı kaldırıldı. Büyük yan menü logosu ve kurum adı korundu.
+- Sol menü ekranın üstünden başlayacak şekilde iki grid satırına yayıldı; logo üst boşluğu referans görsele göre düzenlendi. Üst çubuk sağ içerik sütununa alındı; dar ekran arama yerleşimi güncellendi.
+- GitHub ve tarayıcı araçları kullanılamadığından, kullanıcının “uygula” talimatıyla güncel origin/main kopyasında değişiklik hazırlanıp Git üzerinden gönderim yolu kullanıldı.
+- Doğrulama: node --check js/compact-layout.js, Hosting paketleme ve git diff --check başarılı.
+- Yayın ve canlı kaynak doğrulaması gönderimden sonra kontrol edilecek. Oturum içi görsel kontrol henüz yapılmadı; Firebase verileri ve kuralları değiştirilmedi.
