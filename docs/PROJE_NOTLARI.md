@@ -224,3 +224,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Sorgu raporlarının işlem satırına alınması
 - Öğrenci sorgulamada Yazdır, PDF, Excel ve sıralama listesi mevcut öğeleriyle Sorgula / Filtreleri Temizle grubunun sağına taşındı. Masaüstünde aynı filtre satırındadır; ortak kontrol yüksekliği 38px. Boş kalan alt satır gizlendi. Dar ekranda işlem satırı kırılabilir.
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı; oturum içi görsel kontrol yapılmadı. Yayın sonucu gönderim sonrası kontrol edilir.
+
+- Yayın sonucu: ca4a70d Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41026594875 . Canlı JS HTTP 200 ve gönderilen kaynakla birebir aynı. Boş alt satır kuralı HTML içindeki boşluk metinlerini de dikkate alır. Oturum içi görsel/etkileşim kontrolü yapılmadı.
