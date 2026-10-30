@@ -200,3 +200,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Sorgulamada ekran raporu grubunun gizlenmesi
 - Okul/Kurum ve Öğrenci sorgulama sekmesi etkin olduğunda üst araç satırındaki Ekran Görüntüsü etiketi ve Yazdır/PDF/Excel grubu gizlenir. Öğrenci ayırıcı çizgisi de gizlenir. Tablo sekmesine dönüşte grup yeniden görünür; tüm verilerin ve sorgu sonuçlarının rapor araçları korunur.
 - Etkin sekme sınıflarına bağlı CSS kullanıldı; olay dinleyicileri değiştirilmedi. JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
+
+- Ek istek: öğrenci sorgulama özetindeki sekiz kutu tek satırda sekiz sütuna alındı. Etiket ve değer arasında boşluk bırakıldı, kutular 42px minimum yüksekliğe daraltıldı. Dar ekranda satır kırmak yerine yatay kaydırılır.
