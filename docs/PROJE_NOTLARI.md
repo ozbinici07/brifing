@@ -202,3 +202,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Etkin sekme sınıflarına bağlı CSS kullanıldı; olay dinleyicileri değiştirilmedi. JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
 
 - Ek istek: öğrenci sorgulama özetindeki sekiz kutu tek satırda sekiz sütuna alındı. Etiket ve değer arasında boşluk bırakıldı, kutular 42px minimum yüksekliğe daraltıldı. Dar ekranda satır kırmak yerine yatay kaydırılır.
+
+- Yayın sonucu: 6a83298 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41025500888 . Canlı JS HTTP 200 ve kaynakla birebir aynı; son kaynak Hızlı Bilgi satırı, sorgulamada ekran raporu gizleme ve sekizli öğrenci özeti düzenlemelerini içerir. Oturum içi görsel kontrol yapılmadı.
