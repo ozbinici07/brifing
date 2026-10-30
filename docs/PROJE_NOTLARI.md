@@ -121,4 +121,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Sol menü ekranın üstünden başlayacak şekilde iki grid satırına yayıldı; logo üst boşluğu referans görsele göre düzenlendi. Üst çubuk sağ içerik sütununa alındı; dar ekran arama yerleşimi güncellendi.
 - GitHub ve tarayıcı araçları kullanılamadığından, kullanıcının “uygula” talimatıyla güncel origin/main kopyasında değişiklik hazırlanıp Git üzerinden gönderim yolu kullanıldı.
 - Doğrulama: node --check js/compact-layout.js, Hosting paketleme ve git diff --check başarılı.
-- Yayın ve canlı kaynak doğrulaması gönderimden sonra kontrol edilecek. Oturum içi görsel kontrol henüz yapılmadı; Firebase verileri ve kuralları değiştirilmedi.
+- GitHub kaydı: d463344. Firebase otomatik yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41018300255 . Canlı js/compact-layout.js HTTP 200; yayımlanan içerik gönderilen kaynakla birebir aynı, küçük başlığı kaldıran işlem ve sol menü grid kuralları doğrulandı. Oturum içi görsel kontrol tarayıcı aracı olmadığı için yapılmadı; Firebase verileri ve kuralları değiştirilmedi.
