@@ -8,6 +8,7 @@ const identity=side.querySelector('.sidebar-identity');
 if(identity){identity.innerHTML='<img src="assets/bbs-logo.png" alt="Muğla BBS logosu"><div>Muğla İl Millî Eğitim Müdürlüğü Brifing Bilgi Sistemi</div>';side.prepend(identity);}
 top.querySelector('.brand')?.remove();
 top.querySelector('.app-wordmark')?.remove();
+const overviewTitle=document.createElement('h2');overviewTitle.className='overview-top-title';overviewTitle.textContent='Genel Bakış';top.insertBefore(overviewTitle,top.querySelector('.global-search'));
 const status=document.querySelector('.overview-status'),avatar=actions.querySelector('.avatar');
 if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('top-period');period.querySelector('b').textContent='Aktif Dönem';period.querySelector('select').setAttribute('aria-label','Aktif dönem');actions.insertBefore(status,avatar);actions.insertBefore(period,avatar);}
 const originalPeriod=document.getElementById('periodSelect'),visiblePeriod=document.getElementById('overviewPeriodSelect');
@@ -62,6 +63,13 @@ const style=document.createElement('style');style.id='compact-layout-style';styl
 .top-actions>.avatar{order:90}.top-actions>.avatar+span{order:89;font-size:13px!important}.top-actions>.avatar+span small{font-size:12px!important;margin-left:6px}
 .top-actions .top-period{background:#fff;color:#15324f;border:1px solid #dbe5ef;border-radius:6px;padding:3px 9px}.top .top-period>b{color:#15324f!important}.top-period select{background:#fff!important;color:#15324f!important;border:0!important;font-weight:700!important;box-shadow:none!important}.top-period select option{font-weight:700}
 .top .top-actions #logoutBtn{background:#c51136!important;color:#fff!important;border:1px solid #a90d2d!important;font-size:12px!important;font-weight:700;padding:5px 12px!important;box-shadow:0 2px 5px #a90d2d22}.top .top-actions #logoutBtn:hover{background:#a90d2d!important}.top .top-actions #logoutBtn:focus-visible{outline:2px solid #a90d2d;outline-offset:3px}
+.overview-top-title{display:none;margin:0;color:#fff;font-size:22px;line-height:1.2;white-space:nowrap;flex-shrink:0}
+.app:has(#overview.active) .overview-top-title{display:block}
+#overview .compact-page-banner{display:none!important}
+.app:has(#overview.active) .content{background:#f3f6fa!important;padding-top:12px!important}
+.compact-page-banner .compact-flag{display:none!important}
+@media(max-width:1250px){.app:has(#overview.active) .top{grid-template-columns:auto minmax(0,1fr)!important}.overview-top-title{grid-column:1;grid-row:1}.app:has(#overview.active) .top .global-search{grid-column:2;grid-row:1;min-width:0}}
+@media(max-width:480px){.overview-top-title{font-size:16px}}
 .page-header-tools.module-toolbar{justify-content:space-between;align-items:center;gap:12px}.module-toolbar>.mini-tabs{margin:0;flex-shrink:0}.module-toolbar>.student-header-actions{margin-left:auto}
 `;
 document.head.append(style);document.documentElement.style.setProperty('--compact-banner','url("data:image/svg+xml,'+encodeURIComponent(svg)+'")');

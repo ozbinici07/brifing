@@ -156,3 +156,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Ek düzeltme: Aktif Dönem alanının pembe zemini kaldırıldı; beyaz zemin, koyu yazı ve çerçevesiz beyaz seçici uygulandı. Başındaki dekoratif ▦ simgesi kaldırıldı; dönem seçimi ve kilit davranışı korundu.
 
 - Yayın sonucu: ff421c1 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41022576910 . Canlı JS HTTP 200 ve kaynakla birebir aynı. Ortak başlık arka planı ve beyaz dönem alanı yayımlandı. Oturum içi görsel kontrol yapılmadı.
+
+
+## 30 Ekim 2026 — Genel Bakış başlığının üst çubuğa taşınması
+- Genel Bakış başlığı hızlı aramanın soluna alındı; yalnızca Genel Bakış açıkken görünür. Ayrı 64px başlık bandı gizlenerek içerik yukarı alındı. Diğer sayfaların başlıkları korundu; sağdaki dekoratif Türk bayrakları kaldırıldı.
+- Dar ekranda başlık ve arama aynı grid satırındadır. JS sözdizimi, Hosting paketi ve diff kontrolü başarılı; yayın sonucu gönderim sonrası kontrol edilir. Oturum içi görsel kontrol yapılmadı.
