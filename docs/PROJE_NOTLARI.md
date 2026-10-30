@@ -261,3 +261,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcının sağladığı yeni logo.jpeg giriş, sol menü, başlık logoları, favicon/apple-touch-icon ve PWA simgesine uygulandı. Arka plan ve diğer tasarım alanları değiştirilmedi.
 - 512px WebP logo 51.588 bayt; 192px PNG tarayıcı simgesi 56.112 bayt; 512px PNG PWA simgesi 280.237 bayt. Yeni dosya adları ve stil/betik sürümleri eski önbelleklerin kullanılmasını önler. Yuvarlak logo alanları dairesel gösterilir; erken logo ön yüklemesi korunur.
 - JS sözdizimi, Hosting paketi, manifest JSON ve CRLF uyumlu diff kontrolü başarılı. Yayın ve canlı görüntü doğrulaması gönderim sonrası yapılır; kurulu PWA simgesi işletim sisteminin yenileme zamanına bağlıdır.
+
+- Yayın sonucu: 268eb08 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41056918429 . Canlı WebP HTTP 200 ve 51.588 bayt; manifest yeni 512px simgeyi gösteriyor. Canlı Chrome headless 1440×1000 giriş görüntüsünde yeni logo ve değişmeyen arka plan doğrulandı. Oturum içi sol menü ayrıca açılmadı; kaynak bağlantısı yeni WebP'ye güncellendi.
