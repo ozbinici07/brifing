@@ -143,3 +143,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcının referansına göre sol menü ve üst çubuk koyu mavi geçişli, çokgen/ağ desenli ortak assets/panel-network.svg arka planını kullanır. Sayfa başlık şeridi aynı mavi palete alındı; başlık ve üst çubuk metinleri beyaz, yenileme düğmesi mavi yapıldı.
 - Personel Hizmetleri menü sekmesi CSS ile tüm oturumlarda gizlendi; dinamik yetki güncellemeleriyle tekrar görünmez. Personel kayıtları ve birim veri işlevleri silinmedi.
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın ve canlı kaynak doğrulaması gönderim sonrası yapılır; oturum içi görsel kontrol yapılmadı.
+
+- Ek kullanıcı isteği: üst ve sol alanın tek parça görünmesi için desen .app üzerinde tek arka plan olarak çizilir. Üst çubuk ve sol menü saydamdır; aralarındaki kenarlık ve üst gölge kaldırıldı.

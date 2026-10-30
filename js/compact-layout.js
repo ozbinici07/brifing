@@ -18,8 +18,8 @@ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="140" vie
 const style=document.createElement('style');style.id='compact-layout-style';style.textContent=`
 #moduleDataStatus{display:none!important}
 .side .nav[data-page="personnel"]{display:none!important}
-.side{background:#062b50 url('assets/panel-network.svg') center bottom/auto 100% no-repeat!important;border-right:1px solid #164b76;color:#fff}
-.top{background:#073b68 url('assets/panel-network.svg') center 35%/cover no-repeat!important;color:#fff!important;border-bottom:1px solid #135283}
+.app{background:#062b50 url('assets/panel-network.svg') center/cover no-repeat!important}.side{background:transparent!important;border-right:0;color:#fff}
+.top{background:transparent!important;color:#fff!important;border:0;box-shadow:none!important}
 .top .top-actions,.top .overview-status small,.top .overview-status b,.top #personnelBell{color:#fff}
 .top .top-actions .status-item{border-right-color:#ffffff30!important}
 .top #overviewRefresh{background:#0868ef;color:#fff;border-color:#2783ff}
