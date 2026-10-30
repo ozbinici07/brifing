@@ -5,7 +5,7 @@ function install(){
 const side=document.querySelector('.side'),top=document.querySelector('.top'),actions=document.querySelector('.top-actions');
 if(!side||!top||!actions||document.getElementById('compact-layout-style'))return;
 const identity=side.querySelector('.sidebar-identity');
-if(identity){identity.innerHTML='<img src="assets/bbs-logo.png" alt="Muğla BBS logosu"><div>Muğla İl Millî Eğitim Müdürlüğü Brifing Bilgi Sistemi</div>';side.prepend(identity);}
+if(identity){identity.innerHTML='<img src="assets/bbs-logo.webp" alt="Muğla BBS logosu"><div>Muğla İl Millî Eğitim Müdürlüğü Brifing Bilgi Sistemi</div>';side.prepend(identity);}
 top.querySelector('.brand')?.remove();
 top.querySelector('.app-wordmark')?.remove();
 const overviewTitle=document.createElement('h2');overviewTitle.className='overview-top-title';overviewTitle.textContent='Genel Bakış';top.insertBefore(overviewTitle,top.querySelector('.global-search'));

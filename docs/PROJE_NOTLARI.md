@@ -241,3 +241,9 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcı istemedikçe giriş arka planı değiştirilmemelidir. JS/HTML sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı; yayın sonucu gönderim sonrası kontrol edilir.
 
 - Yayın sonucu: 6641665 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41055317290 . Canlı CSS HTTP 200; eski WebP arka plan adresi doğrulandı. Chrome headless 1440×1000 canlı ekranında önceki Türk bayraklı arka planın geri geldiği ve yeni kartın korunduğu görsel olarak kontrol edildi.
+
+
+## 30 Ekim 2026 — Logo yükleme hızlandırması
+- 1254×1254 RGBA logo PNG'si 2.242.949 bayttı. Özgün dosya korunarak 512×512 saydam WebP (quality 92) 108.712 bayt üretildi (%95,2 küçülme). Giriş ve uygulama logoları WebP'ye bağlandı, HTML başında yüksek öncelikli ön yükleme eklendi.
+- Favicon/apple-touch-icon için 192×192 PNG 85.606 bayt üretildi; bu alanlarda da büyük özgün PNG'nin gereksiz indirilmesi önlendi. Giriş ve referans stil sürümleri güncellendi. Arka plan değiştirilmedi.
+- JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın ve canlı dosya doğrulaması gönderim sonrası kontrol edilir; gerçek ağda sabit hız kazancı ölçülmedi.
