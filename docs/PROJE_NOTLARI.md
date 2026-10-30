@@ -171,3 +171,9 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Oturum içi görsel kontrol yapılmadı; otomatik yayın ve canlı kaynak kontrolü gönderim sonrası yapılır.
 
 - Yayın sonucu: 6aced56 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41023866083 . Canlı JS HTTP 200 ve kaynakla birebir eşleşiyor. Oturum içi görsel kontrol yapılmadı.
+
+
+## 30 Ekim 2026 — Düğme genişliği ve Genel Bakış başlık düzeltmesi
+- Kullanıcının açıklaması: eşitlik yükseklikte isteniyor. Çıkış ve Veriyi Yenile düğmelerinin sabit 180px genişliği kaldırıldı; içerik kadar dar genişlik ve 34px ortak yükseklik korundu.
+- Genel Bakış başlığı sayfa içindeki gizli birim başlığından alınıyordu. overview sayfasında ortak üst başlık artık her zaman yalnızca Genel Bakış gösterir.
+- JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
