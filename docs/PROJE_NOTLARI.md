@@ -239,3 +239,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Giriş arka planının geri yüklenmesi
 - Kullanıcı yalnızca giriş kartının düzenlenmesini istemişti; kapsam dışı değiştirilen arka plan önceki login-background-v2.webp görseline center top/cover olarak geri alındı. Erken ön yükleme ve ilk arka plan rengi eski değerlerine döndü. Yeni kart düzeni korundu; giriş stili sürümü v2 yapıldı.
 - Kullanıcı istemedikçe giriş arka planı değiştirilmemelidir. JS/HTML sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı; yayın sonucu gönderim sonrası kontrol edilir.
+
+- Yayın sonucu: 6641665 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41055317290 . Canlı CSS HTTP 200; eski WebP arka plan adresi doğrulandı. Chrome headless 1440×1000 canlı ekranında önceki Türk bayraklı arka planın geri geldiği ve yeni kartın korunduğu görsel olarak kontrol edildi.
