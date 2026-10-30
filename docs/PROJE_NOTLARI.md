@@ -122,3 +122,7 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - GitHub ve tarayıcı araçları kullanılamadığından, kullanıcının “uygula” talimatıyla güncel origin/main kopyasında değişiklik hazırlanıp Git üzerinden gönderim yolu kullanıldı.
 - Doğrulama: node --check js/compact-layout.js, Hosting paketleme ve git diff --check başarılı.
 - GitHub kaydı: d463344. Firebase otomatik yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41018300255 . Canlı js/compact-layout.js HTTP 200; yayımlanan içerik gönderilen kaynakla birebir aynı, küçük başlığı kaldıran işlem ve sol menü grid kuralları doğrulandı. Oturum içi görsel kontrol tarayıcı aracı olmadığı için yapılmadı; Firebase verileri ve kuralları değiştirilmedi.
+
+## 30 Ekim 2026 — Yan menü logosunun yukarı taşınması
+- Kullanıcının ekran görüntüsü üzerine yan menünün üst boşluğu 82px yerine 38px yapıldı. Logo, kurum adı ve menü bağlantıları 44px yukarı taşınır.
+- Doğrulama: JavaScript sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
