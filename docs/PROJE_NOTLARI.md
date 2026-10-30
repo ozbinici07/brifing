@@ -268,3 +268,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Logonun dış zemininin şeffaflaştırılması
 - ImageGen ile dairesel yeni logonun yalnızca dış beyaz zemini şeffaflaştırıldı; iç beyaz alan ve yazılar korundu. Tam boy çıktı assets/bbs-logo-transparent.png, WebP/PNG ekran ve uygulama simgeleri v3 dosyaları olarak eklendi. Tüm etkin bağlantılar ve kaynak sürümleri yenilendi.
 - Alfa kanalı 0–255 doğrulandı. JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; kurulu masaüstü kısayol simgesinin yenilenmesi işletim sistemine bağlıdır.
+
+- Yayın başarılı: https://github.com/ozbinici07/brifing/actions/runs/41059862901 (091a5d6). Canlı şeffaf WebP HTTP 200, 68.416 bayt. Yerel alfa kontrolü başarılı; masaüstü kısayolu yeniden kurulmadı.
