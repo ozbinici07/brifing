@@ -145,3 +145,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın ve canlı kaynak doğrulaması gönderim sonrası yapılır; oturum içi görsel kontrol yapılmadı.
 
 - Ek kullanıcı isteği: üst ve sol alanın tek parça görünmesi için desen .app üzerinde tek arka plan olarak çizilir. Üst çubuk ve sol menü saydamdır; aralarındaki kenarlık ve üst gölge kaldırıldı.
+
+- Yayın sonucu: 98797c1 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41022281695 . Canlı JS ve panel-network.svg HTTP 200; JS gönderilen kaynakla birebir aynı. Ortak arka plan ve personel menüsünü gizleme kuralı yayımlandı. Oturum içi görsel kontrol yapılmadı; bu son kayıt yalnızca belge değişikliğidir.
