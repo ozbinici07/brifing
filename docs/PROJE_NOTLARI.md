@@ -186,3 +186,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 30 Ekim 2026 — Aramanın bildirim yanına taşınması
 - Hızlı arama mevcut DOM öğesi korunarak sağdaki işlem grubunda Bildirimler'in hemen soluna taşındı. Sol alan etkin menü adına ayrıldı. Ortak 34px yükseklik ve tek satır düzeni korundu; arama genişliği 160px.
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; oturum içi görsel kontrol yapılmadı.
+
+- Ek kullanıcı isteği: üst çubuk minimum yüksekliği 44px yerine 58px, dikey iç boşluğu 10px yapıldı. Başlık, işlem grubu ve durum öğeleri dikey ortalanır; 34px kontrol yüksekliği ve tek satır düzeni korunur.
