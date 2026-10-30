@@ -211,3 +211,9 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - JS sözdizimi, Hosting paketi ve diff kontrolü başarılı; oturum içi görsel kontrol yapılmadı. Yayın sonucu gönderim sonrası kontrol edilir.
 
 - Yayın sonucu: c54262c Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41025682930 . Canlı JS HTTP 200 ve gönderilen kaynakla birebir aynı. Oturum içi görsel/etkileşim kontrolü yapılmadı.
+
+
+## 30 Ekim 2026 — Sorgu düğmeleri ve sıralama konumu
+- Öğrenci sorgulamadaki ters sıralama kutusu kaldırıldı; mevcut Sıralama açılır listesi Excel düğmesinin sağına taşındı. Liste öğrenci sayısı artan/azalan, ad A-Z/Z-A ve ilçe A-Z seçeneklerini korur; mevcut onchange ve varsayılan sıralama korunur.
+- Sorgula ve Filtreleri Temizle mevcut öğeleriyle filtre ızgarasında Sütunlar alanının yanına taşındı. Masaüstünde ikinci satırda yan yana görünürler.
+- JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Oturum içi görsel kontrol yapılmadı; yayın sonucu gönderim sonrası kontrol edilir.
