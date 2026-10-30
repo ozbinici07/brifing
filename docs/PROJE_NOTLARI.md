@@ -253,3 +253,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcının açık isteğiyle Şifremi Unuttum mesajına sistem yöneticisinin adı Burak ÖZBİNİCİ eklendi; teknik Firebase açıklaması yerine iletişim yönlendirmesi gösterilir. Referans UI betiği sürümü v5. JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.
 
 - Kullanıcı isteği: giriş durum metni Sisteme bağlanıp giriş yapılıyor... olarak değiştirildi; giriş hata mesajındaki Firebase ön eki kaldırıldı. İstemci betik sürümü period-v27 yapıldı. Kimlik doğrulama mantığı değiştirilmedi; JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı.
+
+- Toplu yayın doğrulaması: 4de2a28 yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41055943320 . Canlı istemcide yeni giriş metni, referans UI'da yönetici adı ve Firebase açıklamasının kaldırılması, HTML'de oksuz Giriş Yap düğmesi ve 108.712 bayt WebP logo doğrulandı. Hesapla giriş yapılmadı.
