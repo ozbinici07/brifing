@@ -147,3 +147,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Ek kullanıcı isteği: üst ve sol alanın tek parça görünmesi için desen .app üzerinde tek arka plan olarak çizilir. Üst çubuk ve sol menü saydamdır; aralarındaki kenarlık ve üst gölge kaldırıldı.
 
 - Yayın sonucu: 98797c1 Firebase yayını başarılı: https://github.com/ozbinici07/brifing/actions/runs/41022281695 . Canlı JS ve panel-network.svg HTTP 200; JS gönderilen kaynakla birebir aynı. Ortak arka plan ve personel menüsünü gizleme kuralı yayımlandı. Oturum içi görsel kontrol yapılmadı; bu son kayıt yalnızca belge değişikliğidir.
+
+
+## 30 Ekim 2026 — Başlık şeridinin ortak yüzeye birleştirilmesi
+- Kullanıcının canlı ekran görüntüsünde başlık bandının ayrı arka planı ve içerik kenarındaki açık renk boşluk bütünlüğü bozuyordu. Başlık bandı saydam ve köşesiz yapıldı, iki yandaki 14px iç boşluğa taşırıldı. İçerik arka planının ilk 64px alanı saydamlaştırıldı; ortak .app deseni artık üst çubuk, başlık ve sol menü boyunca tek yüzeyde görünür.
+- JS sözdizimi, Hosting paketi ve diff kontrolü başarılı. Oturum içi görsel kontrol yapılmadı; yayın sonucu gönderim sonrası kontrol edilir.
