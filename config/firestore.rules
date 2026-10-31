@@ -2,8 +2,8 @@ rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
   function signedIn() { return request.auth != null; }
-  function isAdmin() { return signedIn() && request.auth.token.email == 'admin@brifingbilgisistemi.firebaseapp.com'; }
-  function isPersonnel() { return signedIn() && request.auth.token.email == 'personel.hizmetleri.v3@brifingbilgisistemi.firebaseapp.com'; }
+  function isAdmin() { return signedIn() && (request.auth.token.email == 'admin@brifingbilgisistemi.firebaseapp.com' || (exists(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)) && get(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)).data.active == true && get(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)).data.role == 'admin')); }
+  function isPersonnel() { return false; } // Legacy personnel UI is retired; data remains available to administrators.
   function serverTime(t) { return t == request.time; }
   function validNumber(key) { let n = request.resource.data.payload.cells[key]; return n == null || (n is int && n >= 0 && n <= 10000000); }
   function validPayload() {
@@ -37,7 +37,7 @@ service cloud.firestore {
    allow read: if signedIn();
    allow create, update, delete: if isAdmin();
    match /{document=**} {
-    allow read: if signedIn();
+    allow read: if isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['overview','institutions','students','teachers','managers','excel']));
     allow create, update, delete: if isAdmin();
    }
   }
@@ -70,5 +70,92 @@ service cloud.firestore {
    allow create,update: if isAdmin();
    allow delete: if false;
   }
+
+  function accountDoc() { return get(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)).data; }
+  function activeAccount() { return signedIn() && exists(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)) && accountDoc().active == true; }
+  function editUnit(unitId) { return isAdmin() || (activeAccount() && unitId in accountDoc().editUnits); }
+  function readUnit(unitId) { return editUnit(unitId) || (activeAccount() && unitId in accountDoc().readUnits); }
+  function sharedUnits(ids) { return isAdmin() || (activeAccount() && (accountDoc().editUnits.hasAny(ids) || accountDoc().readUnits.hasAny(ids))); }
+  function unitSchema(periodId,unitId) { return getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/schemas/$(unitId)).data; }
+  function packagePayload(p, periodId, unitId) {
+   return p is map && p.keys().hasOnly(['cells','source','asOf','notes']) && p.cells is map &&
+    p.cells.keys().hasOnly(unitSchema(periodId,unitId).keys) &&
+    p.source is string && p.source.size() <= 500 && p.notes is string && p.notes.size() <= 10000 &&
+    p.asOf is string && (p.asOf == '' || p.asOf.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}'));
+  }
+  function unitPackage(d,periodId,unitId) {
+   return d.unitId == unitId && d.periodId == periodId && d.version is int &&
+    d.status in ['draft','pending','approved','returned'] && packagePayload(d.draft,periodId,unitId);
+  }
+  function unitSubmit(d,unitId) {
+   return d.status == 'pending' && d.pending == d.draft && d.pendingVersion == d.version &&
+    d.submittedBy == request.auth.uid && d.reviewNote == '' && d.draft.source.size() > 0 && d.draft.asOf.size() == 10;
+  }
+  function unitDraftWrite(d,old,unitId) {
+   return d.diff(old).affectedKeys().hasOnly(['version','draft','pending','pendingVersion','status','updatedAt','submittedAt','submittedBy','reviewNote']) &&
+    d.approved == old.approved && d.approvedVersion == old.approvedVersion &&
+    ((d.pending == old.pending && d.pendingVersion == old.pendingVersion &&
+      d.get('submittedAt',null) == old.get('submittedAt',null) && d.get('submittedBy',null) == old.get('submittedBy',null) &&
+      d.get('reviewNote','') == old.get('reviewNote','') &&
+      ((old.status == 'pending' && d.status == 'pending') || (old.status != 'pending' && d.status == 'draft'))) ||
+     unitSubmit(d,unitId));
+  }
+  match /unitLoginDirectory/{username} {
+   allow read: if true;
+   allow create,update,delete: if isAdmin();
+  }
+  match /unitAccounts/{uid} {
+   allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+   allow create,delete: if isAdmin();
+   allow update: if isAdmin() || (signedIn() && request.auth.uid == uid &&
+    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChange']) &&
+    resource.data.mustChange == true && request.resource.data.mustChange == false);
+  }
+  match /unitCatalog/{id} { allow read: if isAdmin() || activeAccount(); allow write: if isAdmin(); }
+  match /unitMedia/{id} {
+   allow read: if sharedUnits(resource.data.allowedUnits);
+   allow write: if isAdmin();
+   match /parts/{part} {
+    allow read: if sharedUnits(get(/databases/$(database)/documents/unitMedia/$(id)).data.allowedUnits);
+    allow write: if isAdmin();
+   }
+  }
+  match /unitPeriods/{periodId} {
+   allow read: if isAdmin() || activeAccount();
+   allow write: if isAdmin();
+   match /tables/{tableId} { allow read: if sharedUnits(resource.data.allowedUnits); allow write: if isAdmin(); }
+   match /schemas/{unitId} { allow read: if readUnit(unitId); allow write: if isAdmin(); }
+   match /importBase/{unitId} { allow read,write: if isAdmin(); }
+   match /reports/{unitId} {
+    allow read: if editUnit(unitId);
+    allow create: if editUnit(unitId) && unitPackage(request.resource.data,periodId,unitId) &&
+     (isAdmin() || (request.resource.data.version == 1 && request.resource.data.approved == null &&
+      request.resource.data.approvedVersion == null &&
+      ((request.resource.data.status == 'draft' && request.resource.data.pending == null && request.resource.data.pendingVersion == null) ||
+       unitSubmit(request.resource.data,unitId))));
+    allow update: if editUnit(unitId) && unitPackage(request.resource.data,periodId,unitId) &&
+     request.resource.data.version == resource.data.version + 1 &&
+     (isAdmin() || unitDraftWrite(request.resource.data,resource.data,unitId));
+    allow delete: if false;
+   }
+   match /published/{unitId} {
+    allow read: if readUnit(unitId);
+    allow create,update: if isAdmin() &&
+     request.resource.data.unitId == unitId &&
+     request.resource.data.payload == getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/reports/$(unitId)).data.approved &&
+     request.resource.data.version == getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/reports/$(unitId)).data.approvedVersion;
+    allow delete: if false;
+   }
+   match /history/{id} {
+    allow read: if editUnit(resource.data.unitId);
+    allow create: if editUnit(request.resource.data.unitId) && request.resource.data.actor == request.auth.uid &&
+     request.resource.data.action in ['save','submit','approve','return','import','mapping'] &&
+     request.resource.data.version == getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/reports/$(request.resource.data.unitId)).data.version &&
+     (isAdmin() || request.resource.data.action in ['save','submit']);
+    allow update,delete: if false;
+   }
+  }
+
+
  }
 }

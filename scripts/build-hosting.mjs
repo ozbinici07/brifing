@@ -5,7 +5,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const output = path.join(root, 'dist');
 await mkdir(path.join(output, 'config'), { recursive: true });
 for (const file of ['index.html', 'manifest.webmanifest', 'sw.js']) await copyFile(path.join(root, file), path.join(output, file));
-for (const folder of ['js', 'css', 'assets', 'vendor']) await cp(path.join(root, folder), path.join(output, folder), { recursive: true });
+for (const folder of ['js', 'css', 'assets', 'vendor', 'units']) await cp(path.join(root, folder), path.join(output, folder), { recursive: true });
 await copyFile(path.join(root, 'config/firebase-config.js'), path.join(output, 'config/firebase-config.js'));
 const html = await readFile(path.join(output, 'index.html'), 'utf8');
 await writeFile(path.join(output, 'index.html'), html.replace('</head>', '<script defer src="js/pwa.js?v=1"></script></head>'));

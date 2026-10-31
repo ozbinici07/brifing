@@ -1,0 +1,24 @@
+name: Birimler tests
+on:
+  push:
+    branches: [main, feature/birimler-entegrasyonu, 'codex/**']
+  pull_request:
+jobs:
+  units:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - run: npm ci
+      - run: npm run test:units
+      - run: npm run build:units
+      - run: npx firebase emulators:exec --project demo-brifing-units --only firestore --config tests/firebase.units.json 'node --test tests/unit-firestore-rules.test.cjs'
+        env:
+          UNIT_RULES_FILE: config/firestore.rules

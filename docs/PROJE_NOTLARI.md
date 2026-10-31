@@ -270,3 +270,15 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Alfa kanalı 0–255 doğrulandı. JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın sonucu gönderim sonrası kontrol edilir; kurulu masaüstü kısayol simgesinin yenilenmesi işletim sistemine bağlıdır.
 
 - Yayın başarılı: https://github.com/ozbinici07/brifing/actions/runs/41059862901 (091a5d6). Canlı şeffaf WebP HTTP 200, 68.416 bayt. Yerel alfa kontrolü başarılı; masaüstü kısayolu yeniden kurulmadı.
+
+
+## 31 Ekim 2026 — Birimler entegrasyonu, inceleme dalı
+- Kullanıcı kararı: 23 etkin birim, mevcut değerleriyle 82 brifing sayfası; Excel Veri Yönetimi üzerinden başlangıç/karşılaştırmalı aktarım; sonrasında birim bazında hücre yetkili çevrim içi giriş. Personel Hizmetleri bağımsız modülü yeni Birimler sekmesine dönüşür; arşiv verisi silinmez.
+- Taslak, tek paket gönderim, sabit gönderilmiş sürüm, açıklamalı iade ve yönetici onayı ayrıldı. Okuyucular yalnızca son onaylı sürümü görür. Ortak tabloda düzenleme aralıkları çakışamaz. Yeni dönemler boş başlar. Excel farkları yönetici seçimi olmadan taslağı değiştirmez.
+- Her birime kısa kullanıcı adı; yönetici ek kullanıcı/yönetici oluşturabilir ve birim/sekme erişimini belirleyebilir. İlk girişte şifre değiştirme akışı hazırlanmıştır. Şifreler ve kaynak Excel depoya alınmaz.
+- Ücretsiz altyapı tercihi: sunucu ve ücretlendirme açılmaz; Excel, PDF ve PowerPoint çıktıları tarayıcıda oluşturulur. Eski Python çıktı motorunun birebir çıktısı yerine tarayıcı uyarlaması kullanılır.
+- Kullanıcının son görseline göre arama/filtre, kart/liste görünümü, dört özet kutusu, numaralı 23 birim kartı, içerik sayısı, ilerleme çubuğu ve altta birim ayrıntısı düzenlendi. İstatistik ilk sıradadır. Ana uygulamanın mevcut üst başlığı korunur.
+- Doğrulama: işleyiş testleri 8/8; Firestore emülatör güvenlik testleri 9/9 önceki çalıştırmada geçti. Güncel kart arayüzü derlendi ve yalnızca yerel önizlemede açıldı.
+- Bilinen kaynak uyarısı: gerçek Excel sayfası olmayan bir eski metadata kaydı otomatik tabloya dönüştürülmedi.
+- Yayın durumu: bu kayıt inceleme dalındadır; ana dala alınmadı. Firebase kuralları, başlangıç verileri ve hesapları henüz yayımlanmadı/oluşturulmadı. Canlı doğrulama tamamlanmadı.
+- Kalan işler: son tarayıcı ve çıktı kontrolleri, kuralların yeniden doğrulanması, özel başlangıç aktarımı ve hesaplar, ana dal yayını, otomatik Firebase yayın sonucu ve canlı oturum kontrolü. Yeni Excel sayfalarının gömülü grafik/resim aktarımı ayrıca tamamlanmalıdır.

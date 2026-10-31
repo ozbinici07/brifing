@@ -17,3 +17,6 @@ Thumbs.db
 dist/
 .firebase/
 firebase-debug.log*
+
+node_modules/
+firestore-debug.log*
