@@ -11,7 +11,7 @@ top.querySelector('.app-wordmark')?.remove();
 const overviewTitle=document.createElement('h2');overviewTitle.className='overview-top-title';overviewTitle.textContent='Genel Bakış';top.insertBefore(overviewTitle,top.querySelector('.global-search'));
 const search=top.querySelector('.global-search'),bell=actions.querySelector('#personnelBell');if(search&&bell)actions.insertBefore(search,bell);
 const status=document.querySelector('.overview-status'),avatar=actions.querySelector('.avatar');
-if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('top-period');period.querySelector('b').textContent='Aktif Dönem';period.querySelector('select').setAttribute('aria-label','Aktif dönem');actions.insertBefore(status,avatar);actions.insertBefore(period,avatar);}
+if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('top-period');period.querySelector('b').textContent='Aktif Dönem';period.querySelector('select').setAttribute('aria-label','Görüntülenen dönem');actions.insertBefore(status,avatar);actions.insertBefore(period,avatar);}
 const originalPeriod=document.getElementById('periodSelect'),visiblePeriod=document.getElementById('overviewPeriodSelect');
 if(originalPeriod&&visiblePeriod){const syncDisabled=()=>{visiblePeriod.disabled=originalPeriod.disabled;};syncDisabled();new MutationObserver(syncDisabled).observe(originalPeriod,{attributes:true,attributeFilter:['disabled']});}
 for(const node of [...actions.childNodes])if(node.nodeType===3&&node.textContent.includes('⚙'))node.remove();

@@ -349,3 +349,9 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 2 Kasım 2026 — Kullanıcı listesinin görünür açılması
 - Tarayıcının yerel öneri listesi yerine aynı giriş alanına görünür ok ve açılır kullanıcı listesi eklendi. Oka basınca, hatırlanan kullanıcı alanı dolu olsa da tüm kullanıcılar açılır. Yazarken liste süzülür; fareyle veya yön tuşları ve Enter ile seçim yapılır. Dışarı tıklama/Escape listeyi kapatır. İkinci bir kullanıcı alanı yoktur; hatırlanan oturumun maskesi korunur.
 - İzole tam giriş ekranı kontrolünde tüm listeyi açma, arama, fare/klavye seçimi, tek alan, hatırlanan oturum ve geçersiz token reddi doğrulandı.
+
+## 2 Kasım 2026 — Aktif dönem ve görüntülenen dönemin ayrılması
+- Kullanıcı kararı: Excel Yönetimi'nde belirlenen gerçek aktif dönem Ekim 2026 olmalıdır. Üst çubukta arşiv dönemi görüntülemek sistemin aktif dönemini değiştirmemelidir; yeni sayfa açılışı ve yeni giriş her zaman gerçek aktif dönemi göstermelidir.
+- Eski yerel son dönem seçimi başlangıçta artık kullanılmaz. Görüntüleme seçimi yalnızca sayfanın belleğinde kalır. /api/select-period yalnızca görüntülenen veriyi değiştirir ve Firestore'a yazmaz. Excel Yönetimi'ndeki açık aktif yapma işlemi ayrı /api/activate-period yönetici yoluna taşındı. Gerçek aktif dönem ve görüntülenen dönem API yanıtında ayrı sunulur.
+- Üst başlık seçilen dönem gerçek aktif dönemse Aktif Dönem, arşiv dönemi ise Görüntülenen Dönem yazar. Açılışta dönem listesi yüklenince Birimler görünümleri de aynı dönemle eşitlenir.
+- Doğrulama: üç yeni otomatik testte eski yerel seçimin yok sayılması, arşiv görüntülemenin küresel kayıt yazmaması, yeniden açılış varsayılanı, açık yönetici aktivasyonu ve birim hesabının aktivasyonunun engellenmesi doğrulandı. İzole tam uygulama tarayıcısında başlık, veri, Birimler boş dönem mesajı, yenilemede gerçek aktife dönüş ve açık aktivasyon geçti.
