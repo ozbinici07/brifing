@@ -23,6 +23,22 @@ function normalizeLegacy(seed,overlays){
 }
 function fieldsFromRecord(record){
  const fields={};record.rows.forEach((row,i)=>row.forEach((cell,j)=>{const address=cellAddress(i+(record.rowOffset||1),j);if(typeof cell.v==='number')fields[address]={type:'number',min:0,max:1e12};}));
+ const rows=record.rows,offset=record.rowOffset||1;
+ for(let i=0;i<rows.length;i++){
+  if(typeof rows[i]?.[0]?.v!=='string'||!/^Tablo\s/i.test(rows[i][0].v))continue;
+  let header=i+1;while(header<rows.length&&!rows[header].some(c=>c.v!==null&&String(c.v).trim()))header++;
+  if(header>=rows.length)continue;
+  let end=header+1;while(end<rows.length&&!/^(Tablo\s|Kaynak\s*\/|Kaynak\s*:|Raporlama dönemi)/i.test(String(rows[end]?.[0]?.v||'')))end++;
+  const data=rows.slice(header+1,end),labelled=data.some(row=>row[0]?.v!==null&&String(row[0]?.v??'').trim());
+  for(let r=header+1;r<end;r++){
+   if(labelled&&!rows[r].some(c=>c.v!==null&&String(c.v).trim()))continue;
+   for(let c=0;c<rows[header].length;c++){
+    const label=rows[header][c]?.v;if(typeof label!=='string'||!label.trim()||c===0&&rows[r][0]?.v!==null&&String(rows[r][0]?.v??'').trim())continue;
+    const address=cellAddress(r+offset,c);fields[address]||=/(adet|sayısı|sayisi|miktar|tutar|oran|yüzde|yuzde|ödenek|odenek|toplam)/i.test(label)?{type:'number',min:0,max:1e12}:{type:'text',maxLength:20000};
+   }
+  }
+  i=header;
+ }
  return fields;
 }
 function validateTemplate(template){
@@ -38,6 +54,8 @@ function validateTemplate(template){
 }
 function editableAddresses(template,unitId){validateTemplate(template);const assignments=template.assignments.filter(a=>String(a.unitId)===String(unitId));return Object.keys(template.fields).filter(k=>assignments.some(a=>a.editRanges.some(r=>contains(r,k))));}
 function validateValue(field,value){
+ if(value==='-')return '-';
+ if(typeof value==='string'&&!value.trim())return null;
  if(value===null||value==='')return null;
  if(field.type==='number'||field.type==='integer'){
   if(typeof value!=='number'||!Number.isFinite(value)||(field.type==='integer'&&!Number.isInteger(value))||value<(field.min??0)||value>(field.max??1e12))fail('Sayısal alan geçersiz.');return value;
@@ -56,14 +74,16 @@ function emptyPeriod(templates,unitId){
 }
 function validatePackage(templates,unitId,payload){
  if(!payload||!payload.tables||typeof payload.tables!=='object'||Array.isArray(payload.tables))fail('Birim paketi eksik.');
- const allowed=new Map(templates.filter(t=>editableAddresses(t,unitId).length).map(t=>[String(t.id),t]));
+ const allowed=new Map(templates.filter(t=>t.assignments.some(a=>String(a.unitId)===String(unitId))).map(t=>[String(t.id),t]));
  const tables={};for(const [id,values]of Object.entries(payload.tables)){if(!allowed.has(id))fail('Başka birimin tablosuna veri gönderilemez.');tables[id]=validatePatch(allowed.get(id),unitId,values);}
  for(const [id,t]of allowed){tables[id]||={};for(const address of editableAddresses(t,unitId))if(!(address in tables[id]))tables[id][address]=null;}
  const source=String(payload.source||'').trim(),notes=String(payload.notes||''),asOf=String(payload.asOf||'');
  if(source.length>500||notes.length>10000)fail('Açıklama çok uzun.');
  if(asOf)validateValue({type:'date'},asOf);
- return {tables,source,asOf,notes};
+ const savedTables=[...new Set((payload.savedTables||[]).map(String))];if(savedTables.some(id=>!allowed.has(id)))fail('Kaydedilen tablo listesi geçersiz.');
+ return {tables,source,asOf,notes,savedTables};
 }
+function flatProgress(schema,payload){const ids=schema?.tableIds||[],saved=new Set(payload?.savedTables||[]),cells=payload?.cells||{};const complete=ids.filter(id=>saved.has(String(id))&&(schema.keys||[]).filter(k=>k.startsWith(id+'!')).every(k=>cells[k]!==null&&cells[k]!==undefined&&String(cells[k]).trim()!==''));return {total:ids.length,saved:complete.length,percent:ids.length?Math.floor(complete.length/ids.length*100):0,complete};}
 function transition(existing,command,context){
  const {templates,unitId,actor,now}=context;
  if(!actor||!actor.id||!now)fail('Oturum ve tarih gereklidir.');
@@ -71,12 +91,19 @@ function transition(existing,command,context){
  if(next.unitId!==String(unitId)||next.periodId!==command.periodId)fail('Birim veya dönem uyuşmuyor.');
  if(command.version!==next.version)fail('Kayıt başka oturumda değişti.');
  const manager=actor.role==='admin',editor=manager||(actor.editUnits||[]).map(String).includes(String(unitId));
- if(['save','submit'].includes(command.action)){
+ if(['save','save-table','submit'].includes(command.action)){
   if(!editor)fail('Bu birim için veri giriş yetkiniz yok.');
   const payload=validatePackage(templates,unitId,command.payload);
+  if(next.draft)payload.savedTables=payload.savedTables.filter(id=>equal(payload.tables[id],next.draft.tables[id]));
+  if(command.action==='save-table'){
+   const id=String(command.tableId);if(!(id in payload.tables))fail('Kaydedilecek tablo bu birime bağlı değil.');
+   if(Object.values(payload.tables[id]).some(v=>v===null||v===undefined||String(v).trim()===''))fail('Boş hücre bırakmayınız. Veri yoksa - işareti giriniz.');
+   if(next.draft){const current=payload.tables[id];payload.tables=copy(next.draft.tables);payload.tables[id]=current;payload.savedTables=(next.draft.savedTables||[]).filter(saved=>saved!==id||equal(next.draft.tables[id],current));}
+   payload.savedTables=[...new Set([...payload.savedTables,id])];
+  }
   if(command.action==='submit'){
+   if(!Object.keys(payload.tables).length||payload.savedTables.length!==Object.keys(payload.tables).length||Object.values(payload.tables).some(c=>Object.values(c).some(v=>v===null||v===undefined||String(v).trim()==='')))fail('Tüm tabloları doldurup kaydediniz. Boş kalması gereken alanlara - işareti giriniz.');
    if(!payload.source||!payload.asOf)fail('Kontrole göndermek için kaynak ve veri tarihi giriniz.');
-   if(!Object.values(payload.tables).some(c=>Object.values(c).some(v=>v!==null)))fail('Paket en az bir veri içermelidir.');
    if(equal(payload,next.pending||next.approved))fail('Gönderilecek yeni değişiklik bulunmuyor.');
    next.pending=copy(payload);next.pendingVersion=next.version+1;next.status='pending';next.submittedAt=now;next.submittedBy=actor.id;next.reviewNote='';
   }else if(next.status!=='pending')next.status='draft';
@@ -101,6 +128,6 @@ function applyImport(current,incoming,differences,choices){
  const out=copy(current);
  for(const diff of differences){const choice=choices[diff.key];if(!['keep-current','use-excel'].includes(choice))fail('Her fark için seçim yapınız: '+diff.key);if(choice==='use-excel')out[diff.key]=copy(incoming[diff.key]??null);}return out;
 }
-return {copy,equal,cellAddress,point,range,contains,normalizeLegacy,fieldsFromRecord,validateTemplate,editableAddresses,validatePatch,emptyPeriod,validatePackage,transition,importDifferences,applyImport};
+return {flatProgress,copy,equal,cellAddress,point,range,contains,normalizeLegacy,fieldsFromRecord,validateTemplate,editableAddresses,validatePatch,emptyPeriod,validatePackage,transition,importDifferences,applyImport};
 });
 

@@ -7,6 +7,7 @@ export default function UnitPermissions({units,accounts,busy,onSave,onCreate,onU
  const [unit,setUnit]=useState(String(units[0]?.id||'')),[query,setQuery]=useState(''),[selected,setSelected]=useState<string[]>([]),[changes,setChanges]=useState<any>({}),[role,setRole]=useState(''),[creating,setCreating]=useState(false),[name,setName]=useState('');
  const chosen=units.find(u=>String(u.id)===unit),candidates=accounts.filter(a=>(a.editUnits||[]).includes(unit)||(a.readUnits||[]).includes(unit)),targets=candidates.filter(a=>selected.includes(a.uid));
  useEffect(()=>{setSelected(candidates[0]?[candidates[0].uid]:[]);setChanges({});setRole('');},[unit]);
+ useEffect(()=>{parent.postMessage({type:'bbs-dirty',dirty:!!role||Object.keys(changes).length>0},location.origin);return()=>parent.postMessage({type:'bbs-dirty',dirty:false},location.origin);},[changes,role]);
  const actualRole=role||(targets.length&&targets.every(a=>a.role===targets[0].role)?targets[0].role:'');
  const allowed=(key:string)=>actualRole==='admin'||!adminOnly.has(key);
  const state=(key:string)=>role==='admin'?true:key in changes?changes[key]:targets.length>0&&targets.every(a=>access(role?{...a,role}:a,key,unit));

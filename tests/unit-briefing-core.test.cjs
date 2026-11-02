@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const C=require('../js/unit-briefing-core.js');
 const template={id:'table-1',fields:{B4:{type:'integer'},B5:{type:'integer'},B6:{type:'text'}},assignments:[{unitId:'7',editRanges:['B4:B5']},{unitId:'22',editRanges:['B6']}]};
 const ctx={templates:[template],unitId:'7',actor:{id:'u7',role:'unit',editUnits:['7']},now:'2026-10-31T10:00:00Z'};
-const payload={tables:{'table-1':{B4:12,B5:0}},source:'Birim kaydı',asOf:'2026-10-31',notes:''};
+const payload={tables:{'table-1':{B4:12,B5:0}},source:'Birim kaydı',asOf:'2026-10-31',notes:'',savedTables:['table-1']};
 test('unit can write own range, cannot write another unit or label',()=>{
  assert.deepEqual(C.validatePatch(template,'7',{B4:0}),{B4:0});
  assert.throws(()=>C.validatePatch(template,'7',{B6:'yetkisiz'}));
@@ -37,9 +37,10 @@ test('old approved version survives a returned revision',()=>{
  let p=C.transition(null,{action:'submit',periodId:'2026-10',version:0,payload},ctx);
  p=C.transition(p,{action:'approve',periodId:'2026-10',version:1,pendingVersion:1},admin);
  const changed=C.copy(payload);changed.tables['table-1'].B4=50;
- p=C.transition(p,{action:'submit',periodId:'2026-10',version:2,payload:changed},ctx);
- assert.throws(()=>C.transition(p,{action:'return',periodId:'2026-10',version:3,pendingVersion:3,note:''},admin));
- p=C.transition(p,{action:'return',periodId:'2026-10',version:3,pendingVersion:3,note:'Kaynağı kontrol ediniz.'},admin);
+ p=C.transition(p,{action:'save-table',tableId:'table-1',periodId:'2026-10',version:2,payload:changed},ctx);
+ p=C.transition(p,{action:'submit',periodId:'2026-10',version:3,payload:p.draft},ctx);
+ assert.throws(()=>C.transition(p,{action:'return',periodId:'2026-10',version:4,pendingVersion:4,note:''},admin));
+ p=C.transition(p,{action:'return',periodId:'2026-10',version:4,pendingVersion:4,note:'Kaynağı kontrol ediniz.'},admin);
  assert.equal(p.approved.tables['table-1'].B4,12);assert.equal(p.status,'returned');
 });
 test('stale saves, wrong units, wrong periods and unrelated table injection fail',()=>{
@@ -63,5 +64,24 @@ test('legacy overlays preserve current units and values, while orphan overlays s
  const out=C.normalizeLegacy(seed,[{key:'unit:1',value:{deleted:true}},{key:'record:999',value:{source:true,id:999}}]);
  assert.equal(out.units.length,1);assert.equal(out.records.length,1);assert.equal(out.records[0].rows[0][0].v,9);
  assert.equal(out.warnings[0].code,'orphan-record-overlay');assert.equal(seed.units.length,2);
+});
+test('zero and explicit dash complete a saved table; blanks never complete it',()=>{
+ const data={...C.copy(payload),savedTables:[],tables:{'table-1':{B4:0,B5:null}}};
+ assert.throws(()=>C.transition(null,{action:'save-table',tableId:'table-1',periodId:'P',version:0,payload:data},ctx),/Boş/);
+ data.tables['table-1'].B5='-';const saved=C.transition(null,{action:'save-table',tableId:'table-1',periodId:'P',version:0,payload:data},ctx);
+ assert.deepEqual(saved.draft.savedTables,['table-1']);const submitted=C.transition(saved,{action:'submit',periodId:'P',version:1,payload:saved.draft},ctx);assert.equal(submitted.status,'pending');
+ const schema={tableIds:['table-1'],keys:['table-1!B4','table-1!B5']};assert.equal(C.flatProgress(schema,{cells:{'table-1!B4':0,'table-1!B5':'-'},savedTables:['table-1']}).percent,100);
+ assert.equal(C.flatProgress(schema,{cells:{'table-1!B4':0,'table-1!B5':null},savedTables:['table-1']}).percent,0);
+});
+test('saving one table cannot silently save changes to a different table',()=>{
+ const second={...C.copy(template),id:'table-2'},context={...ctx,templates:[template,second]},data={...C.copy(payload),savedTables:[],tables:{'table-1':{B4:1,B5:2},'table-2':{B4:3,B5:4}}};
+ let report=C.transition(null,{action:'save',periodId:'P',version:0,payload:data},context);const edited=C.copy(report.draft);edited.tables['table-1'].B4=10;edited.tables['table-2'].B4=20;
+ report=C.transition(report,{action:'save-table',tableId:'table-1',periodId:'P',version:1,payload:edited},context);
+ assert.equal(report.draft.tables['table-1'].B4,10);assert.equal(report.draft.tables['table-2'].B4,3);assert.deepEqual(report.draft.savedTables,['table-1']);
+ assert.throws(()=>C.transition(report,{action:'submit',periodId:'P',version:2,payload:report.draft},context),/Tüm tabloları/);
+});
+test('blank briefing form inputs are inferred while section headings and row labels stay locked',()=>{
+ const fields=C.fieldsFromRecord({rowOffset:1,rows:[[{v:'Tablo A-01. Çalışmalar'},{v:null},{v:null}],[{v:'Çalışma konusu'},{v:'Kapsam'},{v:'Talep (adet)'}],[{v:'Teknik destek'},{v:null},{v:null}],[{v:null},{v:null},{v:null}],[{v:'Kaynak / kayıt'},{v:null},{v:null}]]});
+ assert.equal(fields.B3.type,'text');assert.equal(fields.C3.type,'number');assert.equal(fields.A3,undefined);assert.equal(fields.B2,undefined);assert.equal(fields.B4,undefined);assert.equal(fields.B5,undefined);
 });
 

@@ -1,0 +1,6 @@
+(function(){'use strict';const key='bbs_appearance_v1',defaults={theme:'light',largeText:false,reducedMotion:false};
+function get(){try{return {...defaults,...JSON.parse(localStorage.getItem(key)||'{}')};}catch{return {...defaults};}}
+function apply(p){const dark=p.theme==='dark'||p.theme==='system'&&matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('bbs-theme-dark',dark);document.documentElement.classList.toggle('bbs-large-text',!!p.largeText);document.documentElement.classList.toggle('bbs-reduced-motion',!!p.reducedMotion);}
+function sync(){apply(get());}
+function save(p){const next={theme:['light','dark','system'].includes(p.theme)?p.theme:'light',largeText:!!p.largeText,reducedMotion:!!p.reducedMotion};localStorage.setItem(key,JSON.stringify(next));apply(next);document.querySelectorAll('iframe').forEach(f=>f.contentWindow?.postMessage({type:'bbs-appearance'},location.origin));return next;}
+window.BBSappearance={get,save,reset:()=>save(defaults)};window.addEventListener('storage',e=>{if(e.key===key)sync();});window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='bbs-appearance')sync();});matchMedia('(prefers-color-scheme: dark)').addEventListener('change',sync);sync();})();

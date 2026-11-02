@@ -5,7 +5,7 @@ const {initializeTestEnvironment,assertSucceeds,assertFails}=require('@firebase/
 const {doc,setDoc,getDoc,updateDoc,writeBatch}=require('firebase/firestore');
 if(!process.env.FIRESTORE_EMULATOR_HOST)throw Error('Rules tests require the local emulator. Production is never used.');
 let env;
-const payload={cells:{'1!B4':10},source:'Kaynak',asOf:'2026-10-31',notes:''};
+const payload={cells:{'1!B4':10},source:'Kaynak',asOf:'2026-10-31',notes:'',savedTables:['1']};
 const report={unitId:'7',periodId:'P',version:1,status:'draft',draft:payload,pending:null,pendingVersion:null,approved:null,approvedVersion:null};
 const ref=(db,path)=>doc(db,path);
 const user=id=>env.authenticatedContext(id,{email:id+'@example.test'}).firestore();
@@ -102,4 +102,17 @@ test('only administrators can replace accounts and append password reset audit e
  await assertFails(updateDoc(ref(admin,'unitAccountEvents/reset'),{actor:'changed'}));
  await assertSucceeds(updateDoc(ref(admin,'unitAccounts/a'),{active:false,replacedBy:'new'}));
  await assertFails(getDoc(ref(unit,'unitPeriods/P/reports/7')));
+});
+test('submission requires every schema field and saved table; dash and zero are valid',async()=>{
+ const db=user('a'),path=ref(db,'unitPeriods/P/reports/7'),submit=draft=>({version:2,status:'pending',pending:draft,draft,pendingVersion:2,submittedBy:'a',reviewNote:''});
+ await assertFails(updateDoc(path,submit({...payload,savedTables:[]})));
+ await assertFails(updateDoc(path,submit({...payload,cells:{}})));
+ await assertFails(updateDoc(path,submit({...payload,cells:{'1!B4':null}})));
+ await assertFails(updateDoc(path,submit({...payload,cells:{'1!B4':''}})));
+ await assertSucceeds(updateDoc(path,submit({...payload,cells:{'1!B4':'-'}})));
+});
+test('source workbook archive stays private to administrators',async()=>{
+ await assertSucceeds(setDoc(ref(user('manager'),'unitPeriods/P/excelFiles/latest'),{name:'source.xlsx'}));
+ await assertSucceeds(setDoc(ref(user('manager'),'unitPeriods/P/excelFiles/latest/parts/0'),{payload:'private'}));
+ await assertFails(getDoc(ref(user('a'),'unitPeriods/P/excelFiles/latest')));await assertFails(getDoc(ref(user('a'),'unitPeriods/P/excelFiles/latest/parts/0')));
 });
