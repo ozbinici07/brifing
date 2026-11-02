@@ -8,6 +8,8 @@ const uid=()=>{try{return JSON.parse(atob(window.token().split('.')[1].replace(/
 let profile=null,catalog=null;
 const isAdmin=()=>window.authUser?.()?.role==='System Admin';
 async function account(){if(!uid())return null;const d=await api().read('unitAccounts/'+uid());profile=d?.data||(window.authUser()?.username==='admin'?{uid:uid(),username:'admin',role:'admin',active:true,editUnits:[],readUnits:[],screens:['*']}:null);if(!profile?.active)throw Error('Bu hesabın birim erişimi etkin değil.');return profile;}
+async function unitContacts(unitId){unitId=String(unitId);const p=await account();if(!isAdmin()&&![...(p?.editUnits||[]),...(p?.readUnits||[])].includes(unitId))throw Error('Bu birimin iletişim bilgilerine erişim yetkiniz yok.');return await api().read('unitContacts/'+unitId);}
+async function saveUnitContacts(unitId,value,version=0){unitId=String(unitId);const p=await account();if(!isAdmin()&&!p?.editUnits?.includes(unitId))throw Error('Bu birimin iletişim bilgilerini düzenleme yetkiniz yok.');const snapshot=await unitContacts(unitId);if((snapshot?.data.version||0)!==version)throw Error('İletişim bilgileri başka bir kullanıcı tarafından değiştirildi. Sayfayı yenileyiniz.');const data={unitId,version:version+1,updatedBy:uid(),updatedAt:new Date().toISOString()};for(const role of ['manager','chief','personnel']){const person=value?.[role]||{},name=String(person.name||'').trim(),phone=String(person.phone||'').trim();if(name.length>120||phone.length>40)throw Error('Ad soyad en çok 120, telefon en çok 40 karakter olmalıdır.');data[role]={name,phone};}await api().commit([api().write('unitContacts/'+unitId,data,snapshot)]);return data;}
 async function listPeriods(){return (await api().list('unitPeriods')).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))||b.name.localeCompare(a.name,'tr'));}
 async function units(){catalog=(await api().read('unitCatalog/main'))?.data||{units:[]};return catalog.units;}
 async function schemas(period){const p=await account(),us=await units();return isAdmin()?await api().list('unitPeriods/'+period+'/schemas'):Promise.all([...new Set([...(p.editUnits||[]),...(p.readUnits||[])])].map(id=>api().read('unitPeriods/'+period+'/schemas/'+id).then(d=>d?{id:String(id),...d.data}:null))).then(a=>a.filter(Boolean));}
@@ -252,6 +254,6 @@ async function pendingNotifications(){
 }
 
 function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
-window.UnitBriefingService={sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
+window.UnitBriefingService={unitContacts,saveUnitContacts,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
 

@@ -116,6 +116,14 @@ service cloud.firestore {
     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChange']) &&
     resource.data.mustChange == true && request.resource.data.mustChange == false);
   }
+  function validContactPerson(p) { return p is map && p.keys().hasAll(['name','phone']) && p.keys().hasOnly(['name','phone']) && p.name is string && p.name.size()<=120 && p.phone is string && p.phone.size()<=40; }
+  function validUnitContacts(d,unitId) { return d.keys().hasAll(['unitId','version','manager','chief','personnel','updatedBy','updatedAt']) && d.keys().hasOnly(['unitId','version','manager','chief','personnel','updatedBy','updatedAt']) && d.unitId==unitId && d.version is int && d.version>0 && d.updatedBy==request.auth.uid && d.updatedAt is string && d.updatedAt.size()<=40 && validContactPerson(d.manager) && validContactPerson(d.chief) && validContactPerson(d.personnel); }
+  match /unitContacts/{unitId} {
+   allow read: if readUnit(unitId);
+   allow create: if editUnit(unitId) && validUnitContacts(request.resource.data,unitId) && request.resource.data.version==1;
+   allow update: if editUnit(unitId) && validUnitContacts(request.resource.data,unitId) && request.resource.data.version==resource.data.version+1;
+   allow delete: if isAdmin();
+  }
   match /unitCatalog/{id} { allow read: if isAdmin() || activeAccount(); allow write: if isAdmin(); }
   match /unitMedia/{id} {
    allow read: if sharedUnits(resource.data.allowedUnits);
