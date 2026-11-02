@@ -2,7 +2,7 @@ const {test,before,after,beforeEach}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {initializeTestEnvironment,assertSucceeds,assertFails}=require('@firebase/rules-unit-testing');
-const {doc,setDoc,getDoc,updateDoc,writeBatch}=require('firebase/firestore');
+const {doc,setDoc,getDoc,updateDoc,writeBatch,collection,getCountFromServer}=require('firebase/firestore');
 if(!process.env.FIRESTORE_EMULATOR_HOST)throw Error('Rules tests require the local emulator. Production is never used.');
 let env;
 const payload={cells:{'1!B4':10},source:'Kaynak',asOf:'2026-10-31',notes:'',savedTables:['1']};
@@ -119,3 +119,6 @@ test('source workbook archive stays private to administrators',async()=>{
 
 test('unit contact editing is limited to assigned units and administrator, read grants stay read-only',async()=>{const contact={unitId:'7',version:1,manager:{name:'Örnek kişi',phone:'123'},chief:{name:'',phone:''},personnel:{name:'',phone:''},updatedBy:'a',updatedAt:'2026-11-02T00:00:00Z'};await assertSucceeds(setDoc(ref(user('a'),'unitContacts/7'),contact));await assertSucceeds(getDoc(ref(user('b'),'unitContacts/7')));await assertFails(updateDoc(ref(user('b'),'unitContacts/7'),{version:2,updatedBy:'b'}));await assertFails(getDoc(ref(user('a'),'unitContacts/22')));await assertFails(getDoc(ref(user('revoked'),'unitContacts/7')));await assertSucceeds(updateDoc(ref(user('manager'),'unitContacts/7'),{version:2,updatedBy:'manager',manager:{name:'Yönetici güncellemesi',phone:'456'}}));});
 test('unit contacts reject stale versions, identity spoofing, oversized values and extra fields',async()=>{const db=user('a'),contact={unitId:'7',version:1,manager:{name:'Kişi',phone:'123'},chief:{name:'',phone:''},personnel:{name:'',phone:''},updatedBy:'a',updatedAt:'2026-11-02T00:00:00Z'};await assertFails(setDoc(ref(db,'unitContacts/7'),{...contact,updatedBy:'b'}));await assertFails(setDoc(ref(db,'unitContacts/7'),{...contact,manager:{name:'a'.repeat(121),phone:''}}));await assertFails(setDoc(ref(db,'unitContacts/7'),{...contact,role:'admin'}));await assertSucceeds(setDoc(ref(db,'unitContacts/7'),contact));await assertFails(updateDoc(ref(db,'unitContacts/7'),{manager:{name:'Değişti',phone:'123'}}));await assertFails(updateDoc(ref(db,'unitContacts/7'),{version:2,unitId:'22'}));await assertFails(updateDoc(ref(db,'unitContacts/7'),{version:2,manager:{name:'Kişi',phone:'123',role:'admin'}}));});
+
+
+test('administrator can count schemas and tables without exposing collection counts to unit accounts',async()=>{const manager=user('manager');assert.equal((await assertSucceeds(getCountFromServer(collection(manager,'unitPeriods/P/schemas')))).data().count,2);assert.equal((await assertSucceeds(getCountFromServer(collection(manager,'unitPeriods/P/tables')))).data().count,1);await assertFails(getCountFromServer(collection(user('a'),'unitPeriods/P/schemas')));await assertFails(getCountFromServer(collection(user('a'),'unitPeriods/P/tables')));});
