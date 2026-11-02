@@ -3,7 +3,7 @@ const C=require('../js/unit-briefing-core'),M=require('../js/unit-migration');
 function setup(role='System Admin'){
  const documents=new Map(),commits=[];let failAt=-1;
  const api={read:async p=>documents.has(p)?{data:C.copy(documents.get(p)),updateTime:'revision'}:null,list:async p=>[...documents].filter(([k])=>k.startsWith(p+'/')&&!k.slice(p.length+1).includes('/')).map(([k,v])=>({id:k.split('/').pop(),...C.copy(v)})),write:(path,data)=>({path,data}),commit:async writes=>{commits.push(writes);if(commits.length===failAt)throw Error('Simulated connection loss');for(const w of writes)documents.set(w.path,C.copy(w.data));}};
- const context={document:{getElementById:()=>null},UnitBriefingCore:C,UnitMigration:M,BRIFING_FIREBASE_CONFIG:{},__personnelFirestore:api,authUser:()=>({role}),token:()=>'.'+btoa(JSON.stringify({user_id:'caller'}))+'.',crypto:require('node:crypto').webcrypto,atob,Date};context.window=context;
+ const context={document:{getElementById:()=>null},UnitUserPermissions:require('../js/unit-permissions-core'),UnitBriefingCore:C,UnitMigration:M,BRIFING_FIREBASE_CONFIG:{},__personnelFirestore:api,authUser:()=>({role}),token:()=>'.'+btoa(JSON.stringify({user_id:'caller'}))+'.',crypto:require('node:crypto').webcrypto,atob,Date};context.window=context;
  vm.runInNewContext(fs.readFileSync(require.resolve('../js/unit-service'),'utf8'),context);
  return {S:context.UnitBriefingService,documents,commits,context,setFailure:n=>failAt=n};
 }
@@ -48,4 +48,10 @@ test('self password changes require the current password and refresh the same se
  await assert.rejects(t.S.changePassword('new-test-password',''),/Mevcut/);
  await t.S.changePassword('new-test-password','old-test-password');assert.equal(updates.length,2);assert.equal(updates[1].idToken,'changed');assert.equal(t.commits.length,0);
  t.context.fetch=async()=>({ok:false,json:async()=>({error:{message:'INVALID_PASSWORD'}})});await assert.rejects(t.S.changePassword('new-test-password','wrong'),/doğrulanamadı/);
+});
+test('bulk permission changes are one commit and only target selected users',async()=>{
+ const t=setup();for(const uid of ['one','two','untouched']){t.documents.set('unitAccounts/'+uid,{uid,username:uid,role:'unit',editUnits:['6'],readUnits:['22'],screens:['units']});t.documents.set('unitLoginDirectory/'+uid,{username:uid,role:'Unit User'});}
+ await t.S.saveUnitUserPermissions(['one','two'],'6',{students:true},'');assert.equal(t.commits.length,1);assert.equal(t.commits[0].length,4);
+ assert.ok(t.documents.get('unitAccounts/one').screens.includes('students'));assert.ok(t.documents.get('unitAccounts/two').screens.includes('students'));assert.deepEqual(t.documents.get('unitAccounts/untouched').screens,['units']);
+ await assert.rejects(t.S.saveUnitUserPermissions(['one'],'99',{students:true},''),/bağlı değil/);
 });

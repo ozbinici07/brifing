@@ -84,6 +84,28 @@ async function updateAccount(data){
  const dir=await api().read('unitLoginDirectory/'+next.username),d={...dir.data,active:next.active,role:next.role==='admin'?'System Admin':'Unit User'};
  await api().commit([api().write('unitAccounts/'+data.uid,next,current),api().write('unitLoginDirectory/'+next.username,d,dir)]);
 }
+async function saveUnitUserPermissions(ids,unitId,changes,role){
+ if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
+ ids=[...new Set(ids)];if(!ids.length||ids.length>100)throw Error('1–100 kullanıcı seçiniz.');
+ const writes=[];
+ for(const id of ids){
+  const path='unitAccounts/'+id,old=await api().read(path),a=old?.data;
+  if(!a||a.replacedBy||![...(a.editUnits||[]),...(a.readUnits||[])].includes(String(unitId)))throw Error('Seçilen kullanıcı bu birime bağlı değil.');
+  const next=window.UnitUserPermissions.apply(a,unitId,changes,role);
+  if(id===uid()&&next.role!=='admin')throw Error('Kendi yönetici yetkinizi kaldıramazsınız.');
+  const dirPath='unitLoginDirectory/'+next.username,dir=await api().read(dirPath);if(!dir)throw Error('Kullanıcı giriş kaydı bulunamadı.');
+  writes.push(api().write(path,next,old),api().write(dirPath,{...dir.data,role:next.role==='admin'?'System Admin':'Unit User'},dir));
+ }
+ await api().commit(writes);return true;
+}
+async function createUnit(name){
+ if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');name=String(name||'').trim();if(name.length<2||name.length>160)throw Error('Birim adı 2–160 karakter olmalıdır.');
+ const old=await api().read('unitCatalog/main'),list=old?.data.units||[];
+ if(list.some(u=>u.name.toLocaleLowerCase('tr')===name.toLocaleLowerCase('tr')))throw Error('Bu birim adı zaten kullanılıyor.');
+ const id=Math.max(0,...list.map(u=>Number(u.id)))+1,unit={id,name,username:'birim'+id,owner:'',description:''},writes=[api().write('unitCatalog/main',{...(old?.data||{}),units:[...list,unit]},old)];
+ for(const p of await listPeriods())if(p.ready&&!p.locked){const base='unitPeriods/'+p.id;writes.push(api().write(base+'/schemas/'+id,{unitId:String(id),keys:[],tableIds:[],titles:[]},null),api().write(base+'/reports/'+id,{unitId:String(id),periodId:p.id,version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''},pending:null,approved:null,pendingVersion:null,approvedVersion:null},null));}
+ await api().commit(writes);return unit;
+}
 async function resetAccountPassword(targetUid,password){
  if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
  if(typeof password!=='string'||password.length<8)throw Error('Geçici şifre en az 8 karakter olmalıdır.');
@@ -216,6 +238,6 @@ async function applyExcel(plan,choices){
 }
 
 function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
-window.UnitBriefingService={resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
+window.UnitBriefingService={createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
 

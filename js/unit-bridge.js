@@ -17,6 +17,7 @@ async function refreshAccess(){if(!window.token?.())return;profile=await S.accou
 const oldShow=window.show;window.show=function(page){if(profile?.role!=='admin'&&profile&&!profile.screens?.includes(page))page=profile.screens?.[0]||'units';oldShow(page);};
 const login=window.login;window.login=async function(){await login();if(!window.token?.())return;try{await refreshAccess();window.show(profile.role==='admin'?'overview':profile.screens?.[0]||'units');document.querySelectorAll('.unit-system-frame').forEach(f=>f.src=f.dataset.src||f.src);}catch(e){window.forceLogin();$('loginMsg').textContent=e.message;}};
 window.addEventListener('DOMContentLoaded',()=>{if(window.token?.())refreshAccess().then(()=>{if(profile?.role!=='admin')window.show(profile.screens?.[0]||'units');}).catch(()=>window.forceLogin());});
+const accountIcon=document.querySelector('.top-actions .avatar');if(accountIcon){accountIcon.setAttribute('role','button');accountIcon.setAttribute('tabindex','0');accountIcon.setAttribute('aria-label','Şifremi Değiştir');accountIcon.title='Şifremi Değiştir';accountIcon.style.cursor='pointer';const openPassword=()=>{window.show('units');const f=units.querySelector('iframe');f?.contentWindow.postMessage({type:'bbs-open-password'},location.origin);};accountIcon.onclick=openPassword;accountIcon.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPassword();}};}
 window.addEventListener('beforeunload',()=>{profile=null;});
 })();
 
