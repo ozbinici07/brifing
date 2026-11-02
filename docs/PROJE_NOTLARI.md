@@ -345,3 +345,7 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcı düzeltmesi: ayrı seçim ve yazma alanı istenmiyor. Kullanıcı/Birim artık tek bir yazılabilir alan; yerel öneri listesi aynı alan üzerinden kullanıcı adlarını sunar. Eski seçim kontrolü yalnızca mevcut giriş koduyla uyumluluk için gizli tutulur; ikinci etiket/alan görünmez.
 - Hatırlanan oturum hazırsa şifre alanında maske noktaları gösterilir. Gerçek şifre kaydedilmez veya yapay şifre değeri gönderilmez; Giriş Yap yenilenebilir oturumu doğrular. Şifreyi göster düğmesi yalnızca gerçek bir şifre girildiğinde çalışır. Hatırlama ilk başarılı girişten sonra hazır olur; çıkış veya oturum iptali tekrar şifre gerektirir.
 - Doğrulama: üç Auth oturum testi ve tarayıcıda tek görünür kullanıcı alanı, dolu öneri listesi, hatırlanan kullanıcı, maskeli görünüm, şifresiz devam ve geçersiz token engeli başarılı.
+
+## 2 Kasım 2026 — Kullanıcı listesinin görünür açılması
+- Tarayıcının yerel öneri listesi yerine aynı giriş alanına görünür ok ve açılır kullanıcı listesi eklendi. Oka basınca, hatırlanan kullanıcı alanı dolu olsa da tüm kullanıcılar açılır. Yazarken liste süzülür; fareyle veya yön tuşları ve Enter ile seçim yapılır. Dışarı tıklama/Escape listeyi kapatır. İkinci bir kullanıcı alanı yoktur; hatırlanan oturumun maskesi korunur.
+- İzole tam giriş ekranı kontrolünde tüm listeyi açma, arama, fare/klavye seçimi, tek alan, hatırlanan oturum ve geçersiz token reddi doğrulandı.
