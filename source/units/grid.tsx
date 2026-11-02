@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import {Building2,Users,Coins,School,ClipboardList,House,Presentation,BookOpen,Monitor,ChartNoAxesCombined,Landmark,HeartHandshake,Globe} from 'lucide-react';
 import {RecordItem,bounds,includes,colName,display,fold} from './types';
 function indicatorIcon(label:string){
@@ -14,18 +14,19 @@ function indicatorIcon(label:string){
  if(/kitap|kurs|egitim/.test(key))return BookOpen;
  return ChartNoAxesCombined;
 }
-function ReadableGrid({page,ranges}:{page:RecordItem;ranges:string[]}){
+function ReadableGrid({page,ranges,unitName,cellContent}:{page:any;ranges:string[];unitName?:string;cellContent:(r:number,c:number)=>React.ReactNode}){
+ const layout=page.layoutRows||page.rows;const hasField=(r:number,c?:number)=>Object.keys(page.fields||{}).some(a=>{const pt=bounds(a);return pt&&pt.r1===r&&(c===undefined||pt.c1===c)&&includes(r,pt.c1,ranges);});
  const offset=page.rowOffset||4;
  const merges=page.merges.map(bounds).filter(Boolean) as NonNullable<ReturnType<typeof bounds>>[];
  const nonempty=(v:any)=>v!==null&&v!==undefined&&(typeof v!=='string'||(v.trim()!==''&&!/^(?:veri yok|bilgi yok|n\/a|[-—–])$/i.test(v.trim())));
- const visible=page.rows.map((row,i)=>({row,r:i+offset})).filter(({row,r})=>row.some((cell,c)=>nonempty(cell.v)&&includes(r,c,ranges))||merges.some(m=>r>=m.r1&&r<=m.r2&&includes(m.r1,m.c1,ranges)&&nonempty(page.rows[m.r1-offset]?.[m.c1]?.v)));
+ const visible=layout.map((row,i)=>({row,r:i+offset})).filter(({row,r})=>row.some((cell,c)=>nonempty(cell.v)&&includes(r,c,ranges))||hasField(r)||merges.some(m=>r>=m.r1&&r<=m.r2&&includes(m.r1,m.c1,ranges)&&nonempty(layout[m.r1-offset]?.[m.c1]?.v)));
  const footnotes:string[]=[];
  const groups:typeof visible[]=[];
  let separated=true,lastNote=false;
  for(const item of visible){
   const cells=item.row.filter((cell,c)=>nonempty(cell.v)&&includes(item.r,c,ranges));
   const value=cells.length===1?String(cells[0].v):'';
-  const note=cells.length===1&&(/^[*†‡]/.test(value.trim())||/^(not|kaynak|açıklama)\s*:/i.test(value.trim())||(lastNote&&/^[A-Z]$/.test(value.trim())));
+  const note=!hasField(item.r)&&cells.length===1&&(/^[*†‡]/.test(value.trim())||/^(not|kaynak|açıklama)\s*:/i.test(value.trim())||(lastNote&&/^[A-Z]$/.test(value.trim())));
   if(note){footnotes.push(value);separated=true;lastNote=true;continue}
   lastNote=false;
   const last=groups[groups.length-1];
@@ -37,7 +38,7 @@ function ReadableGrid({page,ranges}:{page:RecordItem;ranges:string[]}){
  for(const group of groups){
   let data=[...group];const first=data[0];
   const cells=first.row.map((cell,c)=>({cell,c})).filter(({cell,c})=>nonempty(cell.v)&&includes(first.r,c,ranges));
-  if(cells.length===1&&typeof cells[0].cell.v==='string'&&String(cells[0].cell.v).length<180&&(data.length>1||groups.length>1)){
+  if(!hasField(first.r)&&cells.length===1&&typeof cells[0].cell.v==='string'&&String(cells[0].cell.v).length<180&&(data.length>1||groups.length>1)){
    const heading=display(cells[0].cell);data=data.slice(1);
    if(!data.length){if(pending)sections.push({title:pending,rows:[]});pending=heading;continue}
    if(pending)sections.push({title:pending,rows:[]});pending=heading;
@@ -48,27 +49,28 @@ function ReadableGrid({page,ranges}:{page:RecordItem;ranges:string[]}){
  function indicatorData(section:typeof sections[number]){
   const columns=Array.from(new Set(section.rows.flatMap(({row,r})=>row.map((cell,c)=>nonempty(cell.v)&&includes(r,c,ranges)?c:-1).filter(c=>c>=0)))).sort((a,b)=>a-b);
   if(columns.length!==2)return null;
-  let items=section.rows.filter(({row,r})=>columns.some(c=>includes(r,c,ranges)&&nonempty(row[c]?.v)));
+  let items=section.rows.filter(({row,r})=>columns.some(c=>includes(r,c,ranges)&&(nonempty(row[c]?.v)||hasField(r,c))));
   const first=items[0];let columnTitles='';
   if(first&&columns.every(c=>typeof first.row[c]?.v==='string')&&(/^(bilgi|gösterge|gosterge|veri|tür|tur|açıklama|aciklama)/i.test(String(first.row[columns[0]]?.v))||/^(veri|değer|deger|sayı|sayi|adet|toplam)$/i.test(String(first.row[columns[1]]?.v)))){columnTitles=columns.map(c=>display(first.row[c])).join(' · ');items=items.slice(1);}
   if(items.some(({row})=>!columns.every(c=>nonempty(row[c]?.v))))return null;
   if(items.length<2||items.some(({row,r})=>typeof row[columns[0]]?.v!=='string'||String(row[columns[0]].v).length>160||String(row[columns[1]]?.v??'').length>110||!columns.every(c=>includes(r,c,ranges))||merges.some(m=>m.r2>m.r1&&r>=m.r1&&r<=m.r2)))return null;
-  const cards=items.filter(({row})=>nonempty(row[columns[1]]?.v)).map(({row,r})=>({label:display(row[columns[0]]),value:display(row[columns[1]]||{v:null}),r,columnTitles}));return cards.length?cards:null;
+  if(section.rows.some(({r})=>Object.keys(page.fields||{}).some(a=>{const pt=bounds(a);return pt&&pt.r1===r&&includes(r,pt.c1,ranges)&&(pt.c1!==columns[1]||!items.some(item=>item.r===r));})))return null;
+  const cards=items.filter(({row})=>nonempty(row[columns[1]]?.v)).map(({row,r})=>({label:display(row[columns[0]]),value:display(row[columns[1]]||{v:null}),r,c:columns[1],columnTitles}));return cards.length?cards:null;
  }
  // All source structures share the presentation shell, including matrix and text pages.
  const hasIndicators=sections.length>0;
  const category=sections.filter(section=>!section.rows.length).map(section=>section.title).filter(Boolean);
  const CategoryIcon=/insaat|emlak|yatirim/.test(fold(category.join(' ')+' '+page.title))?Building2:Landmark;
- return <div className="readable-sheet"><div className={hasIndicators?'indicator-dashboard':'table-sections'}>{hasIndicators&&<aside className="indicator-sidebar"><div className="indicator-category"><CategoryIcon size={34}/><h3>{category[0]||'EĞİTİM BRİFİNGİ'}</h3></div><div className="indicator-story"><HeartHandshake size={56}/>{category.slice(1).map((title,i)=><h4 key={i}>{title}</h4>)}<p>{page.description||'Muğla İl Millî Eğitim Müdürlüğü'}</p><span className="indicator-red-rule"/><small>Brifing Bilgi Sistemi</small></div></aside>}<div className={hasIndicators?'indicator-main':'table-sections'}>{sections.map((section,index)=>{
+ return <div className="readable-sheet"><div className={hasIndicators?'indicator-dashboard':'table-sections'}>{hasIndicators&&<aside className="indicator-sidebar"><div className="indicator-category"><CategoryIcon size={34}/><h3>{page.title}</h3></div><div className="indicator-story"><HeartHandshake size={56}/><p>{unitName||page.description||'Muğla İl Millî Eğitim Müdürlüğü'}</p><span className="indicator-red-rule"/><small>Brifing Bilgi Sistemi</small></div></aside>}<div className={hasIndicators?'indicator-main':'table-sections'}>{sections.map((section,index)=>{
   const indicators=indicatorData(section);
   if(!section.rows.length)return <section className="indicator-section" key={index}><h3>{section.title}</h3></section>;
   if(indicators)return <section className="indicator-section" data-automatic="indicators" key={index}><h3><ChartNoAxesCombined size={25}/>{section.title||page.title}</h3>{indicators[0]?.columnTitles&&<p className="indicator-fields">{indicators[0].columnTitles}</p>}<div className="indicator-cards">{indicators.map((item,i)=>{
    const Icon=indicatorIcon(item.label);const parts=item.value.match(/^([\d.,]+)\s+(\(.+|\+.+)$/);
    const value=parts?parts[1]:item.value;const note=parts?parts[2]:'';
-   return <article className={'indicator-card '+(i%2?'indicator-blue':'indicator-red')} key={item.r}><span className="indicator-icon"><Icon size={28}/></span><div className="indicator-content"><h4>{item.label}</h4><span className="indicator-line"/><strong className={(value.length>13?'indicator-long ':'')+(!value?'indicator-missing':'')}>{value}</strong>{note&&<small>{note}</small>}</div><Icon className="indicator-watermark" aria-hidden="true"/></article>
+   return <article className={'indicator-card '+(i%2?'indicator-blue':'indicator-red')} key={item.r}><span className="indicator-icon"><Icon size={28}/></span><div className="indicator-content"><h4>{item.label}</h4><span className="indicator-line"/><strong className={(value.length>13?'indicator-long ':'')+(!value?'indicator-missing':'')}>{cellContent(item.r,item.c)}</strong></div><Icon className="indicator-watermark" aria-hidden="true"/></article>
   })}</div></section>;
   const data=section.rows;
-  let cols=Array.from({length:Math.max(1,...data.map(({row})=>row.length))},(_,c)=>c).filter(c=>data.some(({row,r})=>includes(r,c,ranges)&&nonempty(row[c]?.v)));
+  let cols=Array.from({length:Math.max(1,...data.map(({row})=>row.length))},(_,c)=>c).filter(c=>data.some(({row,r})=>includes(r,c,ranges)&&(nonempty(row[c]?.v)||hasField(r,c))));
   const first=data[0];const values=first?cols.map(c=>first.row[c]).filter(cell=>nonempty(cell?.v)):[];
   const header=values.length>1&&values.every(cell=>typeof cell.v==='string')&&(values.some(cell=>cell.bold)||values.some(cell=>/^(bilgi|veri|ilçe|ilce|resm|özel|toplam|açıklama|sıra|branş|okul tür)/i.test(String(cell.v))));
   let headerEnd=first?.r||0;
@@ -78,11 +80,11 @@ function ReadableGrid({page,ranges}:{page:RecordItem;ranges:string[]}){
   let body=data.slice(headings.length);
 
   const populated=data.map(({row,r})=>row.map((cell,c)=>({cell,c})).filter(({cell,c})=>nonempty(cell.v)&&includes(r,c,ranges)));
-  if(populated.length&&populated.every(cells=>cells.length<=1))return <section className="indicator-section brief-narrative-section" data-automatic="narrative" key={index}><h3><BookOpen size={25}/>{section.title||page.title}</h3><div className="brief-narrative">{populated.map((cells,i)=>cells.length>0&&<p key={data[i].r} className={cells[0].cell.bold?'brief-narrative-emphasis':''}>{display(cells[0].cell)}</p>)}</div></section>;
+  if(!data.some(({r})=>hasField(r))&&populated.length&&populated.every(cells=>cells.length<=1))return <section className="indicator-section brief-narrative-section" data-automatic="narrative" key={index}><h3><BookOpen size={25}/>{section.title||page.title}</h3><div className="brief-narrative">{populated.map((cells,i)=>cells.length>0&&<p key={data[i].r} className={cells[0].cell.bold?'brief-narrative-emphasis':''}>{display(cells[0].cell)}</p>)}</div></section>;
   const recordCards=header&&headings.length===1&&cols.length>=3&&cols.length<=7&&body.length>0&&body.length<=48&&cols.every(c=>nonempty(first.row[c]?.v))&&body.every(({row,r})=>includes(r,cols[0],ranges)&&typeof row[cols[0]]?.v==='string'&&nonempty(row[cols[0]]?.v)&&!merges.some(m=>r>=m.r1&&r<=m.r2&&cols.some(c=>c>=m.c1&&c<=m.c2)));
   if(recordCards)return <section className="indicator-section brief-record-section" data-automatic="records" key={index}><h3><ChartNoAxesCombined size={25}/>{section.title||page.title}</h3><p className="indicator-fields">{display(first.row[cols[0]])}</p><div className="brief-record-cards">{body.map(({row,r},i)=>{
    const label=display(row[cols[0]]);const Icon=indicatorIcon(section.title+' '+page.title);const total=fold(label).includes('toplam');
-   return <article className={'brief-record-card '+(total?'brief-record-total':'')} key={r}><header><span className={'brief-record-icon '+(i%2?'record-blue':'')}><Icon size={24}/></span><h4>{label}</h4></header><dl>{cols.slice(1).filter(c=>includes(r,c,ranges)).map(c=><div key={c}><dt>{display(first.row[c])}</dt><dd>{display(row[c]||{v:null})}</dd></div>)}</dl></article>
+   return <article className={'brief-record-card '+(total?'brief-record-total':'')} key={r}><header><span className={'brief-record-icon '+(i%2?'record-blue':'')}><Icon size={24}/></span><h4>{label}</h4></header><dl>{cols.slice(1).filter(c=>includes(r,c,ranges)).map(c=><div key={c}><dt>{display(first.row[c])}</dt><dd>{cellContent(r,c)}</dd></div>)}</dl></article>
   })}</div></section>;
   function renderRow(item:typeof visible[number],isHeader=false){
    const {row,r}=item;const total=String(row[cols[0]]?.v||'').toLocaleLowerCase('tr-TR').includes('toplam');
@@ -92,14 +94,18 @@ function ReadableGrid({page,ranges}:{page:RecordItem;ranges:string[]}){
     if(whole&&(r!==merge.r1||c!==merge.c1))return null;
     const cell=row[c]||{v:null};const allowed=includes(r,c,ranges);const value=allowed?display(cell):'';
     const Tag=isHeader?'th':'td';
-    return <Tag key={c} scope={isHeader?'col':undefined} colSpan={whole?cols.filter(x=>x>=merge.c1&&x<=merge.c2).length:1} rowSpan={whole?data.filter(x=>x.r>=merge.r1&&x.r<=merge.r2).length:1} className={i===0?'readable-label':''} style={{fontWeight:cell.bold?700:undefined}}>{isHeader?value:!allowed||!nonempty(cell.v)?'':i===0?value:<span className="readable-value">{value}</span>}</Tag>
+    return <Tag key={c} scope={isHeader?'col':undefined} colSpan={whole?cols.filter(x=>x>=merge.c1&&x<=merge.c2).length:1} rowSpan={whole?data.filter(x=>x.r>=merge.r1&&x.r<=merge.r2).length:1} className={i===0?'readable-label':''} style={{fontWeight:cell.bold?700:undefined}}>{!allowed?'':isHeader&&!hasField(r,c)?value:i===0?cellContent(r,c):<span className="readable-value">{cellContent(r,c)}</span>}{whole&&<div className="merged-field-values">{data.filter(x=>x.r>=merge.r1&&x.r<=merge.r2).flatMap(x=>cols.filter(cc=>cc>=merge.c1&&cc<=merge.c2&&(x.r!==r||cc!==c)&&hasField(x.r,cc)).map(cc=><span key={colName(cc)+x.r}>{cellContent(x.r,cc)}</span>))}</div>}</Tag>
    })}</tr>
   }
   return <section className="readable-table-card brief-matrix-section" data-automatic="matrix" key={index}><h3><ChartNoAxesCombined size={25}/>{section.title||page.title}</h3>{data.length>0&&<div className="readable-table-scroll"><table className="sheet-grid readable-table">{header&&<thead>{headings.map(item=>renderRow(item,true))}</thead>}<tbody>{body.map(item=>renderRow(item))}</tbody></table></div>}</section>
  })}{footnotes.length>0&&<section className="brief-footnotes" aria-label="Tablo açıklamaları">{footnotes.map((note,i)=><p key={i}>{note}</p>)}</section>}</div></div></div>
 }
-export default function Grid({page,ranges=['*'],select,selected}:{page:RecordItem;ranges?:string[];select?:(r:number,c:number)=>void;selected?:string}){
- if(!select)return <ReadableGrid page={page} ranges={ranges}/>;
+export default function Grid({page,ranges=['*'],select,selected,editable=false,keys=[],onChange,unitName}:{page:any;ranges?:string[];select?:(r:number,c:number)=>void;selected?:string;editable?:boolean;keys?:string[];onChange?:(address:string,value:any)=>void;unitName?:string}){
+ const [buffer,setBuffer]=useState<Record<string,string>>({});useEffect(()=>setBuffer({}),[page.id]);
+ function cellContent(r:number,c:number){const cell=page.rows[r-(page.rowOffset||4)]?.[c]||{v:null},address=colName(c)+r,field=page.fields?.[address];if(!editable||!field||!keys.includes(page.id+'!'+address)||!includes(r,c,ranges))return display(cell);
+ return <input className="brief-cell-input" aria-label={address} title={address+' — Boş bırakmayınız; veri yoksa - giriniz.'} placeholder="Değer veya -" value={buffer[address]??String(cell.v??'')} inputMode={['number','integer'].includes(field.type)?'decimal':'text'} onChange={e=>{const raw=e.target.value;setBuffer(old=>({...old,[address]:raw}));let value:any=raw.trim();if(!value)value=null;else if(value!=='-'&&['number','integer'].includes(field.type)){const normalized=value.includes(',')?value.replace(/\./g,'').replace(',','.'):value,n=Number(normalized);if(Number.isFinite(n))value=n;}onChange?.(address,value);}}/>;
+ }
+ if(!select)return <ReadableGrid page={page} ranges={ranges} unitName={unitName} cellContent={cellContent}/>;
  const offset=page.rowOffset||4;const rows=page.rows;let max=0;rows.forEach(row=>row.forEach((c,i)=>{if(c.v!==null&&c.v!=='')max=Math.max(max,i+1)}));max=Math.max(1,max);
  const cols=Array.from({length:max},(_,i)=>i).filter(c=>rows.some((_,i)=>includes(i+offset,c,ranges)));
  const merges=page.merges.map(bounds).filter(Boolean) as NonNullable<ReturnType<typeof bounds>>[];

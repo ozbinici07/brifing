@@ -62,7 +62,7 @@ async function materialize(period,schema,view){
  const cells=payload?.cells||{};
  return {report:(!canEdit&&r?{...r.data,status:'approved',approved:r.data.payload,draft:r.data.payload}:r?.data)||{version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''}},canEdit,records:await Promise.all(ts.map(async t=>{
   const row=clone(t.rows);for(const[address]of Object.entries(t.fields)){const pt=C.point(address),v=Object.prototype.hasOwnProperty.call(cells,t.id+'!'+address)?cells[t.id+'!'+address]:(payload&&(view==='approved'||!canEdit)?t.legacyStaticValues?.[address]??null:null);if(row[pt.row-t.rowOffset]?.[pt.column])row[pt.row-t.rowOffset][pt.column].v=v;}
-  return {...t,rows:row,images:await Promise.all((t.mediaIds||[]).map(media))};
+  const layoutRows=clone(t.rows);for(const [address,value]of Object.entries(t.legacyStaticValues||{})){const pt=C.point(address);if(layoutRows[pt.row-t.rowOffset]?.[pt.column])layoutRows[pt.row-t.rowOffset][pt.column].v=value;}return {...t,layoutRows,rows:row,images:await Promise.all((t.mediaIds||[]).map(media))};
  }))};
 }
 async function createAccount(data){
