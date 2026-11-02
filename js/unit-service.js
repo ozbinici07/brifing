@@ -241,9 +241,11 @@ async function applyExcel(plan,choices){
  }
  if(plan.sourceFile){const file=plan.sourceFile,path=root+'/excelFiles/latest',parts=[];for(let i=0;i<file.base64.length;i+=240000){const id=String(parts.length);parts.push(id);const part=path+'/parts/'+id;writes.push(api().write(part,{payload:file.base64.slice(i,i+240000)},await api().read(part)));}const old=await api().read(path);writes.push(api().write(path,{name:file.name,type:file.type,size:file.size,parts,updatedAt:new Date().toISOString()},old));}
  if(writes.length>450)throw Error('Bu dosya tek aktarım sınırını aşıyor. Tabloları daha küçük Excel dosyalarıyla aktarınız.');
- await api().commit(writes);
+ await api().commit(writes);excelSummaryCache.delete(plan.period);
 }
 
+const excelSummaryCache=new Map();
+async function unitExcelSummary(period){if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');const cached=excelSummaryCache.get(period);if(cached&&Date.now()-cached.at<2000)return cached.promise;const promise=Promise.all([sourceExcel(period),api().read('unitPeriods/'+period),api().list('unitPeriods/'+period+'/schemas'),api().list('unitPeriods/'+period+'/tables')]).then(([file,state,schemas,tables])=>({file,unitCount:schemas.length,tableCount:tables.length,loaded:!!file||!!(state?.data.ready&&state.data.sourceSha256)}));excelSummaryCache.set(period,{promise,at:Date.now()});try{return await promise;}catch(e){excelSummaryCache.delete(period);throw e;}}
 async function sourceExcel(period){if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');return (await api().read('unitPeriods/'+period+'/excelFiles/latest'))?.data||null;}
 async function downloadSourceExcel(period){const file=await sourceExcel(period);if(!file)throw Error('Bu dönemde kaynak birim Excel dosyası yüklenmemiş.');const parts=await Promise.all(file.parts.map(id=>api().read('unitPeriods/'+period+'/excelFiles/latest/parts/'+id)));if(parts.some(p=>!p))throw Error('Excel arşivinde eksik parça var.');const binary=atob(parts.map(p=>p.data.payload).join('')),bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));if(bytes.length!==file.size)throw Error('Dosya boyutu doğrulanamadı.');const url=URL.createObjectURL(new Blob([bytes],{type:file.type})),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
 
@@ -254,6 +256,6 @@ async function pendingNotifications(){
 }
 
 function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
-window.UnitBriefingService={unitContacts,saveUnitContacts,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
+window.UnitBriefingService={unitContacts,saveUnitContacts,unitExcelSummary,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
 
