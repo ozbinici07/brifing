@@ -93,3 +93,13 @@ test('initial imports are staged by administrators while units cannot write',asy
  await assertFails(setDoc(ref(user('a'),'unitPeriods/P/migration/audit'),{source:'private'}));
  await assertSucceeds(setDoc(ref(user('manager'),'unitPeriods/P/migration/audit'),{source:'private'}));
 });
+test('only administrators can replace accounts and append password reset audit events',async()=>{
+ const unit=user('a'),admin=user('manager');
+ await assertFails(updateDoc(ref(unit,'unitAccounts/a'),{active:false,replacedBy:'new'}));
+ await assertFails(setDoc(ref(unit,'unitAccounts/new'),{uid:'new',role:'unit',active:true,editUnits:['7']}));
+ await assertFails(setDoc(ref(unit,'unitAccountEvents/reset'),{action:'temporary-password',actor:'a'}));
+ await assertSucceeds(setDoc(ref(admin,'unitAccountEvents/reset'),{action:'temporary-password',actor:'manager'}));
+ await assertFails(updateDoc(ref(admin,'unitAccountEvents/reset'),{actor:'changed'}));
+ await assertSucceeds(updateDoc(ref(admin,'unitAccounts/a'),{active:false,replacedBy:'new'}));
+ await assertFails(getDoc(ref(unit,'unitPeriods/P/reports/7')));
+});

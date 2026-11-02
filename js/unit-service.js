@@ -71,7 +71,7 @@ async function createAccount(data){
  const email=data.username+'@brifingbilgisistemi.firebaseapp.com';
  const response=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+cfg.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:data.password,returnSecureToken:false})}),j=await response.json();
  if(!response.ok)throw Error(j.error?.message==='EMAIL_EXISTS'?'Bu kullanıcı için kimlik hesabı zaten var.':'Hesap oluşturulamadı: '+(j.error?.message||response.status));
- const next={uid:j.localId,username:data.username,display:data.display||data.username,role:data.role||'unit',active:true,editUnits:data.editUnits||[],readUnits:data.readUnits||[],screens:data.screens||['units'],mustChange:true};
+ const next={uid:j.localId,username:data.username,display:data.display||data.username,role:data.role||'unit',active:true,editUnits:data.editUnits||[],readUnits:data.readUnits||[],screens:data.screens||['units'],mustChange:false};
  const directory={username:next.username,email,display:next.display,unit:'Birimler',role:next.role==='admin'?'System Admin':'Unit User',active:true};
  try{await api().commit([api().write('unitAccounts/'+j.localId,next,null),api().write('unitLoginDirectory/'+next.username,directory,null)]);}catch(e){throw Error('Kimlik hesabı açıldı ancak yetki kaydı tamamlanamadı. Aynı hesabı yeniden oluşturmadan yöneticiden kayıt onarımı isteyiniz. '+e.message);}
  return next;
@@ -84,10 +84,39 @@ async function updateAccount(data){
  const dir=await api().read('unitLoginDirectory/'+next.username),d={...dir.data,active:next.active,role:next.role==='admin'?'System Admin':'Unit User'};
  await api().commit([api().write('unitAccounts/'+data.uid,next,current),api().write('unitLoginDirectory/'+next.username,d,dir)]);
 }
-async function changePassword(password){
+async function resetAccountPassword(targetUid,password){
+ if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
+ if(typeof password!=='string'||password.length<8)throw Error('Geçici şifre en az 8 karakter olmalıdır.');
+ const path='unitAccounts/'+targetUid,old=await api().read(path);
+ if(!old||old.data.role!=='unit'||old.data.replacedBy||targetUid===uid())throw Error('Bu işlem yalnızca güncel birim hesapları için kullanılabilir.');
+ const directoryPath='unitLoginDirectory/'+old.data.username,directory=await api().read(directoryPath);
+ if(!directory)throw Error('Giriş kaydı bulunamadı.');
+ // Spark has no trusted server for privileged Auth updates. Rotate the login identity,
+ // then atomically retire the old grants and switch the directory. Never store a password.
+ const email=old.data.username+'.'+crypto.randomUUID()+'@brifingbilgisistemi.firebaseapp.com';
+ const response=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+cfg.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password,returnSecureToken:false})}),j=await response.json();
+ if(!response.ok||!j.localId)throw Error('Geçici şifre hazırlanamadı. Daha sonra yeniden deneyiniz.');
+ const at=new Date().toISOString(),next={...old.data,uid:j.localId,mustChange:false,passwordResetAt:at};
+ await api().commit([
+  api().write('unitAccounts/'+j.localId,next,null),
+  api().write(path,{...old.data,active:false,replacedBy:j.localId,replacedAt:at},old),
+  api().write(directoryPath,{...directory.data,email},directory),
+  api().write('unitAccountEvents/'+crypto.randomUUID(),{action:'temporary-password',actor:uid(),username:old.data.username,previousUid:targetUid,uid:j.localId,at},null)
+ ]);
+ return next;
+}
+async function changePassword(password,currentPassword){
  if(typeof password!=='string'||password.length<8)throw Error('Şifre en az 8 karakter olmalıdır.');
- const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:update?key='+cfg.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:window.token(),password,returnSecureToken:false})}),j=await r.json();if(!r.ok)throw Error('Şifre değiştirilemedi: '+(j.error?.message||r.status));
- const p=await api().read('unitAccounts/'+uid());if(p)await api().commit([api().write('unitAccounts/'+uid(),{...p.data,mustChange:false},p)]);
+ if(!currentPassword)throw Error('Mevcut şifrenizi giriniz.');
+ const p=await account(),directory=(await api().read('unitLoginDirectory/'+p.username))?.data;
+ const email=directory?.email||(p.username==='admin'?'admin@brifingbilgisistemi.firebaseapp.com':null);
+ if(!email)throw Error('Giriş kaydı bulunamadı.');
+ const signIn=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+cfg.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:currentPassword,returnSecureToken:true})}),auth=await signIn.json();
+ if(!signIn.ok||auth.localId!==uid())throw Error('Mevcut şifre doğrulanamadı.');
+ window.__updateFirebaseSessionTokens(auth);
+ const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:update?key='+cfg.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:window.token(),password,returnSecureToken:true})}),j=await r.json();if(!r.ok)throw Error('Şifre değiştirilemedi. Lütfen yeniden giriş yapıp deneyiniz.');
+ window.__updateFirebaseSessionTokens(j);
+ const snapshot=await api().read('unitAccounts/'+uid());if(snapshot?.data.mustChange)await api().commit([api().write('unitAccounts/'+uid(),{...snapshot.data,mustChange:false},snapshot)]);
 }
 async function newPeriod(name){
  if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');name=String(name||'').trim();if(name.length<4||name.length>100)throw Error('Dönem adı giriniz.');
@@ -187,6 +216,6 @@ async function applyExcel(plan,choices){
 }
 
 function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
-window.UnitBriefingService={initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
+window.UnitBriefingService={resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
 
