@@ -19,6 +19,6 @@ jobs:
       - run: npm ci
       - run: npm run test:units
       - run: npm run build:units
-      - run: npx firebase emulators:exec --project demo-brifing-units --only firestore --config tests/firebase.units.json 'node --test tests/unit-firestore-rules.test.cjs'
+      - run: npm run test:rules
         env:
           UNIT_RULES_FILE: config/firestore.rules

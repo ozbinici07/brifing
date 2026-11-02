@@ -18,6 +18,7 @@ async function report(period,unit){return await api().read('unitPeriods/'+period
 function nested(payload){if(!payload)return null;const tables={};for(const[k,v]of Object.entries(payload.cells||{})){const i=k.indexOf('!'),id=k.slice(0,i),cell=k.slice(i+1);(tables[id]||={})[cell]=v;}return {tables,source:payload.source,asOf:payload.asOf,notes:payload.notes};}
 function flat(payload){if(!payload)return null;return {cells:Object.fromEntries(Object.entries(payload.tables).flatMap(([id,cells])=>Object.entries(cells).map(([k,v])=>[id+'!'+k,v]))),source:payload.source,asOf:payload.asOf,notes:payload.notes};}
 async function savePackage(period,unit,command){
+ const periodSnapshot=await api().read('unitPeriods/'+period);if(periodSnapshot?.data.locked)throw Error('Bu dönem kilitli; geçmiş dönem verileri değiştirilemez.');
  const [s,ts,p]=await Promise.all([api().read('unitPeriods/'+period+'/schemas/'+unit),report(period,unit),account()]);
  if(!s)throw Error('Birim tablo tanımları bulunamadı.');
  const t=await templates(period,s.data),existing=ts?.data;
@@ -31,6 +32,27 @@ async function savePackage(period,unit,command){
  return stored;
 }
 async function media(id){const meta=await api().read('unitMedia/'+id);if(!meta)throw Error('Görsel bulunamadı.');const parts=await Promise.all(meta.data.parts.map(i=>api().read('unitMedia/'+id+'/parts/'+i)));return 'data:'+meta.data.mime+';base64,'+parts.map(d=>d.data.payload).join('');}
+async function initialImport(snapshot,targetPeriodId){
+ if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
+ const id=targetPeriodId||'legacy_'+snapshot.source?.sha256?.slice(0,16),root='unitPeriods/'+id;
+ const existing=await api().read(root);
+ const plan=window.UnitMigration.build(snapshot,id,existing?.data.createdAt||new Date().toISOString());
+ if(existing?.data.ready)throw Error('Bu kaynak daha önce aktarıldı. Güncellemeler için Excel karşılaştırmasını kullanınız.');
+ if(existing&&existing.data.sourceSha256!==snapshot.source.sha256)throw Error('Aktarım kimliği başka kaynağa ait.');
+ const oldCatalog=await api().read('unitCatalog/main');
+ if(oldCatalog?.data.units?.length&&!C.equal(oldCatalog.data.units.map(u=>String(u.id)).sort(),plan.units.map(u=>String(u.id)).sort()))throw Error('Mevcut birim listesi farklı. Başlangıç aktarımı mevcut kataloğu değiştiremez.');
+ const prior=await api().list(root+'/reports');if(prior.some(r=>r.version!==0))throw Error('Başlangıç aktarımı birim girişlerinin üzerine yazamaz.');
+ for(const asset of Object.values(snapshot.assets||{})){
+  const bytes=Uint8Array.from(atob(asset.base64),c=>c.charCodeAt(0));const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
+  if(digest!==asset.sha256)throw Error('Görselin dosya özeti uyuşmuyor.');
+ }
+ await api().commit([api().write(root,plan.period,existing)]);
+ for(let i=0;i<plan.writes.length;i+=20){const batch=[];for(const item of plan.writes.slice(i,i+20)){const old=await api().read(item.path);const data=item.path.startsWith('unitMedia/')&&!item.path.includes('/parts/')?{...item.data,allowedUnits:[...new Set([...(old?.data.allowedUnits||[]),...item.data.allowedUnits])]}:item.data;if(old&&C.equal(old.data,data))continue;if(old&&item.path.includes('/reports/'))throw Error('Aktarım taslağı değişmiş; mevcut veri korunarak aktarım durduruldu.');batch.push(api().write(item.path,data,old));}if(batch.length)await api().commit(batch);}
+ const latest=await api().read(root),catalogNow=await api().read('unitCatalog/main');
+ await api().commit([api().write('unitCatalog/main',{units:plan.units},catalogNow),api().write(root,{...plan.period,ready:true},latest)]);
+ return plan;
+}
+async function setLocked(period,locked){if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');const path='unitPeriods/'+period,old=await api().read(path);if(!old)throw Error('Dönem bulunamadı.');await api().commit([api().write(path,{...old.data,locked:!!locked},old)]);}
 async function materialize(period,schema,view){
  const p=await account(),canEdit=p.role==='admin'||p.editUnits?.includes(String(schema.unitId));
  const [ts,r]=await Promise.all([templates(period,schema),canEdit?report(period,schema.unitId):api().read('unitPeriods/'+period+'/published/'+schema.unitId)]);
@@ -82,6 +104,7 @@ async function newPeriod(name){
 
 async function saveMapping(period,template){
  if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
+ if((await api().read('unitPeriods/'+period))?.data.locked)throw Error('Bu dönem kilitli.');
  C.validateTemplate(template);
  const root='unitPeriods/'+period,[all,ss,rs]=await Promise.all([api().list(root+'/tables'),api().list(root+'/schemas'),api().list(root+'/reports')]);
  if(rs.some(r=>r.status==='pending'))throw Error('Eşlemeyi değiştirmeden önce kontrol bekleyen paketleri sonuçlandırınız.');
@@ -101,9 +124,10 @@ async function saveMapping(period,template){
  for(const id of template.mediaIds||[]){const p='unitMedia/'+id,old=await api().read(p);if(old)writes.push(api().write(p,{...old.data,allowedUnits:[...new Set([...old.data.allowedUnits,...template.allowedUnits])]},old));}
  await api().commit(writes);
 }
-async function prepareExcel(period,file){
+async function prepareExcel(period,file,Zip){
  if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
- const workbook=window.XLSX.read(await file.arrayBuffer(),{type:'array',cellNF:true,cellStyles:true}),root='unitPeriods/'+period;
+ const buffer=await file.arrayBuffer(),workbook=window.XLSX.read(buffer,{type:'array',cellNF:true,cellStyles:true}),root='unitPeriods/'+period;
+ const drawingMedia=await window.UnitExcelMedia.read(buffer,Zip,workbook);
  const [ss,rs]=await Promise.all([api().list(root+'/schemas'),api().list(root+'/reports')]);
  const tables=await api().list(root+'/tables'),byId=Object.fromEntries(tables.map(t=>[t.id,t])),differences=[],changes=[];
  for(const schema of ss){
@@ -117,20 +141,30 @@ async function prepareExcel(period,file){
   const ws=workbook.Sheets[sheet],bounds=window.XLSX.utils.decode_range(ws['!ref']||'A1'),rowOffset=/^\d+ /.test(sheet)?4:1,rows=[];
   for(let r=rowOffset-1;r<=bounds.e.r;r++){const row=[];for(let col=0;col<=bounds.e.c;col++){const cell=ws[window.XLSX.utils.encode_cell({r,c:col})];row.push({v:cell?.v??null,f:cell?.z||'General',bold:false,bg:null});}rows.push(row);}
   const record={id:'sheet_'+crypto.randomUUID().replace(/-/g,''),title:String(ws.A3?.v||sheet),sheet,rowOffset,rows,merges:(ws['!merges']||[]).map(window.XLSX.utils.encode_range),images:[],mediaIds:[],charts:[],description:'',owner:'',content:'Excel tablosu',source:true,legacyStatus:'pending'};
-  return {...record,fields:C.fieldsFromRecord(record),unitId:''};
+  return {...record,charts:drawingMedia[sheet]?.charts||[],importImages:drawingMedia[sheet]?.images||[],fields:C.fieldsFromRecord(record),unitId:''};
  });
  return {name:file.name,period,differences,changes,newTables};
 }
 async function applyExcel(plan,choices){
  if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
+ plan=C.copy(plan);
+ const periodState=await api().read('unitPeriods/'+plan.period);if(periodState?.data.locked)throw Error('Bu dönem kilitli.');
  const root='unitPeriods/'+plan.period,writes=[];
- const extra={};
+ const extra={},newMedia=new Map();
  for(const table of plan.newTables||[]){
   if(!table.unitId)throw Error('Yeni tabloların birim atamasını seçiniz.');
   const unitId=String(table.unitId),incoming={};for(const address of Object.keys(table.fields)){const p=C.point(address);incoming[table.id+'!'+address]=table.rows[p.row-table.rowOffset]?.[p.column]?.v??null;table.rows[p.row-table.rowOffset][p.column].v=null;}
-  const t={...table,assignments:[{unitId,editRanges:['*']}],allowedUnits:[unitId],links:[{unit:Number(unitId),range:'*',label:'Tüm sayfa'}]};
+  const {importImages=[],...clean}=table;
+  const t={...clean,mediaIds:importImages.map(image=>image.id),assignments:[{unitId,editRanges:['*']}],allowedUnits:[unitId],links:[{unit:Number(unitId),range:'*',label:'Tüm sayfa'}]};
+  C.validateTemplate(t);
+  for(const image of importImages){const old=newMedia.get(image.id);if(old)old.allowedUnits.push(unitId);else newMedia.set(image.id,{...image,allowedUnits:[unitId]});}
   writes.push(api().write(root+'/tables/'+t.id,encodeTable(t),null));
   (extra[unitId]||={cells:{},tables:[]});Object.assign(extra[unitId].cells,incoming);extra[unitId].tables.push(t.id);
+ }
+ for(const image of newMedia.values()){
+  const mediaPath='unitMedia/'+image.id,old=await api().read(mediaPath),parts=[];
+  for(let offset=0;offset<image.base64.length;offset+=240000){const index=String(parts.length);parts.push(index);const path=mediaPath+'/parts/'+index;writes.push(api().write(path,{payload:image.base64.slice(offset,offset+240000)},await api().read(path)));}
+  writes.push(api().write(mediaPath,{mime:image.mime,parts,allowedUnits:[...new Set([...(old?.data.allowedUnits||[]),...image.allowedUnits])]},old));
  }
  for(const item of plan.changes){
   const snapshot=await report(plan.period,item.unitId),old=snapshot?.data;if(!old||old.version!==item.version)throw Error('Önizlemeden sonra birim verisi değişti; Excel’i yeniden inceleyiniz.');
@@ -148,10 +182,11 @@ async function applyExcel(plan,choices){
   writes.push(api().write(basePath,{cells:item.baseline,sourceName:plan.name},base));
   writes.push(api().write(root+'/history/'+crypto.randomUUID(),{unitId:String(item.unitId),actor:uid(),action:'import',version:next.version,at:new Date().toISOString(),payload:{before:old.draft,sourceName:plan.name}},null));
  }
+ if(writes.length>450)throw Error('Bu dosya tek aktarım sınırını aşıyor. Tabloları daha küçük Excel dosyalarıyla aktarınız.');
  await api().commit(writes);
 }
 
-function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
-window.UnitBriefingService={choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
+function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
+window.UnitBriefingService={initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
 

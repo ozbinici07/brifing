@@ -282,3 +282,14 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Bilinen kaynak uyarısı: gerçek Excel sayfası olmayan bir eski metadata kaydı otomatik tabloya dönüştürülmedi.
 - Yayın durumu: bu kayıt inceleme dalındadır; ana dala alınmadı. Firebase kuralları, başlangıç verileri ve hesapları henüz yayımlanmadı/oluşturulmadı. Canlı doğrulama tamamlanmadı.
 - Kalan işler: son tarayıcı ve çıktı kontrolleri, kuralların yeniden doğrulanması, özel başlangıç aktarımı ve hesaplar, ana dal yayını, otomatik Firebase yayın sonucu ve canlı oturum kontrolü. Yeni Excel sayfalarının gömülü grafik/resim aktarımı ayrıca tamamlanmalıdır.
+
+
+## 2 Kasım 2026 — Birimler aktarımı ve doğrulama
+- İnceleme dalındaki eksik başlangıç aktarımı tamamlandı. Özel JSON önce doğrulanır; kaynak özeti, birim/hücre atamaları, grafikler ve parçalı görseller korunur. Yarım aktarım görünmez kalır ve tekrar çalıştırılabilir; kullanıcı girişlerinin veya tamamlanmış aktarımın üzerine yazılmaz.
+- Ekim_2026 birim dönemine 23 birim, 82 tablo, 14 grafik, 4 görsel ve 1.622 düzenlenebilir sayısal hücre mevcut değerleriyle taslak olarak taşındı. Eski tek karşılıksız metadata uyarısı özel denetim kaydında korundu. Ana sistemin seçili dönemi değiştirilmedi.
+- 23 ayrı birim hesabı oluşturuldu; insankaynaklari, hayatboyu, bilgiislem vb. kısa adlar kullanılır. Her hesap yalnızca kendi biriminde düzenleme ve Birimler sekmesi izniyle başlar; ilk girişte şifre değişimi istenir. Başlangıç şifreleri yalnızca yerel özel dosyada; depoda veya Hosting paketinde bulunmaz.
+- Excel çizim/görselleri OOXML paketinden tarayıcıda okunur. Eski okuyucudaki Türkçe karakter bozulması birim aktarımında düzeltildi. Gerçek kaynak dosya karşılaştırması sıfır fark ve sıfır yeni tabloyla doğrulandı. Kaynak dosyanın kapak görseli dahil 5 görseli bulunur; aktarılan 82 içerikte 4 görsel vardır.
+- Pasta/çizgi/sütun grafik türleri korundu. PDF ve PowerPoint yakalamalarında JPEG kullanılarak İstatistik örneği yaklaşık 3,9/4,1 MB'a indirildi. Çıktılar tarayıcıda üretildi, PDF sayfası görsel olarak incelendi; PowerPoint paketi üretildi. Sunucu veya ücretli altyapı açılmadı.
+- Yönetici dönem kilidini açıp kapatabilir; kilitli dönemde yönetici dahil paket düzenleme/onay kurallarla engellenir. Ekim başlangıç dönemi düzenlemeye açıktır; gelecek dönemlerin kilidi yöneticiye aittir.
+- Doğrulama: 14 işleyiş/aktarım testi, 11 Firestore emülatör güvenlik testi, Türkçe ve gömülü grafik/görsel için 1 tarayıcı testi geçti. 23 kart, liste, ayrıntı ve Excel/PDF/PowerPoint indirmeleri yerel tarayıcıda çalıştı; hata kaydı yok. Gerçek dosyalar ve ekran görüntüleri depo dışında tutuldu.
+- Kurallar ve Hosting yayını ile canlı oturum doğrulaması bu kayıt anında devam ediyor; sonucu aşağıya eklenecek.

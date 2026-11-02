@@ -1,1 +1,0 @@
-{"firestore":{"rules":"../config/firestore.rules"},"emulators":{"firestore":{"port":8185},"ui":{"enabled":false}}}

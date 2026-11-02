@@ -9,7 +9,7 @@ const payload={cells:{'1!B4':10},source:'Kaynak',asOf:'2026-10-31',notes:''};
 const report={unitId:'7',periodId:'P',version:1,status:'draft',draft:payload,pending:null,pendingVersion:null,approved:null,approvedVersion:null};
 const ref=(db,path)=>doc(db,path);
 const user=id=>env.authenticatedContext(id,{email:id+'@example.test'}).firestore();
-before(async()=>{env=await initializeTestEnvironment({projectId:'demo-brifing-units',firestore:{rules:fs.readFileSync(process.env.UNIT_RULES_FILE||__dirname+'/firestore.rules','utf8')}})});
+before(async()=>{env=await initializeTestEnvironment({projectId:'demo-brifing-units',firestore:{rules:fs.readFileSync(process.env.UNIT_RULES_FILE||__dirname+'/../config/firestore.rules','utf8')}})});
 after(async()=>{await env?.cleanup()});
 beforeEach(async()=>{await env.clearFirestore();await env.withSecurityRulesDisabled(async c=>{const db=c.firestore(),batch=writeBatch(db);for(const [path,data]of Object.entries({
  'unitAccounts/a':{uid:'a',role:'unit',active:true,editUnits:['7'],readUnits:[],screens:['units'],mustChange:true},
@@ -79,4 +79,17 @@ test('unit audit history is append-only and scoped to its package version',async
  await assertSucceeds(setDoc(ref(db,'unitPeriods/P/history/one'),h));
  await assertFails(updateDoc(ref(db,'unitPeriods/P/history/one'),{version:2}));
  await assertFails(setDoc(ref(db,'unitPeriods/P/history/other'),{...h,unitId:'22'}));
+});
+test('locked periods reject unit and administrator report edits',async()=>{
+ await env.withSecurityRulesDisabled(c=>updateDoc(ref(c.firestore(),'unitPeriods/P'),{locked:true}));
+ await assertFails(updateDoc(ref(user('a'),'unitPeriods/P/reports/7'),{version:2,draft:payload}));
+ await assertFails(updateDoc(ref(user('manager'),'unitPeriods/P/reports/7'),{version:2,draft:payload}));
+ await assertSucceeds(getDoc(ref(user('a'),'unitPeriods/P/reports/7')));
+});
+test('initial imports are staged by administrators while units cannot write',async()=>{
+ await env.withSecurityRulesDisabled(c=>updateDoc(ref(c.firestore(),'unitPeriods/P'),{ready:false}));
+ await assertFails(updateDoc(ref(user('a'),'unitPeriods/P/reports/7'),{version:2,draft:payload}));
+ await assertSucceeds(updateDoc(ref(user('manager'),'unitPeriods/P/reports/7'),{version:2,draft:payload}));
+ await assertFails(setDoc(ref(user('a'),'unitPeriods/P/migration/audit'),{source:'private'}));
+ await assertSucceeds(setDoc(ref(user('manager'),'unitPeriods/P/migration/audit'),{source:'private'}));
 });
