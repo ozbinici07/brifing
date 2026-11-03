@@ -3,7 +3,7 @@
 'use strict';
 const C=window.UnitBriefingCore,$=id=>document.getElementById(id),cfg=window.BRIFING_FIREBASE_CONFIG;
 const api=()=>window.__personnelFirestore;
-const clone=C.copy;
+const clone=C.copy,T=window.UnitTableCore;
 const uid=()=>{try{return JSON.parse(atob(window.token().split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).user_id;}catch{return '';}};
 let profile=null,catalog=null;
 const isAdmin=()=>window.authUser?.()?.role==='System Admin';
@@ -22,7 +22,7 @@ function flat(payload){if(!payload)return null;return {cells:Object.fromEntries(
 async function savePackage(period,unit,command){
  const periodSnapshot=await api().read('unitPeriods/'+period);if(periodSnapshot?.data.locked)throw Error('Bu dönem kilitli; geçmiş dönem verileri değiştirilemez.');
  const [s,ts,p]=await Promise.all([api().read('unitPeriods/'+period+'/schemas/'+unit),report(period,unit),account()]);
- if(!s)throw Error('Birim tablo tanımları bulunamadı.');
+ if(!s)throw Error('Birim tablo tanımları bulunamadı.');if(s.data.tableKeys&&command.action!=='save-table')throw Error('Bu dönemde onay işlemleri tablo bazındadır.');
  const t=await templates(period,s.data),existing=ts?.data;
  const from=existing?{...existing,draft:nested(existing.draft),pending:nested(existing.pending),approved:nested(existing.approved)}:null;
  const next=C.transition(from,{...command,periodId:period,payload:command.payload?nested(command.payload):undefined},{unitId:unit,templates:t,actor:{id:uid(),role:p.role,editUnits:p.editUnits},now:new Date().toISOString()});
@@ -33,6 +33,13 @@ async function savePackage(period,unit,command){
  await api().commit(writes);
  return stored;
 }
+
+const reviewId=(unit,id)=>String(unit)+'__'+String(id);
+async function tableReviews(period,unit){const p=await account(),root='unitPeriods/'+period;if(unit!==undefined&&!isAdmin()&&!p.editUnits?.includes(String(unit)))return [];const ids=unit!==undefined?[String(unit)]:isAdmin()?null:[...new Set(p.editUnits||[])];if(ids===null)return api().list(root+'/tableReviews');return (await Promise.all(ids.map(id=>api().query?api().query(root,{from:[{collectionId:'tableReviews'}],where:{fieldFilter:{field:{fieldPath:'unitId'},op:'EQUAL',value:{stringValue:id}}}}):api().list(root+'/tableReviews').then(rows=>rows.filter(r=>r.unitId===id))))).flat();}
+async function pendingReviews(period){if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');return (await tableReviews(period)).filter(r=>r.pending&&r.status==='pending');}
+async function reviewTable(period,unit,id,command){const root='unitPeriods/'+period,[ps,s,r,p,review]=await Promise.all([api().read(root),api().read(root+'/schemas/'+unit),report(period,unit),account(),api().read(root+'/tableReviews/'+reviewId(unit,id))]);if(ps?.data.locked)throw Error('Bu dönem kilitli.');if(!s?.data.tableKeys?.[id])throw Error('Tablo bazlı onay tanımı henüz hazır değil.');if(!r)throw Error('Birim kaydı bulunamadı.');if(command.action==='submit'&&command.reportVersion!==r.data.version)throw Error('Tablo başka bir oturumda değişti. Yenileyiniz.');const draft=T.scope(s.data,String(id),r.data.draft);if(command.action==='submit'){const t=(await api().read(root+'/tables/'+id))?.data;if(!t)throw Error('Tablo tanımı eksik.');C.validatePatch(decodeTable(t),unit,Object.fromEntries(Object.entries(draft.cells).map(([k,v])=>[k.split('!')[1],v])));}const next=T.transition(review?.data,command,{unitId:String(unit),tableId:String(id),periodId:period,actor:{id:uid(),role:p.role,editUnits:p.editUnits},now:new Date().toISOString(),schema:s.data,draft:r.data.draft});const stamps=command.action==='submit'?['updatedAt','submittedAt']:command.action==='approve'?['updatedAt','approvedAt']:['updatedAt'];const writes=[api().write(root+'/tableReviews/'+reviewId(unit,id),next,review,stamps),api().write(root+'/tableReviewHistory/'+crypto.randomUUID(),{unitId:String(unit),tableId:String(id),reviewId:reviewId(unit,id),actor:uid(),action:command.action,version:next.version,at:new Date().toISOString(),payload:command.action==='return'?{note:command.note}:command.action==='approve'?next.approved:next.pending},null,['at'])];if(command.action==='approve'){const master=T.mergeApproved(r.data,next);writes.push(api().write(root+'/reports/'+unit,master,r));const path=root+'/published/'+unit,pub=await api().read(path);writes.push(api().write(path,{...(pub?.data||{}),unitId:String(unit),version:master.approvedVersion,payload:master.approved,tableApprovals:{...(pub?.data.tableApprovals||{}),[id]:next.approvedVersion}},pub));}await api().commit(writes);return next;}
+async function directorySummaries(period,ss){const p=await account(),reviews=await tableReviews(period);return Promise.all(ss.map(async s=>{const edit=isAdmin()||p.editUnits?.includes(String(s.unitId)),r=await api().read('unitPeriods/'+period+(edit?'/reports/':'/published/')+s.unitId),data=r?.data,draft=edit?data?.draft:data?.payload,index=Object.fromEntries(reviews.filter(t=>t.unitId===String(s.unitId)).map(t=>[t.tableId,t]));return {unitId:String(s.unitId),progress:C.flatProgress(s,draft),tableStates:Object.fromEntries(s.tableIds.map(id=>[id,edit?T.state(index[id],s,id,draft):data?.tableApprovals?.[id]!==undefined?'approved':'waiting'])),submittedIds:edit?s.tableIds.filter(id=>index[id]?.submittedAt):Object.keys(data?.tableApprovals||{})};}));}
+
 async function media(id){const meta=await api().read('unitMedia/'+id);if(!meta)throw Error('Görsel bulunamadı.');const parts=await Promise.all(meta.data.parts.map(i=>api().read('unitMedia/'+id+'/parts/'+i)));return 'data:'+meta.data.mime+';base64,'+parts.map(d=>d.data.payload).join('');}
 async function initialImport(snapshot,targetPeriodId){
  if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');
@@ -59,9 +66,10 @@ async function materialize(period,schema,view){
  const p=await account(),canEdit=p.role==='admin'||p.editUnits?.includes(String(schema.unitId));
  const [ts,r]=await Promise.all([templates(period,schema),canEdit?report(period,schema.unitId):api().read('unitPeriods/'+period+'/published/'+schema.unitId)]);
  const payload=!canEdit?r?.data.payload:view==='pending'?r?.data.pending:view==='approved'?r?.data.approved:(r?.data.draft||r?.data.approved);
- const cells=payload?.cells||{};
- return {report:(!canEdit&&r?{...r.data,status:'approved',approved:r.data.payload,draft:r.data.payload}:r?.data)||{version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''}},canEdit,records:await Promise.all(ts.map(async t=>{
-  const row=clone(t.rows);for(const[address]of Object.entries(t.fields)){const pt=C.point(address),v=Object.prototype.hasOwnProperty.call(cells,t.id+'!'+address)?cells[t.id+'!'+address]:(payload&&(view==='approved'||!canEdit)?t.legacyStaticValues?.[address]??null:null);if(row[pt.row-t.rowOffset]?.[pt.column])row[pt.row-t.rowOffset][pt.column].v=v;}
+ const reviews=schema.tableKeys&&canEdit?await tableReviews(period,schema.unitId):[],reviewIndex=Object.fromEntries(reviews.map(r=>[r.tableId,r]));const cells={...(payload?.cells||{})};if(schema.tableKeys&&view==='pending')for(const r of reviews)if(r.pending)Object.assign(cells,r.pending.cells);
+ if(schema.tableKeys&&!canEdit&&r)for(const id of Object.keys(r.data.tableApprovals||{}))reviewIndex[id]={tableId:id,approved:T.scope(schema,id,r.data.payload),approvedVersion:r.data.tableApprovals[id],pending:null};
+ return {report:{...((!canEdit&&r?{...r.data,status:'approved',approved:r.data.payload,draft:r.data.payload}:r?.data)||{version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''}}),tableReviews:reviewIndex,tableBased:!!schema.tableKeys},canEdit,records:await Promise.all(ts.map(async t=>{
+  const row=clone(t.rows);for(const[address]of Object.entries(t.fields)){const pt=C.point(address),v=Object.prototype.hasOwnProperty.call(cells,t.id+'!'+address)?cells[t.id+'!'+address]:(payload&&!schema.tableKeys&&(view==='approved'||!canEdit)?t.legacyStaticValues?.[address]??null:null);if(row[pt.row-t.rowOffset]?.[pt.column])row[pt.row-t.rowOffset][pt.column].v=v;}
   const layoutRows=clone(t.rows);for(const [address,value]of Object.entries(t.legacyStaticValues||{})){const pt=C.point(address);if(layoutRows[pt.row-t.rowOffset]?.[pt.column])layoutRows[pt.row-t.rowOffset][pt.column].v=value;}return {...t,layoutRows,rows:row,images:await Promise.all((t.mediaIds||[]).map(media))};
  }))};
 }
@@ -105,7 +113,7 @@ async function createUnit(name){
  const old=await api().read('unitCatalog/main'),list=old?.data.units||[];
  if(list.some(u=>u.name.toLocaleLowerCase('tr')===name.toLocaleLowerCase('tr')))throw Error('Bu birim adı zaten kullanılıyor.');
  const id=Math.max(0,...list.map(u=>Number(u.id)))+1,unit={id,name,username:'birim'+id,owner:'',description:''},writes=[api().write('unitCatalog/main',{...(old?.data||{}),units:[...list,unit]},old)];
- for(const p of await listPeriods())if(p.ready&&!p.locked){const base='unitPeriods/'+p.id;writes.push(api().write(base+'/schemas/'+id,{unitId:String(id),keys:[],tableIds:[],titles:[]},null),api().write(base+'/reports/'+id,{unitId:String(id),periodId:p.id,version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''},pending:null,approved:null,pendingVersion:null,approvedVersion:null},null));}
+ for(const p of await listPeriods())if(p.ready&&!p.locked){const base='unitPeriods/'+p.id;writes.push(api().write(base+'/schemas/'+id,{unitId:String(id),keys:[],tableIds:[],titles:[],titleMap:{},tableKeys:{}},null),api().write(base+'/reports/'+id,{unitId:String(id),periodId:p.id,version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''},pending:null,approved:null,pendingVersion:null,approvedVersion:null},null));}
  await api().commit(writes);return unit;
 }
 async function resetAccountPassword(targetUid,password){
@@ -148,7 +156,7 @@ async function newPeriod(name){
  const globals=(await window.api('/api/periods')).periods||[],matching=globals.find(p=>p.name===name),id=matching?.folder||window.__brifingExcelParser.periodFolder(name),base='unitPeriods/'+id,old='unitPeriods/'+prior.id;
  if(await api().read(base))throw Error('Bu birim dönemi zaten var.');
  if(!matching){const main='periods/'+id,emptyStaff={teacher:{public:0,private:0,total:0,by_level:[]},manager:{public:0,private:0,total:0,by_level:[]},manager_need:{norm:0,current:0,need:0,by_title:[]}};await api().commit([api().write(main,{folder:id,name,basePeriod:name,latestVersion:'units_empty',active:false,hasStudents:false,updatedAt:new Date().toISOString(),createdAt:new Date().toISOString()},null),api().write(main+'/versions/units_empty',{summary:{institution_count:0,active_institutions:0,public_institutions:0,private_institutions:0,basic_students:0,secondary_students:0,total_students:0,teacher_total:0,manager_total:0},staff:emptyStaff,validation:{},fileMeta:[]},null)]);}
- await api().commit([api().write(base,{name,createdAt:new Date().toISOString(),ready:false},null)]);
+ await api().commit([api().write(base,{name,createdAt:new Date().toISOString(),ready:false,reviewMode:'table'},null)]);
  const [ss,ts]=await Promise.all([api().list(old+'/schemas'),api().list(old+'/tables')]);
  for(const t of ts)await api().commit([api().write(base+'/tables/'+t.id,t,null)]);
  for(const s of ss){const values=Object.fromEntries(s.keys.map(k=>[k,null]));await api().commit([api().write(base+'/schemas/'+s.unitId,{...s,baseline:values},null),api().write(base+'/reports/'+s.unitId,{unitId:String(s.unitId),periodId:id,version:0,status:'draft',draft:{cells:values,source:'',asOf:'',notes:''},pending:null,approved:null,pendingVersion:null,approvedVersion:null},null)]);}
@@ -160,7 +168,7 @@ async function saveMapping(period,template){
  if((await api().read('unitPeriods/'+period))?.data.locked)throw Error('Bu dönem kilitli.');
  C.validateTemplate(template);
  const root='unitPeriods/'+period,[all,ss,rs]=await Promise.all([api().list(root+'/tables'),api().list(root+'/schemas'),api().list(root+'/reports')]);
- if(rs.some(r=>r.status==='pending'))throw Error('Eşlemeyi değiştirmeden önce kontrol bekleyen paketleri sonuçlandırınız.');
+ if(rs.some(r=>r.status==='pending')||(await pendingReviews(period)).some(r=>r.tableId===String(template.id)))throw Error('Eşlemeyi değiştirmeden önce bu tablonun kontrolünü sonuçlandırınız.');
  template={...template,allowedUnits:[...new Set(template.assignments.map(x=>String(x.unitId)))],links:template.assignments.flatMap(a=>a.editRanges.map(range=>({unit:Number(a.unitId),range,label:range==='*'?'Tüm sayfa':range})))};
  const tables=all.map(t=>t.id===template.id?template:decodeTable(t)),us=await units(),writes=[],existingTemplate=await api().read(root+'/tables/'+template.id);
  const priorValues=Object.assign({},...rs.map(r=>r.draft?.cells||{}));
@@ -168,9 +176,9 @@ async function saveMapping(period,template){
  writes.push(api().write(root+'/tables/'+template.id,encodeTable(template),existingTemplate));
  for(const u of us){
   const unitId=String(u.id),keys=tables.flatMap(t=>C.editableAddresses(t,unitId).map(k=>t.id+'!'+k)),tableIds=tables.filter(t=>t.assignments.some(a=>String(a.unitId)===unitId)).map(t=>t.id),schemaPath=root+'/schemas/'+unitId;
-  const oldSchema=await api().read(schemaPath);writes.push(api().write(schemaPath,{unitId,tableIds,keys},oldSchema));
+  const oldSchema=await api().read(schemaPath);writes.push(api().write(schemaPath,T.metadata({unitId,tableIds,keys},tables),oldSchema));
   const previous=await report(period,unitId),old=previous?.data||{unitId,periodId:period,version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''},approved:null,approvedVersion:null,pending:null,pendingVersion:null};
-  const next={...old,version:old.version+1,status:'draft',draft:{...old.draft,savedTables:[],cells:Object.fromEntries(keys.map(k=>[k,old.draft?.cells[k]??priorValues[k]??null]))}};
+  const next={...old,version:old.version+1,status:'draft',draft:{...old.draft,savedTables:(old.draft.savedTables||[]).filter(id=>id!==template.id&&tableIds.includes(id)),cells:Object.fromEntries(keys.map(k=>[k,old.draft?.cells[k]??priorValues[k]??null]))}};
   writes.push(api().write(root+'/reports/'+unitId,next,previous));
   writes.push(api().write(root+'/history/'+crypto.randomUUID(),{unitId,actor:uid(),action:'mapping',version:next.version,at:new Date().toISOString(),payload:old.draft},null));
  }
@@ -215,7 +223,7 @@ async function applyExcel(plan,choices){
   C.validateTemplate(t);
   for(const image of importImages){const old=newMedia.get(image.id);if(old)old.allowedUnits.push(unitId);else newMedia.set(image.id,{...image,allowedUnits:[unitId]});}
   writes.push(api().write(root+'/tables/'+t.id,encodeTable(t),null));
-  (extra[unitId]||={cells:{},tables:[]});Object.assign(extra[unitId].cells,incoming);extra[unitId].tables.push(t.id);
+  (extra[unitId]||={cells:{},tables:[],titles:{}});extra[unitId].titles[t.id]=t.title||t.sheet;Object.assign(extra[unitId].cells,incoming);extra[unitId].tables.push(t.id);
  }
  for(const image of newMedia.values()){
   const mediaPath='unitMedia/'+image.id,old=await api().read(mediaPath),parts=[];
@@ -230,7 +238,7 @@ async function applyExcel(plan,choices){
   if(extra[item.unitId]){
    cells={...cells,...extra[item.unitId].cells};item.baseline={...item.baseline,...extra[item.unitId].cells};
    const sp=root+'/schemas/'+item.unitId,oldSchema=await api().read(sp);
-   writes.push(api().write(sp,{...oldSchema.data,keys:[...new Set([...oldSchema.data.keys,...Object.keys(extra[item.unitId].cells)])],tableIds:[...oldSchema.data.tableIds,...extra[item.unitId].tables]},oldSchema));
+   writes.push(api().write(sp,{...oldSchema.data,keys:[...new Set([...oldSchema.data.keys,...Object.keys(extra[item.unitId].cells)])],tableIds:[...oldSchema.data.tableIds,...extra[item.unitId].tables],titles:[...(oldSchema.data.titles||[]),...Object.values(extra[item.unitId].titles)],titleMap:{...(oldSchema.data.titleMap||{}),...extra[item.unitId].titles},tableKeys:{...(oldSchema.data.tableKeys||Object.fromEntries(oldSchema.data.tableIds.map(id=>[id,oldSchema.data.keys.filter(k=>k.startsWith(id+'!'))]))),...Object.fromEntries(extra[item.unitId].tables.map(id=>[id,Object.keys(extra[item.unitId].cells).filter(k=>k.startsWith(id+'!'))]))}},oldSchema));
   }
   const changedTables=new Set(Object.keys(cells).filter(k=>!C.equal(cells[k],old.draft.cells[k]??null)).map(k=>k.split('!')[0]));
   const next={...old,version:old.version+1,status:'draft',draft:{...old.draft,cells,savedTables:(old.draft.savedTables||[]).filter(id=>!changedTables.has(id))}};
@@ -249,13 +257,9 @@ async function unitExcelSummary(period){if(!isAdmin())throw Error('Yönetici yet
 async function sourceExcel(period){if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');return (await api().read('unitPeriods/'+period+'/excelFiles/latest'))?.data||null;}
 async function downloadSourceExcel(period){const file=await sourceExcel(period);if(!file)throw Error('Bu dönemde kaynak birim Excel dosyası yüklenmemiş.');const parts=await Promise.all(file.parts.map(id=>api().read('unitPeriods/'+period+'/excelFiles/latest/parts/'+id)));if(parts.some(p=>!p))throw Error('Excel arşivinde eksik parça var.');const binary=atob(parts.map(p=>p.data.payload).join('')),bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));if(bytes.length!==file.size)throw Error('Dosya boyutu doğrulanamadı.');const url=URL.createObjectURL(new Blob([bytes],{type:file.type})),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
 
-async function pendingNotifications(){
- if(!isAdmin())return [];
- const us=await units(),periods=(await listPeriods()).filter(p=>p.ready);
- const groups=await Promise.all(periods.map(async p=>{const root='unitPeriods/'+p.id;const rows=api().query?await api().query(root,{from:[{collectionId:'reports'}],where:{fieldFilter:{field:{fieldPath:'status'},op:'EQUAL',value:{stringValue:'pending'}}}}):(await api().list(root+'/reports')).filter(r=>r.status==='pending');return rows.map(r=>({id:p.id+'/'+r.unitId+'/'+r.pendingVersion,periodId:p.id,periodName:p.name,unitId:r.unitId,unitName:us.find(u=>String(u.id)===r.unitId)?.name||'Birim',at:r.submittedAt}));}));return groups.flat().sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-}
+async function pendingNotifications(){if(!isAdmin())return [];const us=await units(),ps=(await listPeriods()).filter(p=>p.ready),out=[];for(const p of ps){const rows=await pendingReviews(p.id),ss=rows.length?await api().list('unitPeriods/'+p.id+'/schemas'):[];for(const r of rows)out.push({id:p.id+'/'+reviewId(r.unitId,r.tableId)+'/'+r.pendingVersion,periodId:p.id,periodName:p.name,unitId:r.unitId,tableId:r.tableId,tableTitle:ss.find(s=>s.unitId===r.unitId)?.titleMap?.[r.tableId]||'Brifing tablosu',unitName:us.find(u=>String(u.id)===r.unitId)?.name||'Birim',at:r.submittedAt});}return out.sort((a,b)=>String(b.at).localeCompare(String(a.at)));}
 
 function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
-window.UnitBriefingService={invalidateReadSummaries:()=>{excelSummaryCache.clear();window.__UNIT_DIRECTORY_REVISION=(window.__UNIT_DIRECTORY_REVISION||0)+1;},unitContacts,saveUnitContacts,unitExcelSummary,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
+window.UnitBriefingService={reviewTable,tableReviews,pendingReviews,directorySummaries,invalidateReadSummaries:()=>{excelSummaryCache.clear();window.__UNIT_DIRECTORY_REVISION=(window.__UNIT_DIRECTORY_REVISION||0)+1;},unitContacts,saveUnitContacts,unitExcelSummary,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
 

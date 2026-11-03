@@ -35,13 +35,13 @@ function build(snapshot,periodId,now){
  for(const unit of units){
   const unitId=String(unit.id),linked=tables.filter(t=>t.allowedUnits.includes(unitId)),cells={};
   for(const t of linked)for(const address of C.editableAddresses(t,unitId)){const p=C.point(address),value=t.rows[p.row-t.rowOffset]?.[p.column]?.v??null;cells[t.id+'!'+address]=C.validatePatch(t,unitId,{[address]:value})[address];}
-  writes.push({path:base+'/schemas/'+unitId,data:{unitId,keys:Object.keys(cells),tableIds:linked.map(t=>t.id),titles:linked.map(t=>t.title||t.sheet||t.id)}});
+  writes.push({path:base+'/schemas/'+unitId,data:{unitId,keys:Object.keys(cells),tableIds:linked.map(t=>t.id),titles:linked.map(t=>t.title||t.sheet||t.id),titleMap:Object.fromEntries(linked.map(t=>[t.id,t.title||t.sheet||t.id])),tableKeys:Object.fromEntries(linked.map(t=>[t.id,Object.keys(cells).filter(k=>k.startsWith(t.id+'!'))]))}});
   writes.push({path:base+'/importBase/'+unitId,data:{cells,sourceName:snapshot.source.name}});
   writes.push({path:base+'/reports/'+unitId,data:{unitId,periodId,version:0,status:'draft',draft:{cells,source:snapshot.source.name,asOf:now.slice(0,10),notes:''},pending:null,approved:null,pendingVersion:null,approvedVersion:null}});
  }
  for(const t of tables){for(const address of Object.keys(t.fields)){const p=C.point(address);t.rows[p.row-t.rowOffset][p.column].v=null;}const {rows,...data}=t;writes.push({path:base+'/tables/'+t.id,data:{...data,rowsJson:JSON.stringify(rows)}});}
  const warnings=[...(snapshot.warnings||[]),...normalized.warnings];
- const period={name:snapshot.source.period||periodId,createdAt:now,ready:false,locked:false,sourceSha256:snapshot.source.sha256};
+ const period={name:snapshot.source.period||periodId,createdAt:now,ready:false,locked:false,reviewMode:'table',sourceSha256:snapshot.source.sha256};
  writes.push({path:base+'/migration/audit',data:{at:now,sourceSha256:snapshot.source.sha256,unitCount:units.length,tableCount:tables.length,warnings}});
  return {periodId,period,units,writes,summary:{units:units.length,tables:tables.length,charts:tables.reduce((n,t)=>n+(t.charts||[]).length,0),images:media.size,fields:tables.reduce((n,t)=>n+Object.keys(t.fields).length,0),warnings}};
 }

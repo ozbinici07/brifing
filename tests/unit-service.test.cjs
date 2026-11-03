@@ -3,7 +3,7 @@ const C=require('../js/unit-briefing-core'),M=require('../js/unit-migration');
 function setup(role='System Admin'){
  const documents=new Map(),commits=[];let failAt=-1;
  const api={count:async p=>[...documents.keys()].filter(k=>k.startsWith(p+'/')&&!k.slice(p.length+1).includes('/')).length,read:async p=>documents.has(p)?{data:C.copy(documents.get(p)),updateTime:'revision'}:null,list:async p=>[...documents].filter(([k])=>k.startsWith(p+'/')&&!k.slice(p.length+1).includes('/')).map(([k,v])=>({id:k.split('/').pop(),...C.copy(v)})),write:(path,data)=>({path,data}),commit:async writes=>{commits.push(writes);if(commits.length===failAt)throw Error('Simulated connection loss');for(const w of writes)documents.set(w.path,C.copy(w.data));}};
- const context={document:{getElementById:()=>null},UnitUserPermissions:require('../js/unit-permissions-core'),UnitBriefingCore:C,UnitMigration:M,BRIFING_FIREBASE_CONFIG:{},__personnelFirestore:api,authUser:()=>({role}),token:()=>'.'+btoa(JSON.stringify({user_id:'caller'}))+'.',crypto:require('node:crypto').webcrypto,atob,btoa,Date};context.window=context;
+ const context={document:{getElementById:()=>null},UnitUserPermissions:require('../js/unit-permissions-core'),UnitBriefingCore:C,UnitTableCore:require('../js/unit-table-core'),UnitMigration:M,BRIFING_FIREBASE_CONFIG:{},__personnelFirestore:api,authUser:()=>({role}),token:()=>'.'+btoa(JSON.stringify({user_id:'caller'}))+'.',crypto:require('node:crypto').webcrypto,atob,btoa,Date};context.window=context;
  vm.runInNewContext(fs.readFileSync(require.resolve('../js/unit-service'),'utf8'),context);
  return {S:context.UnitBriefingService,documents,commits,context,setFailure:n=>failAt=n};
 }

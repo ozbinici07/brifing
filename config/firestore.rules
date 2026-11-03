@@ -90,7 +90,7 @@ service cloud.firestore {
     d.status in ['draft','pending','approved','returned'] && packagePayload(d.draft,periodId,unitId);
   }
   function unitSubmit(d,unitId,periodId) {
-   return d.status == 'pending' && d.pending == d.draft && d.pendingVersion == d.version &&
+   return !unitSchema(periodId,unitId).keys().hasAny(['tableKeys']) && d.status == 'pending' && d.pending == d.draft && d.pendingVersion == d.version &&
     d.submittedBy == request.auth.uid && d.reviewNote == '' && d.draft.source.size() > 0 && d.draft.asOf.size() == 10 &&
     d.draft.cells.keys().hasAll(unitSchema(periodId,unitId).keys) && !d.draft.cells.values().hasAny([null,'']) &&
     d.draft.get('savedTables',[]).hasAll(unitSchema(periodId,unitId).tableIds) && unitSchema(periodId,unitId).tableIds.size()>0;
@@ -133,9 +133,72 @@ service cloud.firestore {
     allow write: if isAdmin();
    }
   }
+
+  function tablePayload(p,periodId,unitId,tableId) {
+   let keys=unitSchema(periodId,unitId).tableKeys[tableId];
+   return p is map && p.keys().hasOnly(['cells','source','asOf','notes','savedTables']) &&
+    p.cells is map && p.cells.keys().hasOnly(keys) && p.cells.keys().hasAll(keys) &&
+    !p.cells.values().hasAny([null,'']) && p.savedTables == [tableId] &&
+    p.source is string && p.source.size()>0 && p.source.size()<=500 &&
+    p.asOf is string && p.asOf.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}') &&
+    p.notes is string && p.notes.size()<=10000;
+  }
+  function tableReview(d,periodId,id) {
+   return d.keys().hasOnly(['unitId','tableId','periodId','version','status','pending','pendingVersion','approved','approvedVersion','submittedAt','submittedBy','approvedAt','approvedBy','updatedAt','reviewNote']) &&
+    d.unitId is string && d.tableId is string && id == d.unitId+'__'+d.tableId && d.periodId == periodId &&
+    d.tableId in unitSchema(periodId,d.unitId).tableIds && d.version is int &&
+    d.status in ['draft','pending','approved','returned'] && d.reviewNote is string && d.reviewNote.size()<=2000;
+  }
+  function tableSubmit(d,periodId) {
+   let draft=get(/databases/$(database)/documents/unitPeriods/$(periodId)/reports/$(d.unitId)).data.draft;
+   return d.status == 'pending' && d.pendingVersion==d.version && d.submittedBy==request.auth.uid &&
+    d.submittedAt==request.time && d.reviewNote=='' && tablePayload(d.pending,periodId,d.unitId,d.tableId) &&
+    d.tableId in draft.savedTables && draft.cells.keys().hasAll(d.pending.cells.keys()) &&
+    d.pending.cells.diff(draft.cells).changedKeys().size()==0 &&
+    d.pending.source==draft.source && d.pending.asOf==draft.asOf && d.pending.notes==draft.notes;
+  }
+  function tableDecision(d,old) {
+   return isAdmin() && old.status=='pending' && old.pending!=null && d.pending==null && d.pendingVersion==null &&
+    d.submittedAt==old.submittedAt && d.submittedBy==old.submittedBy &&
+    ((d.status=='approved' && d.approved==old.pending && d.approvedVersion==old.pendingVersion &&
+      d.approvedBy==request.auth.uid && d.approvedAt==request.time && d.reviewNote=='') ||
+     (d.status=='returned' && d.reviewNote.size()>0 && d.approved==old.approved &&
+      d.approvedVersion==old.approvedVersion && d.get('approvedAt',null)==old.get('approvedAt',null) &&
+      d.get('approvedBy',null)==old.get('approvedBy',null)));
+  }
+
   match /unitPeriods/{periodId} {
    allow read: if isAdmin() || activeAccount();
    allow write: if isAdmin();
+
+   match /tableReviews/{id} {
+    allow get: if isAdmin() || (activeAccount() && (resource==null || editUnit(resource.data.unitId)));
+    allow list: if isAdmin() || editUnit(resource.data.unitId);
+    allow create: if tableReview(request.resource.data,periodId,id) && openUnitPeriod(periodId) &&
+     editUnit(request.resource.data.unitId) && request.resource.data.version==1 &&
+     request.resource.data.approved==null && request.resource.data.approvedVersion==null &&
+     tableSubmit(request.resource.data,periodId);
+    allow update: if tableReview(request.resource.data,periodId,id) && openUnitPeriod(periodId) &&
+     request.resource.data.unitId==resource.data.unitId && request.resource.data.tableId==resource.data.tableId &&
+     request.resource.data.version==resource.data.version+1 &&
+     request.resource.data.updatedAt==request.time &&
+     ((editUnit(resource.data.unitId) && resource.data.pending==null &&
+       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['version','status','pending','pendingVersion','submittedAt','submittedBy','updatedAt','reviewNote']) &&
+       request.resource.data.approved==resource.data.approved && request.resource.data.approvedVersion==resource.data.approvedVersion &&
+       tableSubmit(request.resource.data,periodId)) ||
+      tableDecision(request.resource.data,resource.data));
+    allow delete: if false;
+   }
+   match /tableReviewHistory/{id} {
+    allow read: if editUnit(resource.data.unitId);
+    allow create: if editUnit(request.resource.data.unitId) && request.resource.data.actor==request.auth.uid &&
+     request.resource.data.reviewId==request.resource.data.unitId+'__'+request.resource.data.tableId &&
+     request.resource.data.action in ['submit','approve','return'] &&
+     (isAdmin() || request.resource.data.action=='submit') && request.resource.data.at==request.time &&
+     request.resource.data.version==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.version;
+    allow update,delete: if false;
+   }
+
    match /excelFiles/{id} { allow read,write: if isAdmin(); match /parts/{part} { allow read,write: if isAdmin(); } }
    match /migration/{id} { allow read,write: if isAdmin(); }
    match /tables/{tableId} { allow read: if sharedUnits(resource.data.allowedUnits); allow write: if isAdmin(); }
@@ -144,6 +207,7 @@ service cloud.firestore {
    match /reports/{unitId} {
     allow read: if editUnit(unitId);
     allow create: if openUnitPeriod(periodId) && editUnit(unitId) && unitPackage(request.resource.data,periodId,unitId) &&
+     (!unitSchema(periodId,unitId).keys().hasAny(['tableKeys']) || request.resource.data.status!='pending') &&
      (isAdmin() || (request.resource.data.version == 1 && request.resource.data.approved == null &&
       request.resource.data.approvedVersion == null &&
       ((request.resource.data.status == 'draft' && request.resource.data.pending == null && request.resource.data.pendingVersion == null) ||
