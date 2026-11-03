@@ -220,7 +220,7 @@ service cloud.firestore {
 
    match /excelFiles/{id} { allow read,write: if isAdmin(); match /parts/{part} { allow read,write: if isAdmin(); } }
    match /migration/{id} { allow read,write: if isAdmin(); }
-   match /tables/{tableId} { allow read: if sharedUnits(resource.data.allowedUnits); allow write: if isAdmin(); }
+   match /tables/{tableId} { allow read: if presentationsAccess() || sharedUnits(resource.data.allowedUnits); allow write: if isAdmin(); }
    match /schemas/{unitId} { allow read: if presentationsAccess() || readUnit(unitId); allow write: if isAdmin(); }
    match /importBase/{unitId} { allow read,write: if isAdmin(); }
    match /reports/{unitId} {
