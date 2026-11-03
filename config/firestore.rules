@@ -125,6 +125,7 @@ service cloud.firestore {
    allow update: if editUnit(unitId) && validUnitContacts(request.resource.data,unitId) && request.resource.data.version==resource.data.version+1;
    allow delete: if isAdmin();
   }
+  match /presentationSettings/{id} { allow read: if presentationsAccess(); allow write: if isAdmin(); }
   match /presentationCards/{id} {
    allow read: if presentationsAccess();
    allow create,update: if isAdmin() && request.resource.data.title is string && request.resource.data.title.size()>0 && request.resource.data.title.size()<=100 && request.resource.data.kind in ['builder','pdf','link'] && (request.resource.data.kind!='link' || request.resource.data.url.matches('https?://.*'));
@@ -160,7 +161,7 @@ service cloud.firestore {
     p.notes is string && p.notes.size()<=10000;
   }
   function tableReview(d,periodId,id) {
-   return d.keys().hasOnly(['unitId','tableId','periodId','version','status','pending','pendingVersion','approved','approvedVersion','submittedAt','submittedBy','approvedAt','approvedBy','updatedAt','reviewNote']) &&
+   return d.keys().hasOnly(['unitId','tableId','periodId','version','status','pending','pendingVersion','approved','approvedVersion','submittedAt','submittedBy','approvedAt','approvedBy','updatedAt','reviewNote','revokedAt','revokedBy','approvedSubmittedAt','approvedSubmittedBy']) &&
     d.unitId is string && d.tableId is string && id == d.unitId+'__'+d.tableId && d.periodId == periodId &&
     d.tableId in unitSchema(periodId,d.unitId).tableIds && d.version is int &&
     d.status in ['draft','pending','approved','returned'] && d.reviewNote is string && d.reviewNote.size()<=2000;
@@ -172,6 +173,12 @@ service cloud.firestore {
     d.tableId in draft.savedTables && draft.cells.keys().hasAll(d.pending.cells.keys()) &&
     d.pending.cells.diff(draft.cells).changedKeys().size()==0 &&
     d.pending.source==draft.source && d.pending.asOf==draft.asOf && d.pending.notes==draft.notes;
+  }
+  function tableRevocation(d,old) {
+   return isAdmin() && old.approved!=null && d.approved==null && d.approvedVersion==null &&
+    d.pending==old.pending && d.pendingVersion==old.pendingVersion && d.status==(old.pending!=null?'pending':'returned') &&
+    d.revokedAt==request.time && d.revokedBy==request.auth.uid &&
+    d.diff(old).affectedKeys().hasOnly(['version','status','approved','approvedVersion','revokedAt','revokedBy','updatedAt','reviewNote']);
   }
   function tableDecision(d,old) {
    return isAdmin() && old.status=='pending' && old.pending!=null && d.pending==null && d.pendingVersion==null &&
@@ -202,18 +209,19 @@ service cloud.firestore {
        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['version','status','pending','pendingVersion','submittedAt','submittedBy','updatedAt','reviewNote']) &&
        request.resource.data.approved==resource.data.approved && request.resource.data.approvedVersion==resource.data.approvedVersion &&
        tableSubmit(request.resource.data,periodId)) ||
-      tableDecision(request.resource.data,resource.data));
+      tableDecision(request.resource.data,resource.data) || tableRevocation(request.resource.data,resource.data));
     allow delete: if false;
    }
    match /tableReviewHistory/{id} {
     allow read: if editUnit(resource.data.unitId);
     allow create: if editUnit(request.resource.data.unitId) && request.resource.data.actor==request.auth.uid &&
      request.resource.data.reviewId==request.resource.data.unitId+'__'+request.resource.data.tableId &&
-     request.resource.data.action in ['submit','approve','return'] &&
+     request.resource.data.action in ['submit','approve','return','revoke'] &&
      (isAdmin() || request.resource.data.action=='submit') && request.resource.data.at==request.time &&
      request.resource.data.version==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.version &&
      ((request.resource.data.action=='submit' && request.resource.data.payload==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.pending) ||
       (request.resource.data.action=='approve' && request.resource.data.payload==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.approved) ||
+      (request.resource.data.action=='revoke' && isAdmin() && request.resource.data.payload==get(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.approved && getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.approved==null) ||
       (request.resource.data.action=='return' && request.resource.data.payload.note==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.reviewNote));
     allow update,delete: if false;
    }
