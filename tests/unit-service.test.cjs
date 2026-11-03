@@ -75,6 +75,7 @@ test('unit Excel status uses count aggregation, reuses summary and invalidates a
 
 test('mapping preserves custom link labels and draft values while rejecting overlapping ownership',async()=>{
  const t=setup(),plan=await t.S.initialImport(snapshot()),root='unitPeriods/'+plan.periodId;
+ t.documents.set('unitAccounts/caller',{uid:'caller',role:'admin',active:true});
  const table=C.copy(t.documents.get(root+'/tables/1'));table.rows=JSON.parse(table.rowsJson);table.links=[{unit:7,range:'*',label:'Aylık bilgi'}];
  await t.S.saveMapping(plan.periodId,table);
  assert.equal(t.documents.get(root+'/tables/1').links[0].label,'Aylık bilgi');
