@@ -7,3 +7,5 @@
 #institutionsSystem [data-tab-panel=query]>.page-head{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;min-width:0}
 #institutionsSystem [data-tab-panel=query]>.page-head>div{display:flex;flex-wrap:nowrap;align-items:center;gap:5px;overflow-x:auto;min-width:0}
 #institutionsSystem [data-tab-panel=query]>.page-head .btn{white-space:nowrap;padding:5px 8px;font-size:10px}#institutionsSystem [data-sort]{margin-left:0;min-width:135px}
+
+#institutionsSystem>.filters>*{grid-row:1;grid-column:auto}#institutionsSystem>.filters>.btn{min-height:30px!important;height:30px!important}
