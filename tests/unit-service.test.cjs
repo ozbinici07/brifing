@@ -84,3 +84,11 @@ test('mapping preserves custom link labels and draft values while rejecting over
  await assert.rejects(t.S.saveMapping(plan.periodId,table),/birden fazla birime/);
  assert.equal(t.commits.length,before);
 });
+
+test('account editor updates display, role and unit while preserving history and synchronizing login directory',async()=>{
+ const t=setup(),original={uid:'u',username:'ornek',display:'Önceki Ad',role:'unit',active:true,editUnits:['7'],readUnits:['22'],screens:['units'],createdAt:'2026-10-01T00:00:00Z'};
+ t.documents.set('unitAccounts/u',original);t.documents.set('unitLoginDirectory/ornek',{username:'ornek',display:original.display,email:'ornek@example.test',role:'Unit User',active:true});
+ await t.S.updateAccount({...original,display:'  Yeni Ad  ',role:'admin',editUnits:['22']});
+ const saved=t.documents.get('unitAccounts/u'),directory=t.documents.get('unitLoginDirectory/ornek');assert.equal(saved.display,'Yeni Ad');assert.equal(saved.role,'admin');assert.equal(saved.editUnits[0],'22');assert.equal(saved.readUnits[0],'22');assert.equal(saved.createdAt,original.createdAt);assert.equal(directory.display,'Yeni Ad');assert.equal(directory.role,'System Admin');assert.equal(directory.email,'ornek@example.test');
+ await assert.rejects(t.S.updateAccount({...saved,display:' '}),/Görünen ad/);assert.equal(t.documents.get('unitAccounts/u').display,'Yeni Ad');
+});
