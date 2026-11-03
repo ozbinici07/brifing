@@ -176,7 +176,7 @@ service cloud.firestore {
     allow list: if isAdmin() || editUnit(resource.data.unitId);
     allow create: if tableReview(request.resource.data,periodId,id) && openUnitPeriod(periodId) &&
      editUnit(request.resource.data.unitId) && request.resource.data.version==1 &&
-     request.resource.data.approved==null && request.resource.data.approvedVersion==null &&
+     request.resource.data.approved==null && request.resource.data.approvedVersion==null && request.resource.data.updatedAt==request.time &&
      tableSubmit(request.resource.data,periodId);
     allow update: if tableReview(request.resource.data,periodId,id) && openUnitPeriod(periodId) &&
      request.resource.data.unitId==resource.data.unitId && request.resource.data.tableId==resource.data.tableId &&
@@ -195,7 +195,10 @@ service cloud.firestore {
      request.resource.data.reviewId==request.resource.data.unitId+'__'+request.resource.data.tableId &&
      request.resource.data.action in ['submit','approve','return'] &&
      (isAdmin() || request.resource.data.action=='submit') && request.resource.data.at==request.time &&
-     request.resource.data.version==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.version;
+     request.resource.data.version==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.version &&
+     ((request.resource.data.action=='submit' && request.resource.data.payload==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.pending) ||
+      (request.resource.data.action=='approve' && request.resource.data.payload==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.approved) ||
+      (request.resource.data.action=='return' && request.resource.data.payload.note==getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/tableReviews/$(request.resource.data.reviewId)).data.reviewNote));
     allow update,delete: if false;
    }
 
