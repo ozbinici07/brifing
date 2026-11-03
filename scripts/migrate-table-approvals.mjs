@@ -16,6 +16,7 @@ for(const period of (await list('unitPeriods')).filter(p=>p.data.ready)){const r
 if(report.data.pending||report.data.reviewNote){writes.push(write(root+'/reports/'+schema.id,{...report.data,version:report.data.version+1,status:'draft',pending:null,pendingVersion:null,reviewNote:''},report));}
 if(report.data.approved){const path=root+'/published/'+schema.id,pub=await read(path);if(pub)writes.push(write(path,{...pub.data,tableApprovals:Object.fromEntries(split.filter(r=>r.approved).map(r=>[r.tableId,r.approvedVersion]))},pub));}
 writes.push(write(root+'/migration/table_approvals_'+schema.id,{at:new Date().toISOString(),unitId:schema.id,legacyVersion:report.data.version,legacyPending:report.data.pending||null,legacyPendingVersion:report.data.pendingVersion??null,legacyReviewNote:report.data.reviewNote||'',reviewCount:split.length},null));
+if(writes.some(w=>w.update?.name===name(root+'/reports/'+schema.id)))writes.splice(0,1); // The report update already carries the same CAS precondition; Firestore forbids verify + update together.
 if(apply)await request(base+':commit',{method:'POST',body:JSON.stringify({writes})});units++;reviews+=split.length;}
 if(apply){const current=await read(root);if(current.data.reviewMode!=='table')await request(base+':commit',{method:'POST',body:JSON.stringify({writes:[write(root,{...current.data,reviewMode:'table'},current)]})});}periodCount++;}
 console.log(JSON.stringify({mode:apply?'applied':'preview',periods:periodCount,units,reviews,sourceValuesPreserved:true}));
