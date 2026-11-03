@@ -169,7 +169,7 @@ async function saveMapping(period,template){
  C.validateTemplate(template);
  const root='unitPeriods/'+period,[all,ss,rs]=await Promise.all([api().list(root+'/tables'),api().list(root+'/schemas'),api().list(root+'/reports')]);
  if(rs.some(r=>r.status==='pending')||(await pendingReviews(period)).some(r=>r.tableId===String(template.id)))throw Error('Eşlemeyi değiştirmeden önce bu tablonun kontrolünü sonuçlandırınız.');
- template={...template,allowedUnits:[...new Set(template.assignments.map(x=>String(x.unitId)))],links:template.assignments.flatMap(a=>a.editRanges.map(range=>({unit:Number(a.unitId),range,label:range==='*'?'Tüm sayfa':range})))};
+ template={...template,allowedUnits:[...new Set(template.assignments.map(x=>String(x.unitId)))],links:template.assignments.flatMap(a=>a.editRanges.map(range=>({unit:Number(a.unitId),range,label:template.links?.find(l=>String(l.unit)===String(a.unitId)&&l.range===range)?.label||(range==='*'?'Tüm sayfa':range)})))};
  const tables=all.map(t=>t.id===template.id?template:decodeTable(t)),us=await units(),writes=[],existingTemplate=await api().read(root+'/tables/'+template.id);
  const priorValues=Object.assign({},...rs.map(r=>r.draft?.cells||{}));
  for(const address of Object.keys(template.fields)){const p=C.point(address),value=template.rows[p.row-template.rowOffset]?.[p.column]?.v;if(value!==null&&value!==undefined)priorValues[template.id+'!'+address]??=value;if(template.rows[p.row-template.rowOffset]?.[p.column])template.rows[p.row-template.rowOffset][p.column].v=null;}
@@ -262,4 +262,3 @@ async function pendingNotifications(){if(!isAdmin())return [];const us=await uni
 function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
 window.UnitBriefingService={reviewTable,tableReviews,pendingReviews,directorySummaries,invalidateReadSummaries:()=>{excelSummaryCache.clear();window.__UNIT_DIRECTORY_REVISION=(window.__UNIT_DIRECTORY_REVISION||0)+1;},unitContacts,saveUnitContacts,unitExcelSummary,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
-

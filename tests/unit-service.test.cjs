@@ -72,3 +72,14 @@ test('initial unit migration counts as loaded without a separately archived work
 
 
 test('unit Excel status uses count aggregation, reuses summary and invalidates after refresh',async()=>{const t=excelFixture();let counts=0;const adapter=t.S.adapter(),count=adapter.count;adapter.count=async p=>{counts++;return count(p);};const list=adapter.list;adapter.list=async p=>{if(/\/(tables|schemas)$/.test(p))throw Error('Must not download records for counts');return list(p);};await Promise.all([t.S.unitExcelSummary('P'),t.S.unitExcelSummary('P')]);await t.S.unitExcelSummary('P');assert.equal(counts,2);t.S.invalidateReadSummaries();await t.S.unitExcelSummary('P');assert.equal(counts,4);});
+
+test('mapping preserves custom link labels and draft values while rejecting overlapping ownership',async()=>{
+ const t=setup(),plan=await t.S.initialImport(snapshot()),root='unitPeriods/'+plan.periodId;
+ const table=C.copy(t.documents.get(root+'/tables/1'));table.rows=JSON.parse(table.rowsJson);table.links=[{unit:7,range:'*',label:'Aylık bilgi'}];
+ await t.S.saveMapping(plan.periodId,table);
+ assert.equal(t.documents.get(root+'/tables/1').links[0].label,'Aylık bilgi');
+ assert.equal(t.documents.get(root+'/reports/7').draft.cells['1!B4'],0);
+ const before=t.commits.length;table.assignments.push({unitId:'8',editRanges:['B4']});
+ await assert.rejects(t.S.saveMapping(plan.periodId,table),/birden fazla birime/);
+ assert.equal(t.commits.length,before);
+});
