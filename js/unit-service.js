@@ -65,7 +65,7 @@ async function setLocked(period,locked){if(!isAdmin())throw Error('Yönetici yet
 async function materialize(period,schema,view){
  const p=await account(),canEdit=p.role==='admin'||p.editUnits?.includes(String(schema.unitId));
  const [ts,r]=await Promise.all([templates(period,schema),canEdit?report(period,schema.unitId):api().read('unitPeriods/'+period+'/published/'+schema.unitId)]);
- const payload=!canEdit?r?.data.payload:view==='pending'?r?.data.pending:view==='approved'?r?.data.approved:(r?.data.draft||r?.data.approved);
+ const payload=!canEdit?r?.data.payload:view==='pending'?(schema.tableKeys?r?.data.approved:r?.data.pending):view==='approved'?r?.data.approved:(r?.data.draft||r?.data.approved);
  const reviews=schema.tableKeys&&canEdit?await tableReviews(period,schema.unitId):[],reviewIndex=Object.fromEntries(reviews.map(r=>[r.tableId,r]));const cells={...(payload?.cells||{})};if(schema.tableKeys&&view==='pending')for(const r of reviews)if(r.pending)Object.assign(cells,r.pending.cells);
  if(schema.tableKeys&&!canEdit&&r)for(const id of Object.keys(r.data.tableApprovals||{}))reviewIndex[id]={tableId:id,approved:T.scope(schema,id,r.data.payload),approvedVersion:r.data.tableApprovals[id],pending:null};
  return {report:{...((!canEdit&&r?{...r.data,status:'approved',approved:r.data.payload,draft:r.data.payload}:r?.data)||{version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''}}),tableReviews:reviewIndex,tableBased:!!schema.tableKeys},canEdit,records:await Promise.all(ts.map(async t=>{
