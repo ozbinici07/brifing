@@ -9,3 +9,5 @@
 #institutionsSystem [data-tab-panel=query]>.page-head .btn{white-space:nowrap;padding:5px 8px;font-size:10px}#institutionsSystem [data-sort]{margin-left:0;min-width:135px}
 
 #institutionsSystem>.filters>*{grid-row:1;grid-column:auto}#institutionsSystem>.filters>.btn{min-height:30px!important;height:30px!important}
+
+.firebase-usage header a{font-size:10px;color:#075b9b;margin-left:auto}.firebase-usage header{flex-wrap:wrap}

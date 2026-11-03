@@ -1,8 +1,10 @@
-import {createSign} from 'node:crypto';
+import {createRequire} from 'node:module';
 import {collectUsage,firestoreFields} from './firestore-usage-core.mjs';
-const project='brifingbilgisistemi';
-const credentials=JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT||'null');if(!credentials?.client_email||!credentials?.private_key)throw Error('Firebase yayın hizmet hesabı yapılandırılmamış.');
-const now=Math.floor(Date.now()/1000),encode=value=>Buffer.from(JSON.stringify(value)).toString('base64url'),unsigned=encode({alg:'RS256',typ:'JWT'})+'.'+encode({iss:credentials.client_email,scope:'https://www.googleapis.com/auth/monitoring.read https://www.googleapis.com/auth/datastore',aud:'https://oauth2.googleapis.com/token',iat:now,exp:now+3600}),signer=createSign('RSA-SHA256');signer.update(unsigned);const assertion=unsigned+'.'+signer.sign(credentials.private_key,'base64url');
-const response=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'urn:ietf:params:oauth:grant-type:jwt-bearer',assertion})});const auth=await response.json();if(!response.ok||!auth.access_token)throw Error('Hizmet hesabı kimliği doğrulanamadı.');
-async function request(url,options={}){const response=await fetch(url,{...options,headers:{Authorization:'Bearer '+auth.access_token,'Content-Type':'application/json',...(options.headers||{})}});const data=await response.json();if(!response.ok)throw Error((data.error?.message||'Kullanım verisi güncellenemedi.').slice(0,400));return data;}
+// Run on a trusted workstation with the project owner's existing Firebase CLI login.
+// No personal refresh token is copied to GitHub or to the web application.
+if(!process.argv.includes('--firebase-cli'))throw Error('Firebase CLI oturumuyla çalıştırın: npm run update:usage');
+const require=createRequire(import.meta.url),auth=require('firebase-tools/lib/auth'),api=require('firebase-tools/lib/api');
+api.setScopes(['https://www.googleapis.com/auth/cloud-platform']);const account=auth.getGlobalDefaultAccount();if(!account?.tokens?.refresh_token)throw Error('Önce yetkili hesapla firebase login komutunu çalıştırınız.');
+const token=await auth.getAccessToken(account.tokens.refresh_token,api.getScopes()),project='brifingbilgisistemi';
+async function request(url,options={}){const response=await fetch(url,{...options,signal:AbortSignal.timeout(30000),headers:{Authorization:'Bearer '+token.access_token,'Content-Type':'application/json',...(options.headers||{})}});const data=await response.json();if(!response.ok)throw Error((data.error?.message||'Kullanım verisi güncellenemedi.').slice(0,400));return data;}
 const snapshot=await collectUsage({project,request});await request('https://firestore.googleapis.com/v1/projects/'+project+'/databases/(default)/documents/personnelSettings/firestoreUsage',{method:'PATCH',body:JSON.stringify(firestoreFields(snapshot).mapValue)});console.log('Yöneticiye özel günlük Firestore kullanım özeti güncellendi.');
