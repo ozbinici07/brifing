@@ -237,7 +237,7 @@ service cloud.firestore {
     allow delete: if false;
    }
    match /published/{unitId} {
-    allow read: if readUnit(unitId);
+    allow read: if presentationsAccess() || readUnit(unitId);
     allow create,update: if isAdmin() &&
      request.resource.data.unitId == unitId &&
      request.resource.data.payload == getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/reports/$(unitId)).data.approved &&
