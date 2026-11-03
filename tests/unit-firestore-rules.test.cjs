@@ -137,3 +137,35 @@ test('new table workflow rejects legacy whole-unit submission',async()=>{await t
 
 test('table submit and history are atomic and fabricated history payload is rejected',async()=>{await tableFixture();const a=user('a'),data=pendingTable(),batch=writeBatch(a);batch.set(ref(a,'unitPeriods/P/tableReviews/7__1'),data);batch.set(ref(a,'unitPeriods/P/tableReviewHistory/submit1'),{unitId:'7',tableId:'1',reviewId:'7__1',actor:'a',action:'submit',version:1,at:serverTimestamp(),payload:data.pending});await assertSucceeds(batch.commit());await assertFails(setDoc(ref(a,'unitPeriods/P/tableReviewHistory/fake'),{unitId:'7',tableId:'1',reviewId:'7__1',actor:'a',action:'submit',version:1,at:serverTimestamp(),payload:{...data.pending,cells:{'1!B4':999}}}));});
 test('administrator table decision updates aggregate published data without approving another table',async()=>{await tableFixture();await setDoc(ref(user('a'),'unitPeriods/P/tableReviews/7__1'),pendingTable());const m=user('manager'),old=(await getDoc(ref(m,'unitPeriods/P/tableReviews/7__1'))).data(),batch=writeBatch(m);batch.set(ref(m,'unitPeriods/P/tableReviews/7__1'),{...old,version:2,status:'approved',approved:old.pending,approvedVersion:1,approvedBy:'manager',approvedAt:serverTimestamp(),pending:null,pendingVersion:null,updatedAt:serverTimestamp()});batch.update(ref(m,'unitPeriods/P/reports/7'),{version:2,approved:old.pending,approvedVersion:2,approvedBy:'manager',approvedAt:serverTimestamp()});batch.set(ref(m,'unitPeriods/P/published/7'),{unitId:'7',version:2,payload:old.pending,tableApprovals:{1:1}});batch.set(ref(m,'unitPeriods/P/tableReviewHistory/approve1'),{unitId:'7',tableId:'1',reviewId:'7__1',actor:'manager',action:'approve',version:2,at:serverTimestamp(),payload:old.pending});await assertSucceeds(batch.commit());const data=(await getDoc(ref(user('b'),'unitPeriods/P/published/7'))).data();assert.equal(data.payload.cells['1!B4'],10);assert.equal(data.payload.cells['2!B4'],undefined);});
+
+test('presentations permission is required for private library and only administrator can manage cards or PDF bytes',async()=>{
+ const manager=user('manager');await assertSucceeds(setDoc(ref(manager,'presentationCards/strategic'),{title:'Stratejik Planlar',kind:'pdf',version:1,deleted:false}));
+ await assertFails(getDoc(ref(user('a'),'presentationCards/strategic')));
+ await assertFails(getDoc(ref(env.unauthenticatedContext().firestore(),'presentationCards/strategic')));
+ await env.withSecurityRulesDisabled(async c=>{await setDoc(ref(c.firestore(),'unitAccounts/presenter'),{role:'unit',active:true,editUnits:[],readUnits:[],screens:['presentations']});});
+ const viewer=user('presenter');await assertSucceeds(getDoc(ref(viewer,'presentationCards/strategic')));
+ await assertFails(setDoc(ref(viewer,'presentationCards/new'),{title:'X',kind:'pdf'}));
+ const meta={cardId:'strategic',name:'plan.pdf',size:10,parts:1,sha256:'test',ready:false};
+ await assertSucceeds(setDoc(ref(manager,'presentationFiles/pdf'),meta));
+ await assertSucceeds(setDoc(ref(manager,'presentationFiles/pdf/parts/0'),{payload:'JVBERi0='}));
+ await assertFails(getDoc(ref(viewer,'presentationFiles/pdf/parts/0')));
+ await assertSucceeds(updateDoc(ref(manager,'presentationFiles/pdf'),{ready:true}));
+ await assertSucceeds(getDoc(ref(viewer,'presentationFiles/pdf/parts/0')));
+ await assertFails(setDoc(ref(viewer,'presentationFiles/pdf/parts/0'),{payload:'tamper'}));
+ await assertFails(updateDoc(ref(viewer,'presentationFiles/pdf'),{ready:false}));
+ await assertFails(setDoc(ref(manager,'presentationCards/unsafe'),{title:'X',kind:'link',url:'javascript:alert(1)'}));
+ await assertFails(setDoc(ref(manager,'presentationFiles/tooLarge'),{...meta,size:52428801}));
+});
+test('presentations grants approved briefing inputs but never other unit drafts, reviews or import baselines',async()=>{
+ await env.withSecurityRulesDisabled(async c=>{await setDoc(ref(c.firestore(),'unitAccounts/presenter'),{role:'unit',active:true,editUnits:[],readUnits:[],screens:['presentations']});});
+ const viewer=user('presenter');await assertSucceeds(getDocs(collection(viewer,'unitPeriods/P/schemas')));
+ await assertSucceeds(getDocs(collection(viewer,'unitPeriods/P/tables')));
+ await assertSucceeds(getDocs(collection(viewer,'unitPeriods/P/published')));
+ await assertSucceeds(getDoc(ref(viewer,'unitMedia/image/parts/0')));
+ await assertFails(getDoc(ref(viewer,'unitPeriods/P/reports/22')));
+ await assertFails(getDoc(ref(viewer,'unitPeriods/P/importBase/7')));
+ await assertFails(getDocs(collection(viewer,'unitPeriods/P/tableReviews')));
+ await env.withSecurityRulesDisabled(async c=>{await updateDoc(ref(c.firestore(),'unitAccounts/presenter'),{active:false});});
+ await assertFails(getDocs(collection(viewer,'presentationCards')));
+ await assertFails(getDocs(collection(viewer,'unitPeriods/P/published')));
+});
