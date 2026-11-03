@@ -122,3 +122,6 @@ test('unit contacts reject stale versions, identity spoofing, oversized values a
 
 
 test('administrator can count schemas and tables without exposing collection counts to unit accounts',async()=>{const manager=user('manager');assert.equal((await assertSucceeds(getCountFromServer(collection(manager,'unitPeriods/P/schemas')))).data().count,2);assert.equal((await assertSucceeds(getCountFromServer(collection(manager,'unitPeriods/P/tables')))).data().count,1);await assertFails(getCountFromServer(collection(user('a'),'unitPeriods/P/schemas')));await assertFails(getCountFromServer(collection(user('a'),'unitPeriods/P/tables')));});
+
+
+test('Firebase usage snapshot is readable only by administrators',async()=>{await env.withSecurityRulesDisabled(c=>setDoc(ref(c.firestore(),'personnelSettings/firestoreUsage'),{format:'brifing-firestore-usage-v1',reads:{used:100,limit:50000}}));await assertSucceeds(getDoc(ref(user('manager'),'personnelSettings/firestoreUsage')));await assertFails(getDoc(ref(user('a'),'personnelSettings/firestoreUsage')));await assertFails(getDoc(ref(env.unauthenticatedContext().firestore(),'personnelSettings/firestoreUsage')));await assertFails(setDoc(ref(user('a'),'personnelSettings/firestoreUsage'),{reads:{used:0}}));});

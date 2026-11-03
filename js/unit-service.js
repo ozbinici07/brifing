@@ -256,6 +256,6 @@ async function pendingNotifications(){
 }
 
 function choosePeriod(id){if(!isAdmin())return;const select=$('periodSelect');if(select&&[...select.options].some(o=>o.value===id)&&select.value!==id){select.value=id;select.dispatchEvent(new Event('change',{bubbles:true}));}}
-window.UnitBriefingService={invalidateReadSummaries:()=>excelSummaryCache.clear(),unitContacts,saveUnitContacts,unitExcelSummary,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
+window.UnitBriefingService={invalidateReadSummaries:()=>{excelSummaryCache.clear();window.__UNIT_DIRECTORY_REVISION=(window.__UNIT_DIRECTORY_REVISION||0)+1;},unitContacts,saveUnitContacts,unitExcelSummary,sourceExcel,downloadSourceExcel,pendingNotifications,createUnit,saveUnitUserPermissions,resetAccountPassword,initialImport,setLocked,choosePeriod,saveMapping,prepareExcel,applyExcel,account,isAdmin,uid,units,listPeriods,schemas,templates,report,materialize,savePackage,createAccount,updateAccount,changePassword,newPeriod,adapter:api};
 })();
 
