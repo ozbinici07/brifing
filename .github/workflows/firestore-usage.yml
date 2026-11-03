@@ -1,14 +1,6 @@
-name: Update Firestore usage summary
+name: Update Firestore usage summary (manual)
 on:
-  schedule:
-    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/firestore-usage.yml'
-      - 'scripts/update-firestore-usage.mjs'
-      - 'scripts/firestore-usage-core.mjs'
 permissions:
   contents: read
 concurrency:
