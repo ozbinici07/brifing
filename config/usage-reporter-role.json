@@ -1,0 +1,10 @@
+{
+  "title": "BBS usage reporter",
+  "description": "Read Firestore monitoring totals and create/update private usage snapshots.",
+  "stage": "GA",
+  "includedPermissions": [
+    "monitoring.timeSeries.list",
+    "datastore.entities.create",
+    "datastore.entities.update"
+  ]
+}
