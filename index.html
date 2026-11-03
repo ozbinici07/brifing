@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 51764)
+Total output lines: 1728
+
 <!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preload" as="image" type="image/webp" href="assets/login-background-v2.webp" fetchpriority="high"><link rel="preload" as="image" type="image/webp" href="assets/bbs-logo-v3.webp" fetchpriority="high"><title>Brifing Bilgi Sistemi</title>
 <style>
 :root{--navy:#073b73;--blue:#0875df;--blue2:#0b58a5;--red:#ef2436;--bg:#edf3f9;--text:#12304f;--muted:#6b7d91;--green:#11a05a;--border:#d7e2ef;--shadow:0 5px 18px rgba(20,60,100,.09)}
@@ -648,94 +651,7 @@ function switchStudentTab(which){
 }
 function studentQueryGradeRows(){
   const out=[];
-  const add=(r,grade,students)=>{if(Number(students||0)<=0)return;out.push({...r,grade,students:Number(students||0),level:grade==='Okul Öncesi'?'Okul Öncesi':(['1. Sınıf','2. Sınıf','3. Sınıf','4. Sınıf'].includes(grade)?'İlkokul':(['5. Sınıf','6. Sınıf','7. Sınıf','8. Sınıf'].includes(grade)?'Ortaokul':'Ortaöğretim'))});};
-  (D.basic||[]).forEach(r=>{const g=r.grade_students||[];const labels=['Okul Öncesi','1. Sınıf','2. Sınıf','3. Sınıf','4. Sınıf','5. Sınıf','6. Sınıf','7. Sınıf','8. Sınıf'];labels.forEach((x,i)=>add(r,x,g[i]));});
-  (D.secondary||[]).forEach(r=>{const g=r.grade_students||[];add(r,'9. Sınıf',g[2]||0);add(r,'Hazırlık',g[1]||0);add(r,'10. Sınıf',g[3]||0);add(r,'11. Sınıf',g[4]||0);add(r,'12. Sınıf',g[5]||0);});
-  return out;
-}
-const STUDENT_QUERY_FILTERS={district:[],public:[],level:[],type:[],grade:[]};
-const STUDENT_QUERY_OPTIONS={
-  public:['Resmi','Özel'],
-  level:['Okul Öncesi','İlkokul','Ortaokul','Ortaöğretim'],
-  grade:['Okul Öncesi','1. Sınıf','2. Sınıf','3. Sınıf','4. Sınıf','5. Sınıf','6. Sınıf','7. Sınıf','8. Sınıf','Hazırlık','9. Sınıf','10. Sınıf','11. Sınıf','12. Sınıf']
-};
-function studentQueryMultiLabel(key){
-  const vals=STUDENT_QUERY_FILTERS[key]||[], all=studentQueryMultiOptions(key).length;
-  if(vals.length===0||vals.length===all)return 'Tümü';
-  if(vals.length===1)return vals[0];
-  return vals.length+' seçili';
-}
-function studentQueryMultiOptions(key){
-  if(key==='district')return [...new Set((studentQueryGradeRows()||[]).map(x=>x.district).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
-  if(key==='type')return [...new Set((studentQueryGradeRows()||[]).map(x=>x.type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
-  return STUDENT_QUERY_OPTIONS[key]||[];
-}
-function renderStudentQueryMulti(key,containerId){
-  const box=$(containerId);if(!box)return;
-  const options=studentQueryMultiOptions(key), selected=STUDENT_QUERY_FILTERS[key]||[];
-  box.innerHTML='<button type="button" class="multi-select-trigger">'+esc(studentQueryMultiLabel(key))+'<span class="multi-select-count"></span></button><div class="multi-select-menu"><label class="multi-select-option multi-select-all"><input type="checkbox" data-multi-all> Tümü</label>'+options.map(x=>'<label class="multi-select-option"><input type="checkbox" data-multi-value="'+esc(x)+'" '+(selected.includes(x)?'checked':'')+'> '+esc(x)+'</label>').join('')+'</div>';
-  const allBox=box.querySelector('[data-multi-all]');
-  const vals=[...box.querySelectorAll('[data-multi-value]')];
-  const sync=()=>{
-    const checked=vals.filter(x=>x.checked).map(x=>x.dataset.multiValue);
-    const all=checked.length===vals.length && vals.length>0;
-    allBox.checked=all;
-    STUDENT_QUERY_FILTERS[key]=all?[]:checked;
-    box.querySelector('.multi-select-trigger').firstChild.textContent=esc(studentQueryMultiLabel(key));
-    box.querySelector('.multi-select-count').textContent=(all||checked.length===0)?'':' ('+checked.length+')';
-  };
-  allBox.checked=(selected.length===0||selected.length===options.length);
-  allBox.addEventListener('change',()=>{
-    if(allBox.checked){vals.forEach(x=>x.checked=true);STUDENT_QUERY_FILTERS[key]=[];}
-    else{vals.forEach(x=>x.checked=false);STUDENT_QUERY_FILTERS[key]=[];}
-    box.querySelector('.multi-select-trigger').firstChild.textContent=studentQueryMultiLabel(key);
-    box.querySelector('.multi-select-count').textContent='';
-    runStudentQuery();
-  });
-  vals.forEach(v=>v.addEventListener('change',()=>{sync();runStudentQuery();}));
-  box.querySelector('.multi-select-trigger').addEventListener('click',e=>{
-    e.stopPropagation();document.querySelectorAll('.multi-select.open').forEach(x=>{if(x!==box)x.classList.remove('open')});box.classList.toggle('open');
-  });
-  box.querySelector('.multi-select-trigger').firstChild.textContent=studentQueryMultiLabel(key);
-  box.querySelector('.multi-select-count').textContent=(selected.length>1&&selected.length<options.length)?' ('+selected.length+')':'';
-}
-document.addEventListener('click',e=>{if(!e.target.closest('.multi-select'))document.querySelectorAll('.multi-select.open').forEach(x=>x.classList.remove('open'));});
-function renderAllStudentQueryMultis(){
-  renderStudentQueryMulti('district','stuQDistrictMulti');
-  renderStudentQueryMulti('public','stuQPublicMulti');
-  renderStudentQueryMulti('level','stuQLevelMulti');
-  renderStudentQueryMulti('type','stuQTypeMulti');
-  renderStudentQueryMulti('grade','stuQGradeMulti');
-}
-function fillStudentQueryFilters(){
-  renderAllStudentQueryMultis();
-  document.querySelectorAll('[data-qcol]').forEach(i=>i.onchange=()=>{applyStudentQueryColumns();runStudentQuery();});
-  ['stuQSearch','stuQMin','stuQMax'].forEach(id=>{const el=$(id);if(el){el.oninput=()=>runStudentQuery();}});
-  if($('stuQSort'))$('stuQSort').onchange=()=>runStudentQuery();
-  if($('stuQReverse'))$('stuQReverse').onchange=()=>runStudentQuery();
-}
-function studentQueryRows(){
-  const districts=STUDENT_QUERY_FILTERS.district||[],levels=STUDENT_QUERY_FILTERS.level||[],types=STUDENT_QUERY_FILTERS.type||[],pubs=STUDENT_QUERY_FILTERS.public||[],grades=STUDENT_QUERY_FILTERS.grade||[];
-  const search=norm($('stuQSearch')?.value||''),min=Number($('stuQMin')?.value||0),maxRaw=$('stuQMax')?.value,max=maxRaw===''||maxRaw==null?Infinity:Number(maxRaw);
-  const match=(arr,val)=>arr.length===0||arr.includes(val);
-  return studentQueryGradeRows().filter(r=>
-    match(districts,r.district)&&match(levels,r.level)&&match(types,r.type)&&match(pubs,publicKey(r.public_private)==='resmi'?'Resmi':'Özel')&&match(grades,r.grade)&&
-    (!search||norm(r.name).includes(search)||norm(r.type).includes(search))&&r.students>=min&&r.students<=max
-  );
-}
-function studentQueryOrderedRows(){
-  const rows=studentQueryRows();let ordered=rows.slice();const sort=$('stuQSort')?.value||'students-desc';const rev=!!$('stuQReverse')?.checked;
-  ordered.sort((a,b)=>{let v=0;if(sort.startsWith('students'))v=Number(a.students)-Number(b.students);else if(sort.startsWith('name'))v=String(a.name).localeCompare(String(b.name),'tr');else v=String(a.district).localeCompare(String(b.district),'tr');return (sort.endsWith('desc')?-v:v)});
-  if(rev)ordered.reverse();
-  return ordered;
-}
-function runStudentQuery(buttonOrSkip){
-  const skipBusy=buttonOrSkip===true;
-  const button=buttonOrSkip&&buttonOrSkip.nodeType?buttonOrSkip:null;
-  if(!skipBusy&&button&&!setActionBusy(button,'Sorgulanıyor...'))return;
-  const ordered=studentQueryOrderedRows();
-  const pub=ordered.filter(r=>publicKey(r.public_private)==='resmi').reduce((a,r)=>a+r.students,0),prv=ordered.filter(r=>publicKey(r.public_private)==='ozel').reduce((a,r)=>a+r.students,0),total=ordered.reduce((a,r)=>a+r.students,0);
-  if($('stuQCount'))$('stuQCount').textContent=nf.format(ordered.length);if($('stuQTotal'))$('stuQTotal').textContent=nf.format(total);if($('stuQPublicTotal'))$('stuQPublicTotal').textContent=nf.format(pub);if($('stuQPrivateTotal'))$('stuQPrivateTotal').textContent=nf.format(prv);if($('stuQSchools'))$('stuQSchools').textContent=nf.format(new Set(ordered.map(r=>r.code)).size);if($('stuQDistrictCount'))$('stuQDistrictCount').textContent=nf.format(new Set(ordered.map(r=>r.district)).size);if($('stuQTypeCount'))$('stuQTypeCount').textContent=nf.format(new Set(ordered.map(r=>r.type)).size);
+  const add=(r,grade,students)=>{if(Number(students||0)<=0)return;out.push({...r,grade,students:Number(students||0),level:grade==='Okul Öncesi'?'Okul Öncesi':(['1. Sınıf','2. Sınıf','3. Sınıf','4. Sınıf'].in…1764 tokens truncated…nt'))$('stuQDistrictCount').textContent=nf.format(new Set(ordered.map(r=>r.district)).size);if($('stuQTypeCount'))$('stuQTypeCount').textContent=nf.format(new Set(ordered.map(r=>r.type)).size);
   if($('stuQTable'))$('stuQTable').innerHTML=ordered.map((r,i)=>`<tr><td>${i+1}</td><td data-qtd="code">${esc(r.code??'—')}</td><td data-qtd="district">${esc(r.district)}</td><td data-qtd="name">${esc(r.name)}</td><td data-qtd="public">${esc(publicKey(r.public_private)==='resmi'?'Resmi':'Özel')}</td><td data-qtd="level">${esc(r.level)}</td><td data-qtd="type">${esc(r.type)}</td><td data-qtd="grade">${esc(r.grade)}</td><td data-qtd="branches" class="num">${r.branches==null?'—':nf.format(r.branches)}</td><td data-qtd="students" class="num">${nf.format(r.students)}</td></tr>`).join('')||'<tr><td colspan="8">Sonuç bulunamadı.</td></tr>';
   const foot=$('stuQTableFoot');
   if(foot){const colState={code:true,district:$('[data-qcol="district"]')?.checked!==false,name:$('[data-qcol="name"]')?.checked!==false,public:$('[data-qcol="public"]')?.checked!==false,level:$('[data-qcol="level"]')?.checked!==false,type:$('[data-qcol="type"]')?.checked!==false,grade:$('[data-qcol="grade"]')?.checked!==false,students:$('[data-qcol="students"]')?.checked!==false};const visibleMeta=Object.values(colState).filter(Boolean).length;const labelSpan=Math.max(1,2+visibleMeta-(colState.students?1:0));foot.innerHTML=`<tr><td colspan="${labelSpan}" style="font-weight:800;background:#fff5bf">GENEL TOPLAM · Resmi: ${nf.format(pub)} · Özel: ${nf.format(prv)}</td>${colState.students?`<td data-qfoot="students" class="num" style="font-weight:800;background:#fff5bf">${nf.format(total)}</td>`:''}</tr>`;}
@@ -1723,5 +1639,4 @@ window.addEventListener('DOMContentLoaded',async()=>{await loadUsers();initAuth(
 <script src="js/student-fixes.js?v=4"></script><script src="vendor/jspdf.js"></script><script src="vendor/autotable.js"></script><script src="vendor/html2canvas.js"></script><script src="vendor/xlsx.js"></script><script src="vendor/report-font.js"></script><script src="vendor/exceljs.js"></script><script src="js/student-exports.js?v=11"></script><script src="js/module-systems.js?v=7"></script>
 <script src="js/reference-ui.js?v=7"></script>
 <link rel="stylesheet" href="css/personnel-unit.css?v=2">
-<link rel="stylesheet" href="css/admin-panel.css?v=2"><link rel="stylesheet" href="css/appearance.css"><link rel="stylesheet" href="units/detail.css"><script src="js/appearance.js"></script><script src="js/auth-visibility.js?v=1"></script><script src="js/unit-briefing-core.js?v=1"></script><script src="js/unit-table-core.js?v=1"></script><script src="js/unit-migration.js?v=1"></script><script src="js/unit-excel-media.js?v=1"></script><script src="js/unit-permissions-core.js?v=1"></script><script src="js/unit-service.js?v=7"></script><script src="js/unit-bridge.js?v=3"></script><script src="js/unit-excel-entry.js?v=4"></script><script src="js/compact-layout.js?v=7"></script><link rel="stylesheet" href="css/usage-and-filters.css"><script src="js/firestore-usage.js?v=1"></script><script src="js/unit-notifications.js?v=1"></script><link rel="stylesheet" href="css/global-search.css"><script src="js/global-search.js?v=1"></script><script src="js/login-design.js?v=4"></script></body></html>
-
+<link rel="stylesheet" href="css/admin-panel.css?v=2"><link rel="stylesheet" href="css/appearance.css"><link rel="stylesheet" href="units/detail.css"><script src="js/appearance.js"></script><script src="js/auth-visibility.js?v=1"></script><script src="js/unit-briefing-core.js?v=1"></script><script src="js/unit-table-core.js?v=1"></script><script src="js/unit-migration.js?v=1"></script><script src="js/unit-excel-media.js?v=1"></script><script src="js/unit-permissions-core.js?v=1"></script><script src="js/unit-service.js?v=7"></script><script src="js/presentations-service.js"></script><script src="js/unit-bridge.js?v=3"></script><script src="js/unit-excel-entry.js?v=4"></script><script src="js/compact-layout.js?v=7"></script><link rel="stylesheet" href="css/usage-and-filters.css"><script src="js/firestore-usage.js?v=1"></script><script src="js/unit-notifications.js?v=1"></script><link rel="stylesheet" href="css/global-search.css"><script src="js/global-search.js?v=1"></script><script src="js/login-design.js?v=4"></script></body></html>

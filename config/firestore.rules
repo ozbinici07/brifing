@@ -73,6 +73,7 @@ service cloud.firestore {
 
   function accountDoc() { return get(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)).data; }
   function activeAccount() { return signedIn() && exists(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)) && accountDoc().active == true; }
+  function presentationsAccess() { return isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['presentations'])); }
   function editUnit(unitId) { return isAdmin() || (activeAccount() && unitId in accountDoc().editUnits); }
   function readUnit(unitId) { return editUnit(unitId) || (activeAccount() && unitId in accountDoc().readUnits); }
   function sharedUnits(ids) { return isAdmin() || (activeAccount() && (accountDoc().editUnits.hasAny(ids) || accountDoc().readUnits.hasAny(ids))); }
@@ -124,12 +125,27 @@ service cloud.firestore {
    allow update: if editUnit(unitId) && validUnitContacts(request.resource.data,unitId) && request.resource.data.version==resource.data.version+1;
    allow delete: if isAdmin();
   }
+  match /presentationCards/{id} {
+   allow read: if presentationsAccess();
+   allow create,update: if isAdmin() && request.resource.data.title is string && request.resource.data.title.size()>0 && request.resource.data.title.size()<=100 && request.resource.data.kind in ['builder','pdf','link'] && (request.resource.data.kind!='link' || request.resource.data.url.matches('https?://.*'));
+   allow delete: if isAdmin();
+  }
+  match /presentationFiles/{id} {
+   allow read: if presentationsAccess();
+   allow create,update: if isAdmin() && request.resource.data.size is int && request.resource.data.size>0 && request.resource.data.size<=52428800 && request.resource.data.parts is int && request.resource.data.parts>0 && request.resource.data.parts<=300 && request.resource.data.cardId is string && request.resource.data.name is string && request.resource.data.name.size()<=200 && request.resource.data.ready is bool && request.resource.data.sha256 is string;
+   allow delete: if isAdmin();
+   match /parts/{part} {
+    allow read: if isAdmin() || (presentationsAccess() && get(/databases/$(database)/documents/presentationFiles/$(id)).data.ready==true);
+    allow create,update: if isAdmin() && request.resource.data.keys().hasOnly(['payload']) && request.resource.data.payload is string && request.resource.data.payload.size()<=240000;
+    allow delete: if isAdmin();
+   }
+  }
   match /unitCatalog/{id} { allow read: if isAdmin() || activeAccount(); allow write: if isAdmin(); }
   match /unitMedia/{id} {
-   allow read: if sharedUnits(resource.data.allowedUnits);
+   allow read: if presentationsAccess() || sharedUnits(resource.data.allowedUnits);
    allow write: if isAdmin();
    match /parts/{part} {
-    allow read: if sharedUnits(get(/databases/$(database)/documents/unitMedia/$(id)).data.allowedUnits);
+    allow read: if presentationsAccess() || sharedUnits(get(/databases/$(database)/documents/unitMedia/$(id)).data.allowedUnits);
     allow write: if isAdmin();
    }
   }
@@ -205,7 +221,7 @@ service cloud.firestore {
    match /excelFiles/{id} { allow read,write: if isAdmin(); match /parts/{part} { allow read,write: if isAdmin(); } }
    match /migration/{id} { allow read,write: if isAdmin(); }
    match /tables/{tableId} { allow read: if sharedUnits(resource.data.allowedUnits); allow write: if isAdmin(); }
-   match /schemas/{unitId} { allow read: if readUnit(unitId); allow write: if isAdmin(); }
+   match /schemas/{unitId} { allow read: if presentationsAccess() || readUnit(unitId); allow write: if isAdmin(); }
    match /importBase/{unitId} { allow read,write: if isAdmin(); }
    match /reports/{unitId} {
     allow read: if editUnit(unitId);
