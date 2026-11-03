@@ -81,7 +81,7 @@ async function createAccount(data){
  const email=data.username+'@brifingbilgisistemi.firebaseapp.com';
  const response=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+cfg.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:data.password,returnSecureToken:false})}),j=await response.json();
  if(!response.ok)throw Error(j.error?.message==='EMAIL_EXISTS'?'Bu kullanıcı için kimlik hesabı zaten var.':'Hesap oluşturulamadı: '+(j.error?.message||response.status));
- const next={uid:j.localId,username:data.username,display:data.display||data.username,role:data.role||'unit',active:true,editUnits:data.editUnits||[],readUnits:data.readUnits||[],screens:data.screens||['units'],mustChange:false};
+ const next={uid:j.localId,username:data.username,display:data.display||data.username,role:data.role||'unit',active:true,editUnits:data.editUnits||[],readUnits:data.readUnits||[],screens:data.screens||['units'],mustChange:false,createdAt:new Date().toISOString()};
  const directory={username:next.username,email,display:next.display,unit:'Birimler',role:next.role==='admin'?'System Admin':'Unit User',active:true};
  try{await api().commit([api().write('unitAccounts/'+j.localId,next,null),api().write('unitLoginDirectory/'+next.username,directory,null)]);}catch(e){throw Error('Kimlik hesabı açıldı ancak yetki kaydı tamamlanamadı. Aynı hesabı yeniden oluşturmadan yöneticiden kayıt onarımı isteyiniz. '+e.message);}
  return next;
@@ -89,9 +89,10 @@ async function createAccount(data){
 async function updateAccount(data){
  if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');const current=await api().read('unitAccounts/'+data.uid);if(!current)throw Error('Hesap bulunamadı.');
  if(data.uid===uid()&&(data.active===false||data.role!=='admin'))throw Error('Kendi yönetici erişiminizi kaldıramazsınız.');
- const next={...current.data,role:data.role,active:!!data.active,readUnits:data.readUnits||[],editUnits:data.editUnits||[],screens:data.screens||['units']};
+ const display=String(data.display??current.data.display??current.data.username).trim();if(!display||display.length>160)throw Error('Görünen ad 1–160 karakter olmalıdır.');
+ const next={...current.data,display,role:data.role,active:!!data.active,readUnits:data.readUnits||[],editUnits:data.editUnits||[],screens:data.screens||['units']};
  if(!['admin','unit'].includes(next.role))throw Error('Rol geçersiz.');
- const dir=await api().read('unitLoginDirectory/'+next.username),d={...dir.data,active:next.active,role:next.role==='admin'?'System Admin':'Unit User'};
+ const dir=await api().read('unitLoginDirectory/'+next.username),d={...dir.data,display:next.display,active:next.active,role:next.role==='admin'?'System Admin':'Unit User'};
  await api().commit([api().write('unitAccounts/'+data.uid,next,current),api().write('unitLoginDirectory/'+next.username,d,dir)]);
 }
 async function saveUnitUserPermissions(ids,unitId,changes,role){
