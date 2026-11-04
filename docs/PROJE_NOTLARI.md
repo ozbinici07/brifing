@@ -525,3 +525,9 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kurum Türlerine Göre Sayılar başlangıçta dar görünür. Altındaki Genişlet/Daralt düğmesi bölümün bütününü açar/kapatır. aria-expanded ve aria-controls kullanılır; filtre veya dönem yeniden çiziminde kullanıcının genişlik tercihi korunur. Veriler silinmez veya ilk birkaç satırla sınırlanmaz.
 - JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü geçti. İzole tarayıcıda başlangıçta daralma, genişletme, yeniden çizimde tercih ve tekrar daraltma kontrol edilir. Yayın sonucu aşağıya kaydedilecektir.
 - Kapanış: izole tarayıcı genişlet/daralt ve yeniden çizim testleri PASS; 1686px önizleme incelendi. 04b0a2c Hosting yayını başarılı https://github.com/ozbinici07/brifing/actions/runs/41817329506 ; CI başarılı https://github.com/ozbinici07/brifing/actions/runs/41817329604 . Canlı iki kaynak doğrulanan dosyalarla eşleşti. Dar türler bölümünde halka 100px, içerik en çok 136px; açılınca tüm içerik görünür. Üretim verisi değişmedi.
+
+
+## 4 Kasım 2026 — Okul/Kurum toplam kartlarının birleştirilmesi
+- Üstte ayrı satırdaki Toplam Okul / Kurum kartı, Okul Dağılımı ve Kurum Dağılımı kartlarının sol başına alındı. Sağdaki yinelenen Toplam kartı kaldırıldı; üç kart tek satırdır. Dar ekranda tek sütuna geçer.
+- Kurum Türlerine Göre Sayılar başlığı Okul / Kurum Türlerine Göre Sayılar olarak değiştirildi. Genişlet/Daralt eşlemesi yeni başlığa güncellendi; hesaplama ve veri kaynağı korunur.
+- JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın sonucu aşağıya kaydedilir.

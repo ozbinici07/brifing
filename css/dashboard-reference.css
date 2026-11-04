@@ -159,3 +159,7 @@
 #institutionsSystem .types-chart:not(.is-expanded) .module-donut-box{width:100px;height:100px}
 #institutionsSystem .types-chart:not(.is-expanded) .module-donut-center{font-size:12px}#institutionsSystem .types-chart:not(.is-expanded) .module-donut-center b{font-size:21px!important}
 @media(max-width:700px){#institutionsSystem .types-chart:not(.is-expanded) .module-chart-content{max-height:250px;grid-template-columns:1fr}}
+/* One summary row: total first, followed by school and institution distributions. */
+#institutionsSystem [data-summary]{grid-template-columns:1fr 1.5fr 1.5fr!important}
+#institutionsSystem [data-summary]>.student-summary-item:first-child{grid-column:auto;justify-content:flex-start;min-height:76px;padding:10px 14px}
+@media(max-width:700px){#institutionsSystem [data-summary]{grid-template-columns:1fr!important}}

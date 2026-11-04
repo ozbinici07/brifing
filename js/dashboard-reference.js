@@ -37,7 +37,7 @@ function overview(){
 let institutionTypesExpanded=false;
 function decorateInstitutionTypes(){
  const card=document.querySelector('#institutionsSystem [data-charts]>.student-visual-card:last-child');
- if(!card||!card.querySelector('h3')?.textContent.includes('Kurum Türlerine Göre'))return;
+ if(!card||!card.querySelector('h3')?.textContent.includes('Okul / Kurum Türlerine Göre'))return;
  if(card.querySelector('.types-chart-toggle'))return;
  card.classList.add('types-chart');card.classList.toggle('is-expanded',institutionTypesExpanded);
  const content=card.querySelector('.module-chart-content');content.id='institutionTypesChartContent';
