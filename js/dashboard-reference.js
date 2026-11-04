@@ -34,7 +34,19 @@ function overview(){
  if(teacher&&!teacher.querySelector(':scope>h4')){const h=document.createElement('h4');h.textContent='Eğitim Kademelerine Göre Öğretmenler';teacher.querySelector('.overview-levels').before(h);}
  document.querySelectorAll('#overview .overview-level-card').forEach(card=>{const label=card.querySelector('h4')?.textContent||'';addIcon(card,'reference-level-icon',/Öncesi/.test(label)?'people':/öğretim/.test(label)?'cap':/Kurum/.test(label)?'school':'book');});
 }
+let institutionTypesExpanded=false;
+function decorateInstitutionTypes(){
+ const card=document.querySelector('#institutionsSystem [data-charts]>.student-visual-card:last-child');
+ if(!card||!card.querySelector('h3')?.textContent.includes('Kurum Türlerine Göre'))return;
+ if(card.querySelector('.types-chart-toggle'))return;
+ card.classList.add('types-chart');card.classList.toggle('is-expanded',institutionTypesExpanded);
+ const content=card.querySelector('.module-chart-content');content.id='institutionTypesChartContent';
+ const button=document.createElement('button');button.type='button';button.className='types-chart-toggle';button.setAttribute('aria-controls',content.id);
+ const sync=()=>{button.textContent=institutionTypesExpanded?'Daralt':'Genişlet';button.setAttribute('aria-expanded',String(institutionTypesExpanded));};
+ sync();button.onclick=()=>{institutionTypesExpanded=!institutionTypesExpanded;card.classList.toggle('is-expanded',institutionTypesExpanded);sync();};card.append(button);
+}
 function decorate(){
+ decorateInstitutionTypes();
  overview();
  document.querySelectorAll('#overview .category-icon,.module-kpi-icon,.module-chart-icon,#overview .reference-chart h3>span').forEach(el=>{
   if(el.dataset.referenceIcon)return;el.dataset.referenceIcon='1';
