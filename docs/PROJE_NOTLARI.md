@@ -531,3 +531,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Üstte ayrı satırdaki Toplam Okul / Kurum kartı, Okul Dağılımı ve Kurum Dağılımı kartlarının sol başına alındı. Sağdaki yinelenen Toplam kartı kaldırıldı; üç kart tek satırdır. Dar ekranda tek sütuna geçer.
 - Kurum Türlerine Göre Sayılar başlığı Okul / Kurum Türlerine Göre Sayılar olarak değiştirildi. Genişlet/Daralt eşlemesi yeni başlığa güncellendi; hesaplama ve veri kaynağı korunur.
 - JS sözdizimi, Hosting paketi ve CRLF uyumlu diff kontrolü başarılı. Yayın sonucu aşağıya kaydedilir.
+
+- Yayın kapanışı: 62d8e17 Hosting başarılı https://github.com/ozbinici07/brifing/actions/runs/41818613769 ; CI başarılı https://github.com/ozbinici07/brifing/actions/runs/41818614548 . Canlı üç kaynak doğrulanan sürümle birebir eşleşiyor. Toplam kartı yalnız bir kez oluşturulur; yeni başlık ve genişletme bağlantısı doğrulandı.
