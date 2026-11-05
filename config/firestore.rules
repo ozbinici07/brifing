@@ -74,6 +74,7 @@ service cloud.firestore {
   function accountDoc() { return get(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)).data; }
   function activeAccount() { return signedIn() && exists(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)) && accountDoc().active == true; }
   function presentationsAccess() { return isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['presentations'])); }
+  function briefingViewAccess() { return presentationsAccess() || (activeAccount() && accountDoc().screens.hasAny(['other-statistics'])); }
   function editUnit(unitId) { return isAdmin() || (activeAccount() && unitId in accountDoc().editUnits); }
   function readUnit(unitId) { return editUnit(unitId) || (activeAccount() && unitId in accountDoc().readUnits); }
   function sharedUnits(ids) { return isAdmin() || (activeAccount() && (accountDoc().editUnits.hasAny(ids) || accountDoc().readUnits.hasAny(ids))); }
@@ -143,10 +144,10 @@ service cloud.firestore {
   }
   match /unitCatalog/{id} { allow read: if isAdmin() || activeAccount(); allow write: if isAdmin(); }
   match /unitMedia/{id} {
-   allow read: if presentationsAccess() || sharedUnits(resource.data.allowedUnits);
+   allow read: if briefingViewAccess() || sharedUnits(resource.data.allowedUnits);
    allow write: if isAdmin();
    match /parts/{part} {
-    allow read: if presentationsAccess() || sharedUnits(get(/databases/$(database)/documents/unitMedia/$(id)).data.allowedUnits);
+    allow read: if briefingViewAccess() || sharedUnits(get(/databases/$(database)/documents/unitMedia/$(id)).data.allowedUnits);
     allow write: if isAdmin();
    }
   }
@@ -228,8 +229,8 @@ service cloud.firestore {
 
    match /excelFiles/{id} { allow read,write: if isAdmin(); match /parts/{part} { allow read,write: if isAdmin(); } }
    match /migration/{id} { allow read,write: if isAdmin(); }
-   match /tables/{tableId} { allow read: if presentationsAccess() || sharedUnits(resource.data.allowedUnits); allow write: if isAdmin(); }
-   match /schemas/{unitId} { allow read: if presentationsAccess() || readUnit(unitId); allow write: if isAdmin(); }
+   match /tables/{tableId} { allow read: if briefingViewAccess() || sharedUnits(resource.data.allowedUnits); allow write: if isAdmin(); }
+   match /schemas/{unitId} { allow read: if briefingViewAccess() || readUnit(unitId); allow write: if isAdmin(); }
    match /importBase/{unitId} { allow read,write: if isAdmin(); }
    match /reports/{unitId} {
     allow read: if editUnit(unitId);
@@ -245,7 +246,7 @@ service cloud.firestore {
     allow delete: if false;
    }
    match /published/{unitId} {
-    allow read: if presentationsAccess() || readUnit(unitId);
+    allow read: if briefingViewAccess() || readUnit(unitId);
     allow create,update: if isAdmin() &&
      request.resource.data.unitId == unitId &&
      request.resource.data.payload == getAfter(/databases/$(database)/documents/unitPeriods/$(periodId)/reports/$(unitId)).data.approved &&
