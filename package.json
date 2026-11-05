@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "build:units": "node scripts/build-unit-ui.mjs",
-    "test:units": "node --test tests/institution-import.test.cjs tests/staff-import.test.cjs tests/period-selection.test.cjs tests/login-session.test.cjs tests/unit-briefing-core.test.cjs tests/unit-migration.test.cjs tests/unit-service.test.cjs tests/unit-permissions.test.cjs tests/unit-grid.test.cjs tests/firestore-usage.test.cjs tests/unit-table-core.test.cjs tests/unit-table-service.test.cjs tests/presentations-service.test.cjs",
+    "test:units": "node --test tests/data-assistant.test.cjs tests/data-assistant-data.test.cjs tests/institution-import.test.cjs tests/staff-import.test.cjs tests/period-selection.test.cjs tests/login-session.test.cjs tests/unit-briefing-core.test.cjs tests/unit-migration.test.cjs tests/unit-service.test.cjs tests/unit-permissions.test.cjs tests/unit-grid.test.cjs tests/firestore-usage.test.cjs tests/unit-table-core.test.cjs tests/unit-table-service.test.cjs tests/presentations-service.test.cjs",
     "test:rules": "firebase emulators:exec --only firestore --config firebase.test.json --project demo-brifing-units \"node --test tests/unit-firestore-rules.test.cjs\"",
     "update:usage": "node scripts/update-firestore-usage.mjs --firebase-cli",
     "migrate:table-approvals": "node scripts/migrate-table-approvals.mjs"
