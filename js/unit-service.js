@@ -67,7 +67,7 @@ async function initialImport(snapshot,targetPeriodId){
  return plan;
 }
 async function setLocked(period,locked){if(!isAdmin())throw Error('Yönetici yetkisi gereklidir.');const path='unitPeriods/'+period,old=await api().read(path);if(!old)throw Error('Dönem bulunamadı.');await api().commit([api().write(path,{...old.data,locked:!!locked},old)]);}
-async function materialize(period,schema,view){
+async function materialize(period,schema,view,options={}){
  const p=await account(),canEdit=p.role==='admin'||p.editUnits?.includes(String(schema.unitId)),scope=scopeFor(p);
  const [ts,r,reviews]=await Promise.all([templates(period,schema,scope),canEdit?report(period,schema.unitId):api().read('unitPeriods/'+period+'/published/'+schema.unitId),schema.tableKeys&&canEdit?tableReviewsFor(period,schema.unitId,p):[]]);
  const payload=!canEdit?r?.data.payload:view==='pending'?(schema.tableKeys?r?.data.approved:r?.data.pending):view==='approved'?r?.data.approved:(r?.data.draft||r?.data.approved);
@@ -75,7 +75,7 @@ async function materialize(period,schema,view){
  if(schema.tableKeys&&!canEdit&&r)for(const id of Object.keys(r.data.tableApprovals||{}))reviewIndex[id]={tableId:id,approved:T.scope(schema,id,r.data.payload),approvedVersion:r.data.tableApprovals[id],pending:null};
  return {profile:p,report:{...((!canEdit&&r?{...r.data,status:'approved',approved:r.data.payload,draft:r.data.payload}:r?.data)||{version:0,status:'draft',draft:{cells:{},source:'',asOf:'',notes:''}}),tableReviews:reviewIndex,tableBased:!!schema.tableKeys},canEdit,records:await Promise.all(ts.map(async t=>{
   const row=clone(t.rows);for(const[address]of Object.entries(t.fields)){const pt=C.point(address),v=Object.prototype.hasOwnProperty.call(cells,t.id+'!'+address)?cells[t.id+'!'+address]:(payload&&!schema.tableKeys&&(view==='approved'||!canEdit)?t.legacyStaticValues?.[address]??null:null);if(row[pt.row-t.rowOffset]?.[pt.column])row[pt.row-t.rowOffset][pt.column].v=v;}
-  const layoutRows=clone(t.rows);for(const [address,value]of Object.entries(t.legacyStaticValues||{})){const pt=C.point(address);if(layoutRows[pt.row-t.rowOffset]?.[pt.column])layoutRows[pt.row-t.rowOffset][pt.column].v=value;}return {...t,layoutRows,rows:row,images:await Promise.all((t.mediaIds||[]).map(id=>media(id,scope)))};
+  const layoutRows=clone(t.rows);for(const [address,value]of Object.entries(t.legacyStaticValues||{})){const pt=C.point(address);if(layoutRows[pt.row-t.rowOffset]?.[pt.column])layoutRows[pt.row-t.rowOffset][pt.column].v=value;}return {...t,layoutRows,rows:row,images:options.images===false?[]:await Promise.all((t.mediaIds||[]).map(id=>media(id,scope)))};
  }))};
 }
 async function createAccount(data){
