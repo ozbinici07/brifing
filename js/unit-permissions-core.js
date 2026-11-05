@@ -1,6 +1,6 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.UnitUserPermissions=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
 'use strict';
-const screenKeys=['overview','institutions','students','teachers','managers','presentations'];
+const screenKeys=['overview','institutions','students','teachers','managers','presentations','other-statistics'];
 const adminOnly=['excel','unitsDelete','usersView','usersEdit','permissionsEdit','periodsSet','backup','settings'];
 function apply(account,unitId,changes,role){
  const next=JSON.parse(JSON.stringify(account));unitId=String(unitId);
