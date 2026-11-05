@@ -2,3 +2,6 @@
 .side .nav.admin-card-only{display:none!important}
 
 .side .nav.admin-card-only::after{content:none!important}
+
+/* Same lift and timing as the management action cards. */
+.side .nav{position:relative;transition:transform .15s,box-shadow .15s,background .15s,border-color .15s}.side .nav:hover,.side .nav:focus-visible{transform:translateY(-2px);box-shadow:0 10px 20px #001b4140;z-index:1}.side .nav:focus-visible{outline:2px solid #9edbff;outline-offset:1px}@media(prefers-reduced-motion:reduce){.side .nav{transition:none}.side .nav:hover,.side .nav:focus-visible{transform:none}}
