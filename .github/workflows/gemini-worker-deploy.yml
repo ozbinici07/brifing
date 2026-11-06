@@ -1,0 +1,30 @@
+name: Deploy Gemini Worker
+on:
+  push:
+    branches: [main, 'codex/gemini-assistant']
+    paths: ['workers/gemini/**', '.github/workflows/gemini-worker-deploy.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: brifing-gemini-worker
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.BRIFING_WORKER_DEPLOY_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: '47e687847f7ab0ec22c0257beae3e483'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify deployment credential is configured
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::BRIFING_WORKER_DEPLOY_TOKEN is not configured. No Worker deployment occurred."
+            exit 1
+          fi
+      - name: Deploy only the configured Gemini Worker
+        run: npx --yes wrangler@4 deploy --config workers/gemini/wrangler.jsonc

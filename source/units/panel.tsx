@@ -9,6 +9,7 @@ import MappingCatalog from './mapping-catalog';
 import MappingDialog from './mapping-dialog';
 import Presentations from './presentations';
 import OtherStatistics from './other-statistics';
+import AssistantSource from './assistant-source';
 import ReviewInbox from './review-inbox';
 import UserManagement from './user-management';
 import SettingsPage from './settings';
@@ -111,4 +112,4 @@ return <main className={'units-cloud '+(initialMode==='admin'?'admin-surface':''
 {exporting&&<div id="export-content">{(editable&&view==='draft'?displayRecords():records).map(t=><section className="export-page" key={t.id}><h2>{t.title}</h2><Grid page={t} unitName={units.find(u=>String(u.id)===unit)?.name} ranges={linksFor(t,Number(unit)).map(l=>l.range)}/>{t.images.map((src:string,i:number)=><img key={i} className="record-image" src={src}/>) }{t.charts.map((c:any,i:number)=><React.Fragment key={i}>{chart(c,t)}</React.Fragment>)}</section>)}</div>}
 </main>;
 }
-createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).get('mode')==='presentations'?<Presentations/>:new URLSearchParams(location.search).get('mode')==='other-statistics'?<OtherStatistics/>:<App/>);
+createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).get('mode')==='assistant-source'?<AssistantSource/>:new URLSearchParams(location.search).get('mode')==='presentations'?<Presentations/>:new URLSearchParams(location.search).get('mode')==='other-statistics'?<OtherStatistics/>:<App/>);

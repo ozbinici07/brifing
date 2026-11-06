@@ -11,3 +11,5 @@
 - Kullanıcının açık tercihi: kod değişikliklerini doğrudan GitHub deposunda yapın. Bu bilgisayardaki kopyayı esas alarak bağımsız geliştirme yapmayın. GitHub araçları kullanılamıyorsa yetkili GitHub tarayıcı oturumunu kullanın; erişim yoksa canlıya alınmış gibi bildirmeyin.
 - Her değişiklikte docs/PROJE_NOTLARI.md içine yapılan değişiklikleri, doğrulamayı, yayın sonucunu ve kalan işleri kaydedin. Çalışma kuralları veya kullanıcı tercihleri değişirse AGENTS.md dosyasını da güncelleyin.
 - İş ancak GitHub kaydı, Firebase otomatik yayın sonucu ve canlı site doğrulaması tamamlandığında bitmiş sayılır. Başarısız veya bekleyen adımları açıkça belirtin.
+
+- Akıllı Veri Asistanı izni, kullanıcının açık kararıyla diğer sekme izinlerinden bağımsız olarak bütün dönemlerin istatistik ve taslaklar dahil tüm brifing verilerini salt okunur sorgular; taslak sonuçlar açıkça etiketlenir. Hesap/şifre/oturum verileri kapsam dışıdır. Gemini yalnız işlem planı üretir; sayılar gerçek kaynaklardan hesaplanır. Gemini anahtarı yalnız Cloudflare Worker Secret olarak saklanır; ücretsiz plan korunur, kota hatasında ücretli alternatif kullanılmaz.
