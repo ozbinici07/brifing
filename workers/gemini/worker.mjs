@@ -2,7 +2,7 @@
 const PROJECT='brifingbilgisistemi';
 const ORIGINS=new Set(['https://brifingbilgisistemi.web.app','https://brifingbilgisistemi.firebaseapp.com','https://ozbinici07.github.io']);
 const ADMIN_EMAIL='admin@brifingbilgisistemi.firebaseapp.com';
-const MODEL='gemini-2.5-flash-lite';
+const MODEL='gemini-3.1-flash-lite';
 const PRIVATE=/(?:sifre|parola|password|oturum|token|api anahtar|secret|gizli anahtar|kullanici (?:adi|hesap|liste|sayisi)|admin hesabi|yonetici hesabi|giris bilgisi)/;
 const fold=v=>String(v||'').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i').replace(/[^a-z0-9]+/g,' ').trim();
 const domains=['students','teachers','managers','norm','institutions','briefing'],metrics=['students','teachers','classrooms','branches','count','norm','current','need','total','_extra'],groups=['','grade','district','institution','public','level','type','title'];
