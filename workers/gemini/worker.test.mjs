@@ -20,3 +20,5 @@ test('inactive administrator profiles cannot use the assistant despite the role 
 
 test('Worker-compatible fetch uses manual redirects for every authenticated upstream call',async t=>{const f=fixture(t),r=await worker.fetch(req(),f.env);assert.equal(r.status,200);for(const call of f.calls)assert.equal(call.options.redirect,'manual');});
 test('upstream redirects are rejected without following or exposing credentials',async t=>{let calls=0;t.mock.method(globalThis,'fetch',async()=>{calls++;return new Response(null,{status:302,headers:{Location:'https://outside.example/private'}})});const r=await worker.fetch(req(),{FIREBASE_WEB_API_KEY:'PUBLIC'}),v=await r.json();assert.equal(r.status,503);assert.equal(v.error,'UPSTREAM_REDIRECT');assert.equal(calls,1);assert(!JSON.stringify(v).includes('outside.example'));});
+
+test('provider rejection exposes only status and never raw provider messages',async t=>{const f=fixture(t,{geminiStatus:400}),r=await worker.fetch(req(),f.env),v=await r.json();assert.equal(r.status,502);assert.equal(v.error,'GEMINI_HTTP_400');assert(!JSON.stringify(v).includes('SECRET'));assert(!JSON.stringify(v).includes('provider internals'));});
