@@ -19,3 +19,5 @@ Gemini yalnız Türkçe sorudan yapılandırılmış bir sorgu planı üretir. S
 
 ## Doğrulama ve kapanış
 `node --test workers/gemini/worker.test.mjs`, `npm run test:units`, `npm run build:units`, `npm run test:rules` çalıştırılır. Yerel Java eskiyse güvenlik emülatörü GitHub Java 25 CI'de doğrulanır. Anahtar eklendikten sonra canlıda öğrenci, sınıf, yönetici/norm, dönem karşılaştırması ve brifing sorguları; grafik/tablo/kart tutarlılığı, kaynak pencere, asistan-only hesap ve yetki iptali kontrol edilir. Gerçek Gemini çağrısı ve Firebase Hosting doğrulanmadan tamamlandı denmez. Test sonuçları ve kalan işler docs/PROJE_NOTLARI.md'ye yazılır.
+
+Kurulum kontrolü: Secret adları doğrulandıktan sonra aday dalın Worker yayını başlatılır; gerçek API çağrısı geçmeden bağlantı tamamlandı sayılmaz.
