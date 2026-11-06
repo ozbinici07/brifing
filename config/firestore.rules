@@ -74,6 +74,7 @@ service cloud.firestore {
   function accountDoc() { return get(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)).data; }
   function activeAccount() { return signedIn() && exists(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)) && accountDoc().active == true; }
   function presentationsAccess() { return isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['presentations'])); }
+  function assistantAccess() { return isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['data-assistant'])); }
   function briefingViewAccess() { return presentationsAccess() || (activeAccount() && accountDoc().screens.hasAny(['other-statistics','data-assistant'])); }
   function editUnit(unitId) { return isAdmin() || (activeAccount() && unitId in accountDoc().editUnits); }
   function readUnit(unitId) { return editUnit(unitId) || (activeAccount() && unitId in accountDoc().readUnits); }
@@ -233,7 +234,7 @@ service cloud.firestore {
    match /schemas/{unitId} { allow read: if briefingViewAccess() || readUnit(unitId); allow write: if isAdmin(); }
    match /importBase/{unitId} { allow read,write: if isAdmin(); }
    match /reports/{unitId} {
-    allow read: if editUnit(unitId);
+    allow read: if assistantAccess() || editUnit(unitId);
     allow create: if openUnitPeriod(periodId) && editUnit(unitId) && unitPackage(request.resource.data,periodId,unitId) &&
      (!unitSchema(periodId,unitId).keys().hasAny(['tableKeys']) || request.resource.data.status!='pending') &&
      (isAdmin() || (request.resource.data.version == 1 && request.resource.data.approved == null &&
