@@ -37,7 +37,7 @@ service cloud.firestore {
    allow read: if signedIn();
    allow create, update, delete: if isAdmin();
    match /{document=**} {
-    allow read: if isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['overview','institutions','students','teachers','managers','excel']));
+    allow read: if isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['overview','institutions','students','teachers','managers','excel','data-assistant']));
     allow create, update, delete: if isAdmin();
    }
   }
@@ -74,7 +74,7 @@ service cloud.firestore {
   function accountDoc() { return get(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)).data; }
   function activeAccount() { return signedIn() && exists(/databases/$(database)/documents/unitAccounts/$(request.auth.uid)) && accountDoc().active == true; }
   function presentationsAccess() { return isAdmin() || (activeAccount() && accountDoc().screens.hasAny(['presentations'])); }
-  function briefingViewAccess() { return presentationsAccess() || (activeAccount() && accountDoc().screens.hasAny(['other-statistics'])); }
+  function briefingViewAccess() { return presentationsAccess() || (activeAccount() && accountDoc().screens.hasAny(['other-statistics','data-assistant'])); }
   function editUnit(unitId) { return isAdmin() || (activeAccount() && unitId in accountDoc().editUnits); }
   function readUnit(unitId) { return editUnit(unitId) || (activeAccount() && unitId in accountDoc().readUnits); }
   function sharedUnits(ids) { return isAdmin() || (activeAccount() && (accountDoc().editUnits.hasAny(ids) || accountDoc().readUnits.hasAny(ids))); }
