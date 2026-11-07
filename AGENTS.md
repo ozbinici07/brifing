@@ -13,3 +13,5 @@
 - İş ancak GitHub kaydı, Firebase otomatik yayın sonucu ve canlı site doğrulaması tamamlandığında bitmiş sayılır. Başarısız veya bekleyen adımları açıkça belirtin.
 
 - Akıllı Veri Asistanı izni, kullanıcının açık kararıyla diğer sekme izinlerinden bağımsız olarak bütün dönemlerin istatistik ve taslaklar dahil tüm brifing verilerini salt okunur sorgular; taslak sonuçlar açıkça etiketlenir. Hesap/şifre/oturum verileri kapsam dışıdır. Gemini yalnız işlem planı üretir; sayılar gerçek kaynaklardan hesaplanır. Gemini anahtarı yalnız Cloudflare Worker Secret olarak saklanır; ücretsiz plan korunur, kota hatasında ücretli alternatif kullanılmaz.
+
+- 7 Kasım 2026 kullanıcı kararı: bütün dönemlerin istatistik/brifing kaynakları Gemini için sorgulanabilir olmalıdır. Her soruda kaynak kataloğu ve soruyla ilgili seçilmiş gerçek istatistik kanıtları Gemini’ye gönderilebilir. Hesaplar, şifreler, API anahtarları, oturumlar ve kişisel erişim bilgileri bu kapsamın dışındadır. Sayılar yine kaynaktan doğrulanır; oran/yüzdeler toplam gibi işlenmez.
