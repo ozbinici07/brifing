@@ -4,7 +4,7 @@ Gemini yalnız Türkçe sorudan yapılandırılmış bir sorgu planı üretir. S
 
 ## Güvenlik
 - Worker her POST isteğinde Firebase Authentication backendinde ID token doğrular; proje, kullanıcı kimliği, süre ve iptal sınırını denetler. Canlı unitAccounts kaydında aktif hesap ve data-assistant izni/yönetici rolü gerekir.
-- Hesap/şifre/oturum istekleri kapsam dışıdır. Worker Gemini'ye ID token, e-posta, hesap belgesi veya istatistik kayıtları göndermez. Yalnız soru, sorgu planı bağlamı, sütun ve dönem adları gider.
+- Hesap/şifre/oturum istekleri kapsam dışıdır. Worker Gemini'ye ID token, e-posta, hesap belgesi, şifre veya oturum bilgisi göndermez. Kullanıcının açık kararıyla kaynak başlık kataloğu ve soruyla ilgili gerçek istatistik/brifing kanıtları gönderilir; hesap ve kişisel erişim alanları filtrelenir. Yeni bağımsız sorular önceki konuya zorlanmaz.
 - İstemcide veya GitHub'da Gemini anahtarı bulunmaz. wrangler.jsonc içindeki FIREBASE_WEB_API_KEY zaten web istemcisinde yayımlanan Firebase proje tanımlayıcısıdır; Gemini anahtarı değildir.
 - Kullanıcının açık tercihiyle taslaklar dahil tüm dönemlerin brifing verileri salt okunur sorgulanır ve taslak olduğu belirtilir. Kaynak veriye erişim ayrıca Firestore kurallarıyla kontrol edilir. Asistan izni salt okunur istatistik kaynakları içindir; kullanıcı yönetimi, diğer hesaplar, şifreler, oturumlar, PDF/Excel ham arşivleri ve yazma izinleri açılmaz.
 
@@ -21,3 +21,5 @@ Gemini yalnız Türkçe sorudan yapılandırılmış bir sorgu planı üretir. S
 `node --test workers/gemini/worker.test.mjs`, `npm run test:units`, `npm run build:units`, `npm run test:rules` çalıştırılır. Yerel Java eskiyse güvenlik emülatörü GitHub Java 25 CI'de doğrulanır. Anahtar eklendikten sonra canlıda öğrenci, sınıf, yönetici/norm, dönem karşılaştırması ve brifing sorguları; grafik/tablo/kart tutarlılığı, kaynak pencere, asistan-only hesap ve yetki iptali kontrol edilir. Gerçek Gemini çağrısı ve Firebase Hosting doğrulanmadan tamamlandı denmez. Test sonuçları ve kalan işler docs/PROJE_NOTLARI.md'ye yazılır.
 
 Kurulum kontrolü: Secret adları doğrulandıktan sonra aday dalın Worker yayını başlatılır; gerçek API çağrısı geçmeden bağlantı tamamlandı sayılmaz.
+
+Kaynak keşfi tablo başlıklarını Firestore projection ile alır; gerçek değerler yalnız ilgili kaynaklar için okunur. Katalog beş dakika, dönem verileri mevcut kapsamlı önbellek süresiyle paylaşılır. Değişiklik/dönem/oturum yenileme önbelleği geçersizleştirir. Oran hücrelerinin Excel yüzde biçimi, akademik yılı ve kaynak tablo/grafik ayrımı korunur.
