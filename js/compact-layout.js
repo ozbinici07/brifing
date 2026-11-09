@@ -8,8 +8,23 @@ const identity=side.querySelector('.sidebar-identity');
 if(identity){identity.innerHTML='<img src="assets/bbs-logo-v3.webp" alt="Muğla BBS logosu"><div>Muğla İl Millî Eğitim Müdürlüğü Brifing Bilgi Sistemi</div>';side.prepend(identity);}
 top.querySelector('.brand')?.remove();
 top.querySelector('.app-wordmark')?.remove();
-const overviewTitle=document.createElement('h2');overviewTitle.className='overview-top-title';overviewTitle.textContent='Genel Bakış';top.insertBefore(overviewTitle,top.querySelector('.global-search'));
-const search=top.querySelector('.global-search'),bell=actions.querySelector('#personnelBell');if(search&&bell)actions.insertBefore(search,bell);
+const icon=path=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+top.classList.add('reference-top');
+const title=document.createElement('h2');title.className='reference-top-title';
+title.innerHTML=icon('<path d="m12 3 10 5-10 5L2 8l10-5Zm-10 9 10 5 10-5M2 16l10 5 10-5"/>')+'<span>Genel Bakış</span>';
+top.prepend(title);
+const titleLabel=title.querySelector('span');
+const search=top.querySelector('.global-search'),bell=actions.querySelector('#personnelBell');
+if(search){
+ const field=document.createElement('div');field.className='reference-top-search';
+ field.innerHTML=icon('<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>');
+ search.before(field);field.append(search);
+}
+if(bell){
+ const badge=bell.querySelector('.unit-notification-badge');
+ bell.innerHTML=icon('<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0"/>')+'<span>Bildirimler</span>';
+ if(badge)bell.append(badge);
+}
 const status=document.querySelector('.overview-status'),avatar=actions.querySelector('.avatar');
 if(status&&avatar){const period=status.querySelector('.status-period');period.classList.add('sidebar-period');period.querySelector('b').textContent='Dönem Seçimi';const calendar=document.createElement('span');calendar.className='sidebar-period-icon';calendar.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6m10-6v6M3 11h18M7 15h2m3 0h2m3 0h1M7 18h2m3 0h2"/></svg>';period.prepend(calendar);period.querySelector('select').setAttribute('aria-label','Görüntülenen dönem');actions.insertBefore(status,avatar);side.insertBefore(period,side.querySelector('.nav'));}
 const quickInfo=document.querySelector('#overview .quick-info');if(status&&quickInfo)for(const item of status.querySelectorAll('.status-item')){const small=item.querySelector('small');if(small){const label=document.createElement('span');label.textContent=small.textContent.replace(/^[▦▧]\s*/, '').trim();small.replaceWith(label);}quickInfo.append(item);}
@@ -17,7 +32,29 @@ const navIcons={overview:'<path d="m3 10 9-8 9 8M5 9v12h5v-7h4v7h5V9"/>',institu
 const originalPeriod=document.getElementById('periodSelect'),visiblePeriod=document.getElementById('overviewPeriodSelect');
 if(originalPeriod&&visiblePeriod){const syncDisabled=()=>{visiblePeriod.disabled=originalPeriod.disabled;};syncDisabled();new MutationObserver(syncDisabled).observe(originalPeriod,{attributes:true,attributeFilter:['disabled']});}
 for(const node of [...actions.childNodes])if(node.nodeType===3&&node.textContent.includes('⚙'))node.remove();
-const logout=document.getElementById('logoutBtn');if(logout)actions.append(logout);
+const refresh=document.getElementById('overviewRefresh');
+if(refresh){
+ refresh.innerHTML=icon('<path d="M20 7a8 8 0 0 0-14-1L3 10m0 0V4m0 6h6m-5 7a8 8 0 0 0 14 1l3-4m0 0v6m0-6h-6"/>')+'<span>Veriyi Yenile</span>';
+ actions.insertBefore(refresh,avatar);
+}
+const logout=document.getElementById('logoutBtn');
+if(logout){
+ logout.innerHTML=icon('<path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h12"/>')+'<span>Çıkış</span>';
+ actions.append(logout);
+}
+if(avatar?.nextElementSibling){
+ const label=avatar.nextElementSibling,menu=document.createElement('details'),summary=document.createElement('summary');
+ menu.className='reference-top-account';label.classList.add('reference-account-name');
+ const changePassword=avatar.onclick;
+ for(const attr of ['role','tabindex','aria-label','title','style'])avatar.removeAttribute(attr);
+ avatar.onclick=null;avatar.onkeydown=null;
+ avatar.before(menu);summary.append(avatar,label);summary.insertAdjacentHTML('beforeend',icon('<path d="m6 9 6 6 6-6"/>'));
+ menu.append(summary);
+ const password=document.createElement('button');password.type='button';password.textContent='Şifremi Değiştir';
+ password.onclick=event=>{menu.open=false;changePassword?.call(avatar,event);};menu.append(password);
+ document.addEventListener('click',event=>{if(menu.open&&!menu.contains(event.target))menu.open=false;});
+ menu.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.open){menu.open=false;summary.focus();}});
+}
 const queryBox=document.querySelector('#students .student-query-filterbox'),columnOptions=queryBox?.querySelector('.column-options');
 if(queryBox&&columnOptions){const oldDetails=columnOptions.closest('details'),field=document.createElement('div');field.className='field';field.innerHTML='<label>Sütunlar — Göster / Gizle</label><div class="multi-select"><button type="button" class="multi-select-trigger" aria-expanded="false">Sütun seçimi</button><div class="multi-select-menu"></div></div>';const dropdown=field.querySelector('.multi-select'),trigger=field.querySelector('button'),menu=field.querySelector('.multi-select-menu');for(const label of [...columnOptions.children]){label.className='multi-select-option';menu.append(label);}trigger.onclick=e=>{e.stopPropagation();document.querySelectorAll('.multi-select.open').forEach(el=>{if(el!==dropdown)el.classList.remove('open');});const open=dropdown.classList.toggle('open');trigger.setAttribute('aria-expanded',String(open));};new MutationObserver(()=>trigger.setAttribute('aria-expanded',String(dropdown.classList.contains('open')))).observe(dropdown,{attributes:true,attributeFilter:['class']});queryBox.querySelector('.student-query-filtergrid').append(field);oldDetails.remove();queryBox.querySelectorAll('.student-query-folds>details').forEach(el=>{if(el.querySelector('summary')?.textContent.trim()==='Filtre Kullanımı')el.remove();});}
 if(queryBox){const sort=document.getElementById('stuQSort'),reverse=document.getElementById('stuQReverse'),exports=queryBox.querySelector('.student-query-result-actions-inline'),buttons=queryBox.querySelector('.student-query-actions');if(sort&&exports){const oldField=sort.closest('.field');sort.setAttribute('aria-label','Sıralama');exports.append(sort);oldField?.remove();}reverse?.closest('.field')?.remove();if(buttons){queryBox.querySelector('.student-query-filtergrid').append(buttons);if(exports)buttons.append(exports);}}
@@ -38,7 +75,6 @@ const style=document.createElement('style');style.id='compact-layout-style';styl
 .top .global-search{min-width:100px;max-width:300px;flex:1;margin:0 auto!important}
 .top-actions{margin-left:auto;gap:12px!important;flex-wrap:wrap;min-width:0}
 #sessionUser,#periodSelect{display:none!important}
-#personnelBell{font-size:0;cursor:pointer}#personnelBell:before{content:'🔔 Bildirimler';font-size:11px}
 .top-actions>.overview-status{display:flex!important;flex-wrap:nowrap;gap:12px!important;margin:0!important;padding:0!important;min-height:0!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0}
 .top-actions .overview-status .status-item{min-width:0!important;padding:0 12px 0 0!important;border-left:0!important;border-right:1px solid #e4eaf1;white-space:nowrap}
 .top-actions .overview-status small{font-size:9px}.top-actions .overview-status b{font-size:11px}
@@ -69,13 +105,9 @@ const style=document.createElement('style');style.id='compact-layout-style';styl
 .top-actions>.avatar{order:90}.top-actions>.avatar+span{order:89;font-size:13px!important}.top-actions>.avatar+span small{font-size:12px!important;margin-left:6px}
 .top-actions .top-period{background:#fff;color:#15324f;border:1px solid #dbe5ef;border-radius:6px;padding:3px 9px}.top .top-period>b{color:#15324f!important}.top-period select{background:#fff!important;color:#15324f!important;border:0!important;font-weight:700!important;box-shadow:none!important}.top-period select option{font-weight:700}
 .top .top-actions #logoutBtn{background:#c51136!important;color:#fff!important;border:1px solid #a90d2d!important;font-size:12px!important;font-weight:700;padding:5px 12px!important;box-shadow:0 2px 5px #a90d2d22}.top .top-actions #logoutBtn:hover{background:#a90d2d!important}.top .top-actions #logoutBtn:focus-visible{outline:2px solid #a90d2d;outline-offset:3px}
-.overview-top-title{display:none;margin:0;color:#fff;font-size:22px;line-height:1.2;white-space:nowrap;flex-shrink:0}
-.app:has(#overview.active) .overview-top-title{display:block}
 #overview .compact-page-banner{display:none!important}
 .app:has(#overview.active) .content{background:#f3f6fa!important;padding-top:12px!important}
 .compact-page-banner .compact-flag{display:none!important}
-@media(max-width:1250px){.app:has(#overview.active) .top{grid-template-columns:auto minmax(0,1fr)!important}.overview-top-title{grid-column:1;grid-row:1}.app:has(#overview.active) .top .global-search{grid-column:2;grid-row:1;min-width:0}}
-@media(max-width:480px){.overview-top-title{font-size:16px}}
 .page-header-tools.module-toolbar{justify-content:space-between;align-items:center;gap:12px}.module-toolbar>.mini-tabs{margin:0;flex-shrink:0}.module-toolbar>.student-header-actions{margin-left:auto}
 `;
 style.textContent+=".top{--toolbar-height:34px;--toolbar-width:180px;align-items:center;gap:10px!important}\n.top .global-search,.top .top-actions .top-period,.top .top-actions #overviewRefresh,.top .top-actions #logoutBtn{box-sizing:border-box;width:var(--toolbar-width)!important;min-width:var(--toolbar-width)!important;max-width:var(--toolbar-width)!important;height:var(--toolbar-height)!important;min-height:var(--toolbar-height)!important;border-radius:6px!important;font-size:11px!important;line-height:1.2!important;flex:0 0 var(--toolbar-width)!important;margin:0!important;box-shadow:none!important}\n.top .global-search{padding:0 12px!important}\n.top .top-actions #overviewRefresh,.top .top-actions #logoutBtn{display:inline-flex;align-items:center;justify-content:center;padding:0 12px!important}\n.top .top-actions .top-period{padding:0 10px!important;gap:6px}\n.top .top-period>b{font-size:10px;line-height:1.2}\n.top .top-period select{height:32px!important;min-width:0!important;max-width:none!important;width:0;flex:1;padding:0 2px!important;font-size:11px!important}\n.top .top-actions .avatar{width:34px;height:34px;box-sizing:border-box}\n.top .overview-top-title{display:block!important;font-size:20px;white-space:normal;max-width:230px}\n.content .page .compact-page-banner{display:none!important}\n.app .content{background:#f3f6fa!important;padding-top:12px!important}\n@media(max-width:1250px){.app .top{grid-template-columns:auto minmax(0,1fr)!important}.app .top .global-search{grid-column:2;grid-row:1;min-width:0}}\n@media(max-width:480px){.top{--toolbar-width:150px}.top .overview-top-title{font-size:16px}.top .global-search{justify-self:end}}";
@@ -103,7 +135,14 @@ if(tools.length){const row=document.createElement('div');row.className='page-hea
 if(head.closest('#overview'))head.querySelectorAll('.overview-brand-logo,.overview-banner-flag,.banner-photo-credit').forEach(el=>el.remove());
 const flag=document.createElement('div');flag.className='compact-flag';flag.setAttribute('role','img');flag.setAttribute('aria-label','Türk bayrağı');flag.innerHTML='<svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="45" cy="40" r="27" fill="white"/><circle cx="53" cy="40" r="22" fill="#d30932"/><path d="m78 23 4 12 13 .1-10 8 4 12-11-8-10 8 4-12-10-8 13-.1z" fill="white"/></svg>';head.append(flag);
 });}
-function syncPageTitle(){const page=document.querySelector('.content .page.active');if(!page)return;if(page.id==='overview'){overviewTitle.textContent='Genel Bakış';return;}const heading=page.querySelector('.compact-page-banner h2,.page-head h2,.personnel-hero h2,h2');const nav=side.querySelector('.nav[data-page="'+page.id+'"]');overviewTitle.textContent=heading?.textContent?.trim()||[...(nav?.childNodes||[])].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()||'Brifing Bilgi Sistemi';}
+function syncPageTitle(){
+ const page=document.querySelector('.content .page.active');if(!page)return;
+ const heading=page.querySelector('.page-head h2,.personnel-hero h2');
+ const nav=side.querySelector('.nav[data-page="'+CSS.escape(page.id)+'"]');
+ const navLabel=[...(nav?.childNodes||[])].filter(node=>node.nodeType===Node.TEXT_NODE).map(node=>node.textContent).join('').trim();
+ const label=page.id==='overview'?'Genel Bakış':(page.id==='admin'?heading?.textContent.trim():navLabel)||heading?.textContent.trim()||'Brifing Bilgi Sistemi';
+ if(titleLabel.textContent!==label)titleLabel.textContent=label;
+}
 decorate();syncPageTitle();new MutationObserver(syncPageTitle).observe(document.querySelector('.content'),{subtree:true,attributes:true,attributeFilter:['class'],childList:true});new MutationObserver(records=>{if(records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('.page,.page-head,.personnel-hero')||n.querySelector?.('.page-head,.personnel-hero')))))decorate();}).observe(document.querySelector('.content'),{childList:true,subtree:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();

@@ -1,0 +1,176 @@
+/* Shared banner layout. The shell keeps its existing background. */
+.app header.top.reference-top {
+  display: grid !important;
+  grid-template-columns: auto minmax(120px, 1fr) auto !important;
+  align-items: center !important;
+  gap: clamp(10px, 2vw, 34px) !important;
+  min-height: 68px !important;
+  padding: 10px 14px !important;
+  overflow: visible;
+}
+.reference-top-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 7px 20px;
+  min-height: 46px;
+  border: 1px solid #e1efff;
+  border-radius: 17px;
+  color: #fff;
+  font-size: clamp(16px, 1.5vw, 21px);
+  line-height: 1.2;
+  font-weight: 750;
+}
+.reference-top-title svg {
+  width: 45px;
+  height: 29px;
+  flex: none;
+  padding-right: 15px;
+  border-right: 1px solid #dcecff;
+}
+.reference-top-search {
+  position: relative;
+  width: 100%;
+  max-width: 384px;
+  min-width: 0;
+  justify-self: end;
+}
+.reference-top-search svg {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  width: 20px;
+  height: 20px;
+  top: 9px;
+  left: 14px;
+  color: #092b53;
+}
+.app .reference-top .reference-top-search #globalSearch {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 38px !important;
+  border: 1px solid #e0eaf4;
+  border-radius: 24px !important;
+  padding: 0 15px 0 43px !important;
+  background: #fff;
+  color: #102f51;
+  font-size: 14px !important;
+}
+.app .reference-top .top-actions {
+  display: flex !important;
+  grid-column: auto;
+  width: auto !important;
+  gap: 10px !important;
+  justify-content: flex-end;
+}
+.reference-top .top-actions > .overview-status:empty { display: none !important; }
+.app .reference-top .top-actions :is(#personnelBell, #overviewRefresh, #logoutBtn),
+.reference-top-account summary {
+  display: inline-flex !important;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  border: 1px solid #e2ebf5 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  color: #092b53 !important;
+  font: 700 12px/1 'Segoe UI', Arial, sans-serif !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.app .reference-top .top-actions #logoutBtn {
+  background: #ed123e !important;
+  border-color: #ed123e !important;
+  color: #fff !important;
+}
+.reference-top .top-actions svg { width: 16px; height: 16px; flex: none; }
+.reference-top .top-actions #personnelBell .unit-notification-badge { position: absolute; top: -7px; right: -5px; }
+.reference-top-account { position: relative; flex: none; }
+.reference-top-account summary {
+  list-style: none;
+  background: transparent !important;
+  color: #fff !important;
+  border-color: #c3d7ec !important;
+  padding: 0 10px 0 5px !important;
+}
+.reference-top-account summary::-webkit-details-marker { display: none; }
+.app .reference-top .top-actions .reference-top-account .avatar {
+  display: grid !important;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  font-size: 0;
+  color: #092b53;
+}
+.reference-top-account .avatar::before {
+  content: '';
+  width: 19px;
+  height: 19px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3Cpath d='M4 21v-2a8 8 0 0 1 16 0v2Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.app .reference-top .top-actions .reference-account-name {
+  display: block !important;
+  max-width: 106px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px !important;
+}
+.app .reference-top .top-actions .reference-account-name small {
+  display: block;
+  margin: 3px 0 0;
+  font-size: 10px !important;
+  font-weight: 400;
+}
+.reference-top-account > button {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 25;
+  padding: 10px 12px;
+  border: 1px solid #c3d7ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #092b53;
+  box-shadow: 0 4px 14px #00183130;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.reference-top :is(button, input, summary, [role=button]):focus-visible {
+  outline: 2px solid #91ccff;
+  outline-offset: 2px;
+}
+@media (max-width: 1100px) {
+  .app header.top.reference-top { gap: 9px !important; }
+  .reference-top-title { padding-inline: 12px; gap: 10px; }
+  .reference-top-title svg { width: 34px; padding-right: 9px; }
+  .app .reference-top .top-actions { gap: 6px !important; }
+  .app .reference-top .top-actions :is(#personnelBell, #overviewRefresh, #logoutBtn) { padding-inline: 9px !important; }
+}
+@media (max-width: 1120px) {
+  .app header.top.reference-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+  .reference-top-title { justify-self: start; }
+  .app .reference-top .top-actions { grid-column: 1 / -1; flex-wrap: wrap !important; }
+}
+@media (max-width: 480px) {
+  .app header.top.reference-top { grid-template-columns: minmax(0, 1fr) !important; padding: 8px !important; }
+  .reference-top-title { min-height: 36px; padding-block: 4px; border-radius: 12px; }
+  .reference-top-title svg { height: 23px; }
+  .reference-top-search { max-width: none; }
+  .app header.top.reference-top .top-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .reference-top-account summary { width: 100%; }
+  .app .reference-top .top-actions :is(#personnelBell, #overviewRefresh, #logoutBtn),
+  .reference-top-account summary { font-size: 11px !important; padding-inline: 8px !important; }
+}
