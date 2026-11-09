@@ -1,14 +1,15 @@
 /* Shared banner layout. The shell keeps its existing background. */
 .app header.top.reference-top {
   display: grid !important;
-  grid-template-columns: auto minmax(120px, 1fr) auto !important;
+  grid-template-columns: minmax(0, 1fr) clamp(160px, calc(100% - 1000px), 384px) minmax(0, 1fr) !important;
   align-items: center !important;
-  gap: clamp(10px, 2vw, 34px) !important;
+  gap: 14px !important;
   min-height: 68px !important;
   padding: 10px 14px !important;
   overflow: visible;
 }
 .reference-top-title {
+  justify-self: start;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -34,7 +35,7 @@
   width: 100%;
   max-width: 384px;
   min-width: 0;
-  justify-self: end;
+  justify-self: center;
 }
 .reference-top-search svg {
   position: absolute;
@@ -60,7 +61,8 @@
 }
 .app .reference-top .top-actions {
   display: flex !important;
-  grid-column: auto;
+  grid-column: 3;
+  justify-self: end;
   width: auto !important;
   gap: 10px !important;
   justify-content: flex-end;
@@ -118,7 +120,7 @@
 }
 .app .reference-top .top-actions .reference-account-name {
   display: block !important;
-  max-width: 106px;
+  max-width: 76px;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 12px !important;
@@ -154,10 +156,14 @@
   .app .reference-top .top-actions { gap: 6px !important; }
   .app .reference-top .top-actions :is(#personnelBell, #overviewRefresh, #logoutBtn) { padding-inline: 9px !important; }
 }
-@media (max-width: 1120px) {
-  .app header.top.reference-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
-  .reference-top-title { justify-self: start; }
+@media (max-width: 1400px) {
+  .app header.top.reference-top {
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 384px) minmax(0, 1fr) !important;
+  }
   .app .reference-top .top-actions { grid-column: 1 / -1; flex-wrap: wrap !important; }
+}
+@media (max-width: 900px) {
+  .app header.top.reference-top { grid-template-columns: minmax(0, 1fr) !important; }
 }
 @media (max-width: 480px) {
   .app header.top.reference-top { grid-template-columns: minmax(0, 1fr) !important; padding: 8px !important; }
