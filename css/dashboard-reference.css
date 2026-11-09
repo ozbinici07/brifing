@@ -163,3 +163,52 @@
 #institutionsSystem [data-summary]{grid-template-columns:1fr 1.5fr 1.5fr!important}
 #institutionsSystem [data-summary]>.student-summary-item:first-child{grid-column:auto;justify-content:flex-start;min-height:76px;padding:10px 14px}
 @media(max-width:700px){#institutionsSystem [data-summary]{grid-template-columns:1fr!important}}
+/* Smaller teacher and manager dashboards; retain the established colors and data. */
+:is(#teachersSystem,#managersSystem){--px:clamp(.65px,calc(100cqw / 2200),.8px)}
+:is(#teachersSystem,#managersSystem) [data-summary]{gap:12px;margin:10px 0 14px}
+:is(#teachersSystem,#managersSystem) .student-summary-item{min-height:70px;padding:9px 14px;gap:14px;border-radius:12px!important}
+:is(#teachersSystem,#managersSystem) .summary-label{font-size:16px;line-height:1.2}
+:is(#teachersSystem,#managersSystem) .summary-value{font-size:30px!important;line-height:1.15;margin-top:3px}
+:is(#teachersSystem,#managersSystem) .module-kpi-icon{width:60px;height:48px;padding-right:14px}
+:is(#teachersSystem,#managersSystem) .module-kpi-icon svg{width:36px;height:36px}
+:is(#teachersSystem,#managersSystem) .module-chart-grid{gap:14px}
+:is(#teachersSystem,#managersSystem) .student-visual-card{border-radius:12px!important}
+:is(#teachersSystem,#managersSystem) .student-visual-card h3{min-height:36px;font-size:17px;line-height:1.2;padding:6px 16px;gap:12px}
+:is(#teachersSystem,#managersSystem) .module-chart-icon svg{width:25px;height:25px}
+:is(#teachersSystem,#managersSystem) .module-chart-content{grid-template-columns:125px minmax(0,1fr);min-height:165px;gap:18px;padding:14px 18px}
+:is(#teachersSystem,#managersSystem) .module-donut-box{width:125px;height:125px}
+:is(#teachersSystem,#managersSystem) .module-donut-center{font-size:13px}
+:is(#teachersSystem,#managersSystem) .module-donut-center b{font-size:24px!important;margin-top:4px}
+:is(#teachersSystem,#managersSystem) .visual-row{grid-template-columns:minmax(0,1.2fr) minmax(25px,1.3fr) 49px 52px;gap:9px;margin:7px 0;font-size:12px;line-height:1.2}
+:is(#teachersSystem,#managersSystem) .visual-row .label{font-size:12px;white-space:normal}
+:is(#teachersSystem,#managersSystem) .module-legend-dot{width:10px;height:10px;margin-right:7px}
+:is(#teachersSystem,#managersSystem) .vtrack{height:10px}
+:is(#teachersSystem,#managersSystem) .value{font-size:14px}
+:is(#teachersSystem,#managersSystem) .pct{font-size:12px;padding:4px}
+@container dashboard (max-width:1050px){:is(#teachersSystem,#managersSystem) .module-chart-grid{grid-template-columns:repeat(2,minmax(0,1fr))}:is(#teachersSystem,#managersSystem) .module-chart-content{grid-template-columns:95px minmax(0,1fr);gap:10px;padding:12px;min-height:155px}:is(#teachersSystem,#managersSystem) .module-donut-box{width:95px;height:95px}:is(#teachersSystem,#managersSystem) .visual-row{grid-template-columns:minmax(0,1fr) 42px 44px;gap:5px}:is(#teachersSystem,#managersSystem) .visual-row .vtrack{display:none}:is(#teachersSystem,#managersSystem) .student-visual-card h3{font-size:14px}}
+@media(max-width:700px){:is(#teachersSystem,#managersSystem) [data-summary]{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px}:is(#teachersSystem,#managersSystem) .student-summary-item{padding:9px;gap:7px;min-height:67px}:is(#teachersSystem,#managersSystem) .module-kpi-icon{display:none}:is(#teachersSystem,#managersSystem) .summary-label{font-size:12px}:is(#teachersSystem,#managersSystem) .summary-value{font-size:24px!important}:is(#teachersSystem,#managersSystem) .module-chart-grid{grid-template-columns:1fr}:is(#teachersSystem,#managersSystem) .module-chart-content{grid-template-columns:95px minmax(0,1fr)!important;justify-items:stretch}:is(#teachersSystem,#managersSystem) .module-donut-center b{font-size:20px!important}:is(#teachersSystem,#managersSystem) .student-visual-card h3{font-size:14px;gap:8px}:is(#teachersSystem,#managersSystem) .module-chart-icon svg{width:22px;height:22px}}
+/* Keep mobile export labels and their three actions together, never clipped. */
+@media(max-width:700px){
+.page-header-tools.module-toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.module-toolbar>.mini-tabs{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.module-toolbar>.student-header-actions,.student-page-head>.student-header-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:8px;width:100%;margin:0;flex:none;justify-content:stretch}
+.student-header-actions>.student-action-divider{display:none}
+.student-header-actions>.student-action-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0;width:100%;padding:8px;border:1px solid #d7e4f1;border-radius:9px;background:#fff;box-sizing:border-box}
+.student-action-group>.student-action-label{grid-column:1/-1;text-align:left;white-space:normal;font-size:11px;line-height:1.25;margin:0 0 2px}
+.student-action-group>.btn{display:inline-flex;align-items:center;justify-content:center;width:100%;min-width:0;min-height:36px;height:36px;margin:0!important;padding:0 6px!important;box-sizing:border-box;font-size:11px!important;line-height:1!important;white-space:nowrap;border-radius:6px!important}
+}
+@media(max-width:700px){
+#students .student-query-actions>.student-query-result-actions-inline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));flex:0 0 100%;min-width:0;margin:0;gap:6px}
+#students .student-query-result-actions-inline>.btn{min-width:0;width:100%;padding:0 6px!important;margin:0!important}
+#students .student-query-actions .student-query-result-actions-inline #stuQSort{grid-column:1/-1;width:100%}
+}
+@media(max-width:700px){
+:is(#teachersSystem,#managersSystem) .module-donut-box{width:95px;height:95px}
+:is(#teachersSystem,#managersSystem) .visual-row{grid-template-columns:minmax(0,1fr) 42px 44px;gap:5px}
+:is(#teachersSystem,#managersSystem) .visual-row .vtrack{display:none}
+}
+@media(max-width:700px){
+:is(.page-header-tools.module-toolbar,.student-page-head){min-width:0;max-width:100%;flex-direction:column;align-items:stretch}
+.module-toolbar>.student-header-actions,.student-page-head>.student-header-actions{min-width:0;max-width:100%;box-sizing:border-box}
+.student-header-actions>.student-action-group{max-width:100%}
+}
