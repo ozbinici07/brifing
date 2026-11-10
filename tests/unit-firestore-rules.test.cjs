@@ -177,3 +177,28 @@ test('full revoke batch includes report and published aggregate',async()=>{await
 test('other statistics is a separate read-only grant with no PDF library, drafts, review or workbook access',async()=>{const m=user('manager');await env.withSecurityRulesDisabled(async c=>{await setDoc(ref(c.firestore(),'unitAccounts/statviewer'),{role:'unit',active:true,editUnits:[],readUnits:[],screens:['other-statistics']});await setDoc(ref(c.firestore(),'unitMedia/stat'),{allowedUnits:['22'],parts:[0]});await setDoc(ref(c.firestore(),'unitMedia/stat/parts/0'),{payload:'image'});});const v=user('statviewer');await assertSucceeds(getDocs(collection(v,'unitPeriods/P/tables')));await assertSucceeds(getDocs(collection(v,'unitPeriods/P/published')));await assertSucceeds(getDoc(ref(v,'unitMedia/stat/parts/0')));await assertFails(getDocs(collection(v,'presentationCards')));await assertFails(getDocs(collection(v,'presentationFiles')));await assertFails(getDocs(collection(v,'unitPeriods/P/reports')));await assertFails(getDocs(collection(v,'unitPeriods/P/tableReviews')));await assertFails(getDocs(collection(v,'unitPeriods/P/excelFiles')));await assertFails(setDoc(ref(v,'unitPeriods/P/tables/new'),{title:'Forbidden'}));await assertFails(setDoc(ref(v,'unitPeriods/P/schemas/99'),{unitId:'99'}));await assertFails(getDocs(collection(user('a'),'unitPeriods/P/tables')));await updateDoc(ref(m,'unitAccounts/statviewer'),{screens:[]});await assertFails(getDocs(collection(v,'unitPeriods/P/tables')));await updateDoc(ref(m,'unitAccounts/statviewer'),{screens:['other-statistics'],active:false});await assertFails(getDocs(collection(v,'unitPeriods/P/published')));});
 
 test('assistant alone reads all periods statistics and current briefing drafts, never accounts reviews archives or writes',async()=>{await env.withSecurityRulesDisabled(async c=>{const db=c.firestore();await setDoc(ref(db,'unitAccounts/assistant'),{role:'unit',active:true,editUnits:[],readUnits:[],screens:['data-assistant']});for(const id of ['P','OLD']){await setDoc(ref(db,'periods/'+id),{folder:id,name:id});await setDoc(ref(db,'periods/'+id+'/versions/v1'),{staff:{manager:{total:7}}});await setDoc(ref(db,'periods/'+id+'/versions/v1/chunks/statistics'),{kind:'basic',payload:'[]'});}await setDoc(ref(db,'unitMedia/asst'),{allowedUnits:['22'],parts:[0]});await setDoc(ref(db,'unitMedia/asst/parts/0'),{payload:'image'});});const a=user('assistant');for(const id of ['P','OLD']){await assertSucceeds(getDoc(ref(a,'periods/'+id+'/versions/v1')));await assertSucceeds(getDocs(collection(a,'periods/'+id+'/versions/v1/chunks')));}await assertSucceeds(getDocs(collection(a,'unitPeriods/P/tables')));await assertSucceeds(getDocs(collection(a,'unitPeriods/P/published')));await assertSucceeds(getDoc(ref(a,'unitMedia/asst/parts/0')));await assertFails(getDocs(collection(a,'unitAccounts')));await assertFails(getDoc(ref(a,'unitAccounts/manager')));await assertFails(getDocs(collection(a,'unitAccountEvents')));await assertFails(getDocs(collection(a,'personnelSettings')));await assertFails(getDocs(collection(a,'presentationFiles')));await assertSucceeds(getDocs(collection(a,'unitPeriods/P/reports')));await assertFails(setDoc(ref(a,'unitPeriods/P/reports/22'),{unitId:'22',draft:{cells:{}}}));await assertFails(getDocs(collection(a,'unitPeriods/P/tableReviews')));await assertFails(getDocs(collection(a,'unitPeriods/P/excelFiles')));await assertFails(setDoc(ref(a,'periods/NEW'),{folder:'NEW'}));await assertFails(setDoc(ref(a,'unitPeriods/P/tables/NEW'),{title:'NEW'}));await assertFails(updateDoc(ref(a,'unitAccounts/assistant'),{role:'admin'}));await env.withSecurityRulesDisabled(c=>updateDoc(ref(c.firestore(),'unitAccounts/assistant'),{screens:[]}));await assertFails(getDocs(collection(a,'unitPeriods/P/tables')));await assertFails(getDoc(ref(a,'periods/P/versions/v1')));await env.withSecurityRulesDisabled(c=>updateDoc(ref(c.firestore(),'unitAccounts/assistant'),{screens:['data-assistant'],active:false}));await assertFails(getDocs(collection(a,'unitPeriods/P/published')));});
+
+test('session history accepts only own verified names and server times, and only administrators read it',async()=>{
+ const a=user('a'),b=user('b'),manager=user('manager'),anonymous=env.unauthenticatedContext().firestore();
+ await env.withSecurityRulesDisabled(async c=>{
+  await updateDoc(ref(c.firestore(),'unitAccounts/a'),{username:'ornek.a'});
+ });
+ const path='userSessionAudit/12345678-1111-4111-8111-123456789abc';
+ const record={uid:'a',username:'ornek.a',signedInAt:serverTimestamp()};
+ await assertFails(setDoc(ref(anonymous,path),record));
+ await assertFails(setDoc(ref(a,path),{...record,username:'admin'}));
+ await assertFails(setDoc(ref(a,path),{...record,signedInAt:new Date(0)}));
+ await assertFails(setDoc(ref(a,path),{...record,extra:'not permitted'}));
+ await assertSucceeds(setDoc(ref(a,path),record));
+ await assertFails(getDoc(ref(a,path)));
+ await assertFails(getDocs(collection(b,'userSessionAudit')));
+ await assertFails(updateDoc(ref(b,path),{signedOutAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(a,path),{username:'admin',signedOutAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(ref(a,path),{signedOutAt:serverTimestamp()}));
+ await assertFails(updateDoc(ref(a,path),{signedOutAt:serverTimestamp()}));
+ const page=await assertSucceeds(getDocs(collection(manager,'userSessionAudit')));
+ assert.equal(page.size,1);
+ const row=page.docs[0].data();
+ assert.equal(row.username,'ornek.a');
+ assert.ok(row.signedOutAt.toMillis()>=row.signedInAt.toMillis());
+});

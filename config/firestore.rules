@@ -111,6 +111,22 @@ service cloud.firestore {
    allow read: if true;
    allow create,update,delete: if isAdmin();
   }
+  function sessionAuditAccount(username) {
+    return (activeAccount() && username == accountDoc().username) ||
+      (isAdmin() && request.auth.token.email == 'admin@brifingbilgisistemi.firebaseapp.com' && username == 'admin');
+  }
+  match /userSessionAudit/{id} {
+    allow read: if isAdmin();
+    allow create: if signedIn() && id.matches('^[a-f0-9-]{36}$') &&
+      request.resource.data.keys().hasOnly(['uid', 'username', 'signedInAt']) &&
+      request.resource.data.uid == request.auth.uid && sessionAuditAccount(request.resource.data.username) &&
+      request.resource.data.signedInAt == request.time;
+    allow update: if signedIn() && resource.data.uid == request.auth.uid &&
+      sessionAuditAccount(resource.data.username) && !('signedOutAt' in resource.data) &&
+      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['signedOutAt']) &&
+      request.resource.data.signedOutAt == request.time;
+    allow delete: if false;
+  }
   match /unitAccountEvents/{id} { allow read,create: if isAdmin(); allow update,delete: if false; }
   match /unitAccounts/{uid} {
    allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
