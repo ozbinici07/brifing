@@ -1,0 +1,44 @@
+#overviewQuickInfo[hidden] { display: none !important; }
+#overview .overview-admin-controls { display: flex; align-items: center; gap: 6px; flex: none; }
+#overview .overview-admin-controls > button {
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid #b7d7fa;
+  border-radius: 10px;
+  background: #edf7ff;
+  color: #074b81;
+  font: 600 11px 'Segoe UI', sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+#overview .overview-admin-controls > button:hover { background: #daedff; }
+.session-audit-dialog {
+  width: min(720px, calc(100vw - 24px));
+  max-height: min(82dvh, 650px);
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #c1d9f0;
+  border-radius: 12px;
+  background: #f7fbff;
+  color: #113759;
+}
+.session-audit-dialog::backdrop { background: #06233c80; }
+.session-audit-dialog > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.session-audit-dialog h2 { margin: 0; font-size: 20px; }
+.session-audit-dialog p { margin: 10px 0; font-size: 13px; }
+.session-audit-dialog button {
+  padding: 7px 10px;
+  border: 1px solid #bed8ee;
+  border-radius: 6px;
+  background: #e9f4ff;
+  color: #164575;
+  cursor: pointer;
+}
+.session-audit-table { overflow: auto; max-height: 48dvh; margin: 8px 0; }
+.session-audit-table table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.session-audit-table :is(th, td) { padding: 8px; border-bottom: 1px solid #dce8f2; text-align: left; }
+.session-audit-table th { position: sticky; top: 0; background: #e6f2ff; }
+#overview #overviewQuickInfo { gap: 12px; }
+#overview #overviewQuickInfo .quick-info { gap: 9px; }
+#overview #overviewQuickInfo .quick-info > div { gap: 7px; padding-right: 7px !important; }
+#overview #overviewQuickInfo .overview-admin-controls { padding: 0; border: 0; }

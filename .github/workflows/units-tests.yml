@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -24,24 +22,3 @@ jobs:
       - run: npm run test:rules
         env:
           UNIT_RULES_FILE: config/firestore.rules
-      - uses: google-github-actions/auth@v3
-        if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[publish-session-audit-rules]')
-        with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BRIFINGBILGISISTEMI }}
-      - name: Verify current rules and publish session audit rules
-        if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[publish-session-audit-rules]')
-        run: |
-          node --input-type=module <<'JS'
-          import {GoogleAuth} from 'google-auth-library';
-          import {execFileSync} from 'node:child_process';
-          const auth = new GoogleAuth({scopes:['https://www.googleapis.com/auth/cloud-platform']});
-          const client = await auth.getClient();
-          const root = 'https://firebaserules.googleapis.com/v1/';
-          const release = await client.request({url:root+'projects/brifingbilgisistemi/releases/cloud.firestore'});
-          const rules = await client.request({url:root+release.data.rulesetName});
-          const baseline = execFileSync('git',['show','23444be13cd38659d2e511994f5d40b49c0c2317:config/firestore.rules'],{encoding:'utf8'});
-          const normalize = text => text.replace(/^\uFEFF/, '').replace(/\r\n/g,'\n').trim();
-          const files = rules.data.source.files;
-          if (files.length!==1 || normalize(files[0].content)!==normalize(baseline)) throw Error('Published rules differ from the verified baseline. Deployment stopped.');
-          JS
-          npx --no-install firebase deploy --only firestore:rules --config config/firebase.json --project brifingbilgisistemi --non-interactive
