@@ -212,3 +212,54 @@
 .module-toolbar>.student-header-actions,.student-page-head>.student-header-actions{min-width:0;max-width:100%;box-sizing:border-box}
 .student-header-actions>.student-action-group{max-width:100%}
 }
+/* Let the three overview cards stretch together while their detail rows grow with text. */
+#overview .category-card { height: auto; }
+#overview .category-card:first-child .category-metrics {
+  grid-template-rows: calc(58 * var(--px)) calc(62 * var(--px)) calc(35 * var(--px)) repeat(2, minmax(calc(108 * var(--px)), auto));
+}
+#overview .category-card:first-child .overview-split-counts > div,
+#overview .category-card:first-child .overview-split-card.kurum .overview-split-counts > div {
+  height: auto;
+  align-self: stretch;
+  margin-top: 0 !important;
+}
+#overview .student-category .overview-levels,
+#overview .teacher-category .overview-levels { height: auto; }
+#overview .student-category .overview-levels { grid-template-rows: repeat(2, minmax(calc(103 * var(--px)), auto)); }
+#overview .teacher-category .overview-levels { grid-template-rows: repeat(2, minmax(calc(81 * var(--px)), auto)) minmax(calc(48 * var(--px)), auto); }
+#overview .overview-level-card { padding-block: calc(8 * var(--px)) !important; }
+#overview .overview-level-card p { white-space: normal; overflow-wrap: anywhere; }
+#overview .teacher-category .overview-level-card:last-child { flex-wrap: wrap; }
+#teachersSystem .module-donut-center b { font-size: 19px !important; }
+#students .district-breakdown-separator { display: inline; }
+@media (max-width: 760px) {
+  #students .district-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: 'district total share' 'strip strip strip';
+    gap: 5px 8px;
+    padding-block: 5px;
+  }
+  #students .district-row > .label { grid-area: district; overflow-wrap: anywhere; }
+  #students .district-row > .value { grid-area: total; }
+  #students .district-row > .pct { grid-area: share; }
+  #students .district-row > .vtrack {
+    grid-area: strip;
+    align-self: stretch;
+    height: auto;
+    background: #e7eff6;
+  }
+  #students .district-row > .vtrack .vfill { height: 100%; opacity: .20; }
+  #students .district-row > .district-breakdown {
+    grid-area: strip;
+    z-index: 1;
+    padding: 6px 8px;
+    color: #163b5e;
+    font-size: 11px;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  #students .district-breakdown > span { display: block; }
+  #students .district-breakdown > .district-breakdown-separator { display: none; }
+  #teachersSystem .module-donut-center b { font-size: 17px !important; }
+}

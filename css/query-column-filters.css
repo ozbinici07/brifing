@@ -1,0 +1,68 @@
+.query-column-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.query-column-trigger {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #c6d9ea;
+  border-radius: 4px;
+  background: #f4f8fc;
+  color: #17456f;
+  cursor: pointer;
+}
+.query-column-trigger svg { width: 14px; height: 14px; }
+.query-column-trigger:is(:hover, .is-filtered, [aria-expanded="true"]) { background: #0763ad; color: #fff; }
+th[aria-sort="ascending"] .query-column-trigger,
+th[aria-sort="descending"] .query-column-trigger { border-color: #47aef5; box-shadow: inset 0 -2px #47aef5; }
+.query-column-trigger:focus-visible, .query-column-menu :focus-visible { outline: 2px solid #2888d1; outline-offset: 2px; }
+.query-column-menu {
+  position: fixed;
+  z-index: 7300;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  width: min(280px, calc(100vw - 12px));
+  max-height: calc(100dvh - 12px);
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #c9daec;
+  border-radius: 9px;
+  background: #fff;
+  color: #143753;
+  box-shadow: 0 8px 22px #123b6533;
+  font-size: 13px;
+}
+.query-column-menu > strong { padding: 4px 6px; }
+.query-column-menu button {
+  padding: 7px 8px;
+  border: 1px solid #d5e3ef;
+  border-radius: 5px;
+  background: #f7fbff;
+  color: #143753;
+  cursor: pointer;
+}
+.query-column-menu button:hover { background: #e6f3ff; }
+.query-column-menu button:disabled { opacity: .55; cursor: default; }
+.query-column-action { text-align: left; }
+.query-column-menu input[type="search"] {
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid #c9daec;
+  border-radius: 5px;
+}
+.query-column-options { max-height: min(180px, 32dvh); overflow: auto; border: 1px solid #dce7f2; border-radius: 5px; }
+.query-column-menu label { display: flex; align-items: center; gap: 7px; padding: 6px; cursor: pointer; overflow-wrap: anywhere; }
+.query-column-menu label:hover { background: #ecf6ff; }
+.query-column-menu input[type="checkbox"] { flex: none; margin: 0; accent-color: #0763ad; }
+.query-column-menu p { margin: 8px; }
+.query-column-footer { display: flex; justify-content: flex-end; gap: 7px; }
+.query-column-footer .query-column-confirm { background: #0763ad; border-color: #0763ad; color: #fff; }
+.query-column-footer .query-column-confirm:hover { background: #064d87; }

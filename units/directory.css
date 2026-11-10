@@ -32,3 +32,11 @@
 @media(max-width:560px){.unit-cloud-cards.directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.directory-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.directory-toolbar .btn{white-space:normal;height:auto;min-height:38px}.directory-unit-copy strong{font-size:10px}}
 @media(max-width:340px){.unit-cloud-cards.directory-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.directory-unit{transition:none}.directory-unit:hover{transform:none}}
+/* Equal tracks keep every unit card the same height, including the final row. */
+.unit-cloud-cards.directory-grid,
+.directory-summary { grid-auto-rows: 1fr; }
+.directory-summary {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #9dbbd5;
+}
