@@ -204,8 +204,14 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
     }
     for (const data of page.ranges.includes('*') ? page.images || [] : []) {
       if (!/^data:image\/(png|jpeg|jpg);base64,/.test(data)) continue;
+      const image = new Image();
+      image.src = data;
+      await image.decode();
+      const frameWidth = 12.08;
+      const scale = Math.min(frameWidth / image.naturalWidth, bodyHeight / image.naturalHeight);
+      const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
       const slide = add(page.title,context);
-      slide.addImage({data,...ppt.imageSizingContain(data,.62,bodyTop,12.08,bodyHeight)});
+      slide.addImage({data,x:.62+(frameWidth-w)/2,y:bodyTop+(bodyHeight-h)/2,w,h});
     }
     if (pageNumber === start) label(add(page.title,context),'Seçili aralıkta gösterilecek veri bulunamadı.',.62,bodyTop,12,.40,15);
     progress(Math.round((index+1)/pages.length*90));

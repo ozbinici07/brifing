@@ -700,3 +700,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Uzun tablolar, başlığı tekrarlanarak bölünür. Tablolar ve grafikler PowerPoint içinde düzenlenebilir. Üretim seçili veri aralıklarını korur. PDF mevcut üretim akışını kullanır.
 - 148 işleyiş testi ve Hosting paketi geçti. Örnek PowerPoint çıktısı açılarak kapak, tablo ve grafik görsel olarak incelendi. Paket denetimi uzun tablonun bütün satırlarını, tekrarlanan başlıkları, düzenlenebilir tablo ve grafikleri ve kapsam dışı hücrelerin dışarıda kaldığını doğruladı.
 - Yayın 911e041. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43019770864 başarılı. Canlı Birimler sayfası, sunum kodu ve iki tema görseli kaynakla karşılaştırıldı. CI https://github.com/ozbinici07/brifing/actions/runs/43019770852
+
+- PowerPoint görsel slaytlarında kitaplığın sağlamadığı imageSizingContain çağrısı düzeltildi. Tarayıcı görselin doğal ölçülerini okuyup oranını koruyarak slayta ortalar. Görsel içeren örnek PPTX üretildi, yerleşim ölçüleri doğrulandı ve 148 test geçti.
