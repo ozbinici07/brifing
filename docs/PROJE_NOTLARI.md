@@ -681,3 +681,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 11 Kasım 2026 — Üst çubuk ve sol menü köşeleri
 - Üst çubuk ve sol menü, aralarında ince boşluk olan yuvarlak köşeli paneller halinde düzenlendi. İki panelde mevcut mavi ağ deseni kullanılır. Mobilde köşeler daha küçük tutulur.
 - 1904px ve 390px Chromium görünümlerinde panel köşeleri, arama hizası ve düğmeler doğrulandı. Hosting paketi başarılı.
+- Yayın 7361b5d. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/42976301091 ve CI https://github.com/ozbinici07/brifing/actions/runs/42976301489 başarılı. Canlı ana sayfa ve panel stili doğrulandı.
