@@ -46,3 +46,13 @@ test('a fresh source topic cannot inherit an unrelated overview plan; actual cat
 test('percentage query retains academic year, indicator, original cell and source differences',()=>{const t=ratesFixture(),m=C.buildModel({},[t],{id:'Ekim_2026',name:'Ekim 2026'}),p=C.groundedPlan('2025-2026 ilkokul net okullaşma oranı',[t]),r=C.runQuery(p,m);assert.equal(r.kind,'scalar');assert.equal(r.metrics[0].value,94.24);assert.equal(r.metrics[0].unit,'%');assert.equal(r.target.address,'B6');assert(r.warnings.some(x=>x.includes('farklı')));const all=C.runQuery(C.groundedPlan('okullaşma oranı',[t]),m);assert.equal(all.rows.find(x=>x.sourceKind==='Kaynak grafik'&&x.indicator==='İlkokul').value,93.57);});
 test('source discovery is generic and typo tolerant, not a special enrolment keyword branch',()=>{const t={...ratesFixture(),id:'employment',title:'Kadın İstihdam Oranı',sheet:'Ekonomi'},p=C.groundedPlan('kadın istihdam oranları',[t]);assert.equal(p.filters.tableId,'employment');assert.equal(C.matchSources('okulasma orani',[ratesFixture()])[0].id,'rate-source');assert(C.isFollowUp('İlk 10 tanesini göster'));assert(!C.isFollowUp('okullaşma oranı'));});
 test('grounding sends actual selected numeric evidence with provenance while excluding credential labels',()=>{const t=ratesFixture(),r=C.runQuery(C.groundedPlan('okullaşma oranı',[t]),C.buildModel({},[t],{id:'P',name:'Ekim 2026'})),facts=C.groundingEvidence(r);assert(facts.some(f=>f.value===94.75&&f.address==='B5'));assert(facts.every(f=>f.tableId===t.id));assert.equal(C.groundingEvidence({metrics:[{label:'Yönetici şifresi',value:123}],rows:[]}).length,0);});
+
+test('district ratios are calculated separately and never summed', () => {
+  const result = C.runQuery('İlçelere göre derslik başına öğrenci', fixture());
+  assert.equal(result.total, 220 / 12);
+  assert.equal(result.rows.find(row => row.label === 'Menteşe').value, 120 / 8);
+  assert.equal(result.rows.find(row => row.label === 'Bodrum').value, 100 / 4);
+  assert.equal(result.nonAdditive, true);
+  assert.equal(result.chart.hideTotal, true);
+  assert.ok(!result.columns.some(([key]) => key === 'percent'));
+});

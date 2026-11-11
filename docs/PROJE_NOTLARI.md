@@ -687,3 +687,9 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Ortak üst bannerın dış kenarları, içerik kartlarıyla aynı yatay boşluğa hizalandı. Daha dar masaüstü görünümlerinde düğmelerin taşmasını önlemek için mevcut iki satırlı yerleşim 1460 piksele kadar uygulanır.
 - 1904, 1461, 1401 ve 390 piksel genişlikte banner kenarları, arama hizası ve düğmeler Chromium ile doğrulandı. Hosting paketi hazırlandı.
 - Yayın 9b55100. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/42981480782 başarılı. Canlı ana sayfanın yeni stili yüklediği ve stilin GitHub sürümüyle eşleştiği doğrulandı. CI https://github.com/ozbinici07/brifing/actions/runs/42981480807
+
+## 11 Kasım 2026 — Asistan okul önerileri ve ayrı okul ayrıntısı
+- Asistan yazarken okul adlarını önerir. Ok ve Enter ile seçim yapılabilir, aynı adlı okullar ilçe ve kodla ayırt edilir. Öneriler mevcut dönem verisinden oluşturulur ve yazarken Gemini çağrısı yapılmaz.
+- Asistan tek sayısal cevapları da sonuç tablosu ve grafikle gösterir. Brifingde uygun sayısal sonuçlara grafik eklenir ve kaynak bağlantıları korunur. Gruplanmış oranlar her grup için hesaplanır ve toplanmaz. Sağlayıcı ya da geçersiz plan hatasında yerel sorgu devreye girer. Hesap/oturum kapsamı ve mevcut yetkiler korunur.
+- Hızlı arama sonucu ayrı okul ayrıntı sayfasını açar. Kurum kodu ve ilçe ile eşleşen seçili dönem bilgileri, öğrenci ve şube tablosu, sınıf grafiği, öğretmen ve derslik toplamı ile kayıttaki ek alanlar ilgili ekran izinlerine göre gösterilir. Kaynakta okul bazlı branş dağılımı yoksa yalnız kayıtlı öğretmen toplamı gösterilir.
+- 148 işleyiş testi ve Hosting paketi başarılı. İzole Chromium örnek kayıtlarda akya önerisini, aynı adlı okul seçimini, sonuç tablosu ve grafiğini, ilçe oranlarını, okul sayfasını, dönem yenilemesini ve yetkileri doğruladı. Gemini kesintisi bu denemede kontrollü olarak simüle edildi.
