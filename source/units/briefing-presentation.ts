@@ -1,4 +1,5 @@
 import PptxGenJS from 'pptxgenjs';
+import JSZip from 'jszip';
 import {download} from './export';
 import {bounds, display, includes} from './types';
 
@@ -67,40 +68,70 @@ function wrap(text:string, max:number):string[] {
 
 function tables(block:Block, newSlide:()=>Slide) {
   const count = block.rows[0].length;
+  const dense = block.rows.length > 10;
+  const bodyFont = dense ? 11.5 : 15, headerFont = dense ? 11 : 13.5;
+  const lineHeight = dense ? .173 : .23;
+  const padding = dense ? .07 : .12;
+  const minimumRowHeight = dense ? .27 : .43;
   const bands = count <= 6 ? [Array.from({length:count}, (_, i) => i)] :
     Array.from({length:Math.ceil((count-1)/4)}, (_, band) => [0,...Array.from({length:Math.min(4,count-1-band*4)}, (_, i) => band*4+i+1)]);
-  for (const band of bands) {
+  function layout(band:number[], frameWidth:number) {
     const weights = band.map(column => Math.pow(Math.max(8, ...block.rows.map(row => Math.min(55,row[column].length))), .6));
-    const widths = weights.map(value => 12.08 * value / weights.reduce((sum, weight) => sum + weight, 0));
-    const rows = block.rows.map(row => band.map((column, i) => wrap(row[column], Math.max(8, Math.floor(widths[i] * 8.4)))));
-    const header = block.header ? rows.shift() : undefined;
-    const headerHeight = header ? Math.min(1.35, Math.max(.43, Math.max(...header.map(lines => lines.length)) * .22 + .14)) : 0;
+    const widths = weights.map(value => frameWidth * value / weights.reduce((sum, weight) => sum + weight, 0));
+    const rows = block.rows.map(row => band.map((column, i) => wrap(row[column], Math.max(8, Math.floor(widths[i] * (dense ? 11 : 8.4))))));
+    const labels = block.header ? rows.shift() : undefined;
+    const rowHeight = (cells:string[][]) => Math.max(minimumRowHeight, Math.max(...cells.map(lines => lines.length)) * lineHeight + padding);
+    const header = labels ? {values:labels,h:Math.min(1.35,rowHeight(labels))} : undefined;
     const entries = rows.flatMap(cells => {
       const maxLines = Math.max(...cells.map(lines => lines.length));
       return Array.from({length:Math.ceil(maxLines / 9)}, (_, part) => {
         const values = cells.map(lines => lines.slice(part*9,part*9+9));
-        return {values, h:Math.max(.43, Math.max(...values.map(lines => lines.length)) * .23 + .12)};
+        return {values,h:rowHeight(values)};
       });
     });
-    let batch:typeof entries = [];
+    return {widths,header,entries,frameWidth};
+  }
+  type Layout = ReturnType<typeof layout>;
+  const totalHeight = (rows:Layout['entries']) => rows.reduce((sum,row) => sum+row.h,0);
+  function draw(slide:Slide, table:Layout, rows:Layout['entries'], x:number) {
+    const {header,widths,frameWidth} = table;
+    const all = header ? [header,...rows] : rows;
+    slide.addTable(all.map((row,i) => row.values.map(lines => ({
+      text:lines.join('\n'),options:{
+        color:header && i===0 ? 'FFFFFF' : navy,
+        bold:!!header && i===0,
+        fill:{color:header && i===0 ? navy : i%2 ? 'FFFFFF' : pale},
+        fontSize:header && i===0 ? (header.h >= 1.35 ? 10 : headerFont) : bodyFont,
+      },
+    }))),{x,y:bodyTop,w:frameWidth,colW:widths,rowH:all.map(row => row.h),fontFace:'Arial',
+      margin:dense ? [2,6,2,6] : [4,6,4,6],valign:'middle',border:{type:'solid',pt:.6,color:'DEE7F0'},autoPage:false});
+  }
+  for (const band of bands) {
+    const table = layout(band,12.08);
+    const headerHeight = table.header?.h || 0;
+    if (block.header && count <= 4 && totalHeight(table.entries)+headerHeight > bodyHeight) {
+      const gap = .18, panel = layout(band,(12.08-gap)/2);
+      const middle = Math.ceil(panel.entries.length/2);
+      const left = panel.entries.slice(0,middle), right = panel.entries.slice(middle);
+      if (right.length && Math.max(totalHeight(left),totalHeight(right))+(panel.header?.h || 0) <= bodyHeight) {
+        const slide = newSlide();
+        draw(slide,panel,left,.62);
+        draw(slide,panel,right,.62+panel.frameWidth+gap);
+        continue;
+      }
+    }
+    let batch:Layout['entries'] = [];
     let used = headerHeight;
-    const flush = () => {
-      const slide = newSlide();
-      const all = header ? [{values:header,h:headerHeight},...batch] : batch;
-      slide.addTable(all.map((row, i) => row.values.map(lines => ({
-        text:lines.join('\n'), options:{color:header && i===0 ? 'FFFFFF' : navy,
-          bold:!!header && i===0, fill:{color:header && i===0 ? navy : i%2 ? 'FFFFFF' : pale},
-          fontSize:header && i===0 && headerHeight >= 1.35 ? 10 : header && i===0 ? 13.5 : 15},
-      }))), {x:.62,y:bodyTop,w:12.08,colW:widths,rowH:all.map(row => row.h),fontFace:'Arial',margin:[4,6,4,6],
-        valign:'mid',border:{type:'solid',pt:.6,color:'DEE7F0'},autoPage:false});
-      batch=[]; used=headerHeight;
-    };
-    for (const entry of entries) {
-      if (batch.length && used + entry.h > bodyHeight) flush();
+    for (const entry of table.entries) {
+      if (batch.length && used+entry.h > bodyHeight) {
+        draw(newSlide(),table,batch,.62);
+        batch = [];
+        used = headerHeight;
+      }
       batch.push(entry);
       used += entry.h;
     }
-    if (batch.length || header) flush();
+    if (batch.length || table.header) draw(newSlide(),table,batch,.62);
   }
 }
 
@@ -232,11 +263,33 @@ async function imageData(file:string):Promise<string> {
   });
 }
 
+export async function writeBriefingPresentation(ppt:PptxGenJS) {
+  const zip = await JSZip.loadAsync(await ppt.write({outputType:'arraybuffer'}) as ArrayBuffer);
+  const slides = zip.file(/^ppt\/slides\/slide\d+\.xml$/);
+  for (const slide of slides) {
+    const xml = await slide.async('string');
+    // PptxGenJS numbers tables and shapes independently, which can duplicate a slide object ID.
+    const objectId = /(<p:cNvPr\s+id=")(\d+)(")/g;
+    const ids = [...xml.matchAll(objectId)].map(match => Number(match[2]));
+    const seen = new Set<number>();
+    let nextId = Math.max(0,...ids);
+    const fixed = xml.replace(objectId,(match,prefix,id,suffix) => {
+      const value = Number(id);
+      if (seen.has(value)) return prefix + (++nextId) + suffix;
+      seen.add(value);
+      return match;
+    });
+    if (fixed !== xml) zip.file(slide.name,fixed);
+  }
+  return zip.generateAsync({type:'blob',compression:'DEFLATE',
+    mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation'});
+}
+
 export async function exportBriefingPresentation(pages:Page[], name:string, options:Options, progress:(n:number)=>void) {
   const [background,cover] = await Promise.all([imageData('briefing-slide-background.png'),imageData('briefing-cover-mugla.jpg')]);
   const ppt = await buildBriefingPresentation(pages,name,options,{background,cover},progress);
   progress(94);
-  const blob = await ppt.write({outputType:'blob'}) as Blob;
+  const blob = await writeBriefingPresentation(ppt);
   download(blob,name.replace(/[<>:"/\\|?*]/g,'-').slice(0,100)+'.pptx');
   progress(100);
 }
