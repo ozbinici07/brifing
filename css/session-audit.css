@@ -42,3 +42,6 @@
 #overview #overviewQuickInfo .quick-info { gap: 9px; }
 #overview #overviewQuickInfo .quick-info > div { gap: 7px; padding-right: 7px !important; }
 #overview #overviewQuickInfo .overview-admin-controls { padding: 0; border: 0; }
+.session-audit-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-top: 12px; }
+.session-audit-filters label { display: grid; gap: 4px; font-size: 12px; font-weight: 700; }
+.session-audit-filters input { padding: 6px 8px; border: 1px solid #bed8ee; border-radius: 6px; background: #fff; color: #113759; }

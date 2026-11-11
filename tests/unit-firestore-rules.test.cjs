@@ -202,3 +202,22 @@ test('session history accepts only own verified names and server times, and only
  assert.equal(row.username,'ornek.a');
  assert.ok(row.signedOutAt.toMillis()>=row.signedInAt.toMillis());
 });
+
+test('REST session logout keeps the original fields and stores the server exit time',async()=>{
+ const project='demo-brifing-units';
+ const {createMockUserToken}=require('@firebase/util');
+ const token=createMockUserToken({sub:'a',email:'a@example.test'},project);
+ const document='projects/'+project+'/databases/(default)/documents/userSessionAudit/87654321-1111-4111-8111-123456789abc';
+ const path=document.split('/documents/')[1];
+ await env.withSecurityRulesDisabled(async c=>updateDoc(ref(c.firestore(),'unitAccounts/a'),{username:'ornek.a'}));
+ await assertSucceeds(setDoc(ref(user('a'),path),{uid:'a',username:'ornek.a',signedInAt:serverTimestamp()}));
+ const response=await fetch('http://'+process.env.FIRESTORE_EMULATOR_HOST+'/v1/projects/'+project+'/databases/(default)/documents:commit',{
+  method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({writes:[{
+   update:{name:document,fields:{}},updateMask:{fieldPaths:[]},currentDocument:{exists:true},
+   updateTransforms:[{fieldPath:'signedOutAt',setToServerValue:'REQUEST_TIME'}]
+  }]})
+ });
+ assert.equal(response.status,200,await response.text());
+ const {uid,username,signedInAt,signedOutAt}=(await getDoc(ref(user('manager'),path))).data();
+ assert.equal(uid,'a');assert.equal(username,'ornek.a');assert.ok(signedOutAt.toMillis()>=signedInAt.toMillis());
+});

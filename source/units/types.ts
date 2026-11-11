@@ -12,3 +12,9 @@ export function includes(r:number,c:number,ranges:string[]){return ranges.some(s
 export function display(c:Cell){if(c?.v==null)return '';if(typeof c.v==='number'){if(c.f?.includes('%'))return (c.v*100).toLocaleString('tr-TR',{maximumFractionDigits:2})+'%';return c.v.toLocaleString('tr-TR',{maximumFractionDigits:4})}return String(c.v)}
 export function fold(v:string){return v.toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i')}
 export function linkedRows(p:RecordItem,u?:number){const ranges=linksFor(p,u).map(l=>l.range);return p.rows.map((row,i)=>row.map((c,j)=>includes(i+(p.rowOffset||4),j,ranges)?c:{v:null})).filter((row)=>row.some(c=>c.v!==null))}
+
+export function approvalProgress(tableIds: (string | number)[], statusFor: (id: string) => string | undefined) {
+  const ids = [...new Set((tableIds || []).map(String))];
+  const approved = ids.filter(id => statusFor(id) === 'approved').length;
+  return {total: ids.length, approved, percent: ids.length ? Math.floor(approved / ids.length * 100) : 0};
+}

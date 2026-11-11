@@ -159,7 +159,7 @@ const auditPath = id => 'userSessionAudit/' + id;
 async function writeSessionAudit(writes) {
   await request(base + ':commit', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({writes}), signal: AbortSignal.timeout(2500)
+    body: JSON.stringify({writes}), signal: AbortSignal.timeout(5000)
   });
 }
 function startSessionAudit() {
@@ -180,15 +180,22 @@ async function finishSessionAudit() {
   await auditStart;
   if (session()?.auditId !== current.auditId) return;
   const document = base.replace('https://firestore.googleapis.com/v1/', '') + '/' + auditPath(current.auditId);
-  await writeSessionAudit([{transform:{document,fieldTransforms:[{fieldPath:'signedOutAt',setToServerValue:'REQUEST_TIME'}]},currentDocument:{exists:true}}]);
+  await writeSessionAudit([{
+    update:{name:document,fields:{}},
+    updateMask:{fieldPaths:[]},
+    updateTransforms:[{fieldPath:'signedOutAt',setToServerValue:'REQUEST_TIME'}],
+    currentDocument:{exists:true}
+  }]);
 }
 if(session()?.idToken?.startsWith('local-unit-'))saveSession(null);
 window.__brifingApiClient=apiClient;window.api=apiClient;window.apiClient=apiClient;window.token=()=>session()?.idToken||'';window.authUser=()=>{const s=session();return s?{username:s.username,display:s.display,unit:s.unit,role:s.role,account:s.account,uid:s.uid}:null};window.initAuth=function(){const u=window.authUser();if(!u){window.forceLogin();return} $('login').classList.remove('show');$('sessionUser').textContent=u.display+' · '+u.unit};window.forceLogin=()=>{$('login').classList.add('show')};window.__firebaseLogout=async()=>{
  if(signingOut)return;
  signingOut=true;
  const button=$('logoutBtn');if(button)button.disabled=true;
- try{await finishSessionAudit();}catch{}finally{
+ let auditFailed=false;
+ try{await finishSessionAudit();}catch{auditFailed=true;}finally{
   auditStart=null;viewedFolder='';clearReadCache();saveSession(null);window.forceLogin();
+  if(auditFailed&&$('loginMsg'))$('loginMsg').textContent='Çıkış yapıldı. Çıkış saati kaydedilemedi.';
   signingOut=false;if(button)button.disabled=false;
  }
 };window.logout=window.__firebaseLogout;

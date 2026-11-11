@@ -7,3 +7,19 @@ test('stale decisions and missing return reason are rejected',()=>{const p=T.tra
 test('migration splits old pending and approved snapshots without changing source data',()=>{const saved=structuredClone(draft);saved.cells['2!B4']=7;saved.savedTables=['1','2'];const old={version:9,pendingVersion:8,approvedVersion:4,pending:saved,approved:saved,reviewNote:''},before=JSON.stringify(old),rows=T.legacyReviews('P',schema,old);assert.equal(rows.length,2);assert.deepEqual(rows[0].pending.cells,{'1!B4':10});assert.deepEqual(rows[1].approved.cells,{'2!B4':7});assert.equal(rows[0].version,9);assert.equal(JSON.stringify(old),before);});
 test('shared table totals count unique tables and require every owner for approval',()=>{const ss=[schema,{unitId:'22',tableIds:['1']}],rows=[{unitId:'7',tableStates:{1:'approved',2:'waiting'},submittedIds:['1']},{unitId:'22',tableStates:{1:'pending'},submittedIds:['1']}];assert.deepEqual(T.totals(ss,rows),{total:2,approved:0,pending:1,waiting:1,submitted:1});});
 test('schema search metadata contains real briefing titles and Turkish matching is normalized',()=>{const m=T.metadata(schema,[{id:'1',title:'Öğretmen Bilgileri'},{id:'2',title:'MEBBİS İşlemleri'}]);assert.equal(m.titleMap['2'],'MEBBİS İşlemleri');assert.ok(T.fold(m.titles.join(' ')).includes(T.fold('mebbis')));assert.deepEqual(m.tableKeys['1'],['1!B4']);});
+
+test('revoking the only approval drops the approval rate while retaining the saved draft',()=>{
+ const single={...schema,tableIds:['1'],keys:['1!B4']};
+ const unit=ctx({schema:single}),admin={...unit,actor:{id:'manager',role:'admin'}};
+ const pending=T.transition(null,{action:'submit',version:0},unit);
+ const approved=T.transition(pending,{action:'approve',version:1,pendingVersion:1},admin);
+ const source=require('node:fs').readFileSync(require.resolve('../source/units/types.ts'),'utf8');
+ const compiled=require('esbuild').transformSync(source,{loader:'ts',format:'cjs'}).code;
+ const mod={exports:{}};new Function('module',compiled)(mod);
+ const rate=review=>mod.exports.approvalProgress(single.tableIds,id=>T.state(review,single,id,draft));
+ assert.equal(rate(pending).percent,0);
+ assert.equal(rate(approved).percent,100);
+ const revoked=T.transition(approved,{action:'revoke',version:2,approvedVersion:1},admin);
+ assert.deepEqual(rate(revoked),{total:1,approved:0,percent:0});
+ assert.equal(T.complete(single,'1',draft),true);
+});

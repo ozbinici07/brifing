@@ -3,7 +3,6 @@
 .directory-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;min-width:0;color:#09234f}
 .directory-toolbar .btn,.directory-toolbar select,.directory-search,.directory-period strong{height:28px;border:1px solid #d6e3f0;border-radius:10px;box-shadow:0 2px 3px #0e3e6a25;background:linear-gradient(#fff,#edf6ff)}
 .directory-toolbar .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:0;padding:0 10px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
-.directory-toolbar .btn.navy{background:linear-gradient(#167dca,#064a8a);border-color:#207ec1;color:#fff}
 .directory-toolbar .btn[aria-pressed=true]{border-color:#bed8ef;background:linear-gradient(#fff,#e0effb)}
 .directory-period{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;white-space:nowrap;margin:0;flex-shrink:0}
 .directory-period strong{display:flex;align-items:center;gap:7px;padding:0 10px;font-size:10px}.directory-period strong svg{background:#16ae55;color:white;border-radius:50%;padding:1px}

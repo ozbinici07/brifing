@@ -13,8 +13,9 @@ test('successful application login and explicit logout write only the linked ser
  assert.equal(JSON.stringify(login.update.fields),JSON.stringify({uid:{stringValue:'u'},username:{stringValue:'bilgiislem'}}));
  assert.equal(login.updateTransforms[0].fieldPath,'signedInAt');
  assert.equal(login.updateTransforms[0].setToServerValue,'REQUEST_TIME');
- assert.equal(logout.transform.document,login.update.name);
- assert.equal(logout.transform.fieldTransforms[0].fieldPath,'signedOutAt');
- assert.equal(logout.transform.fieldTransforms[0].setToServerValue,'REQUEST_TIME');
+ assert.equal(logout.update.name,login.update.name);
+ assert.deepEqual(JSON.parse(JSON.stringify(logout.updateMask)),{fieldPaths:[]});
+ assert.equal(logout.updateTransforms[0].fieldPath,'signedOutAt');
+ assert.equal(logout.updateTransforms[0].setToServerValue,'REQUEST_TIME');
  assert.equal(h.w.token(),'');
 });

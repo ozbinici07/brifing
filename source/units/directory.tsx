@@ -46,7 +46,7 @@ export function DirectoryToolbar({periodName,active,query,onQuery,units,unitFilt
       <option value="">Tüm Birimler</option>
       {units.map(u=><option key={u.id} value={String(u.id)}>{u.name}</option>)}
     </select>
-    {admin&&<button className="btn navy" onClick={onMapping}><TableProperties size={15}/>Tablo ve Birim Eşlemesi</button>}
+    {admin&&<button className="btn light" onClick={onMapping}><TableProperties size={15}/>Tablo ve Birim Eşlemesi</button>}
     <button className="btn light" aria-pressed={!listLayout} onClick={onCards}><Mail size={15}/>Kart Görünümü</button>
     <button className="btn light" aria-pressed={listLayout} onClick={onList}><List size={15}/>Liste Görünümü</button>
   </div>;
@@ -75,7 +75,7 @@ export function UnitTile({unit,number,count,done,selected,onSelect,matches=[]}: 
   const [,theme,Icon]=designs.find(([pattern])=>pattern.test(unit.name.toLocaleLowerCase('tr')))||[/./,'blue',Building2];
   const progress=Math.max(0,Math.min(100,Number(done)||0));
   return <button className={'directory-unit directory-'+theme+(selected?' selected':'')} onClick={()=>onSelect(unit)}
-    aria-label={unit.name+' · '+count+' içerik · %'+progress} aria-pressed={selected}>
+    aria-label={unit.name+' · '+count+' içerik · Onay oranı %'+progress} aria-pressed={selected}>
     <span className="directory-unit-icon"><Icon size={23} strokeWidth={1.8}/></span>
     <span className="directory-unit-number">{String(number).padStart(2,'0')}</span>
     <span className="directory-unit-copy">
@@ -83,7 +83,7 @@ export function UnitTile({unit,number,count,done,selected,onSelect,matches=[]}: 
       {matches.map(title=><small className="unit-search-match" key={title}>{title}</small>)}
     </span>
     <ChevronRight className="directory-unit-chevron" size={15}/>
-    <span className="directory-progress" aria-hidden="true">
+    <span className="directory-progress" title="Onay oranı" aria-hidden="true">
       <span><i style={{width:progress+'%'}}/></span><small>%{progress}</small>
     </span>
   </button>;

@@ -28,6 +28,15 @@
     const header = node('header');
     header.append(title, close);
     const note = node('p', 'Saatler Türkiye saatine göre gösterilir. Çıkış kaydı olmayan satırlar, oturumun hâlâ açık olduğunu göstermez.');
+    const filters = node('div');
+    filters.className = 'session-audit-filters';
+    const day = node('input');
+    day.type = 'date';
+    const dayLabel = node('label', 'Giriş tarihi');
+    dayLabel.append(day);
+    const reset = node('button', 'Tüm tarihler');
+    reset.type = 'button';
+    filters.append(dayLabel, reset);
     const status = node('p');
     status.setAttribute('role', 'status');
     const wrap = node('div');
@@ -44,9 +53,10 @@
     const more = node('button', 'Daha eski kayıtlar');
     more.type = 'button';
     more.hidden = true;
-    let cursor;
+    let cursor, requestId = 0;
     async function load() {
       if (!admin() || !modal.open) return;
+      const request = ++requestId;
       more.disabled = true;
       status.textContent = 'Kayıtlar yükleniyor…';
       const query = {
@@ -54,13 +64,21 @@
         orderBy: [{field:{fieldPath:'signedInAt'},direction:'DESCENDING'},
           {field:{fieldPath:'__name__'},direction:'DESCENDING'}]
       };
+      if (day.value) {
+        const start = new Date(day.value + 'T00:00:00+03:00');
+        const end = new Date(start.getTime() + 86400000);
+        query.where = {compositeFilter:{op:'AND',filters:[
+          {fieldFilter:{field:{fieldPath:'signedInAt'},op:'GREATER_THAN_OR_EQUAL',value:{timestampValue:start.toISOString()}}},
+          {fieldFilter:{field:{fieldPath:'signedInAt'},op:'LESS_THAN',value:{timestampValue:end.toISOString()}}}
+        ]}};
+      }
       if (cursor) query.startAt = {before:false, values:[
         {timestampValue:cursor.signedInAt},
         {referenceValue:`projects/${window.BRIFING_FIREBASE_CONFIG.projectId}/databases/(default)/documents/userSessionAudit/${cursor.id}`}
       ]};
       try {
         const rows = await window.__personnelFirestore.query('', query);
-        if (!modal.open || !admin()) return;
+        if (request !== requestId || !modal.open || !admin()) return;
         for (const row of rows) {
           const line = body.insertRow();
           for (const value of [row.username, date.format(new Date(row.signedInAt)),
@@ -71,16 +89,24 @@
         if (rows.length) cursor = rows.at(-1);
         more.textContent = 'Daha eski kayıtlar';
         more.hidden = rows.length < pageSize;
-        status.textContent = body.rows.length ? `${body.rows.length} kayıt` : 'Henüz giriş kaydı bulunmuyor.';
+        status.textContent = body.rows.length ? `${body.rows.length} kayıt` : (day.value ? 'Seçilen tarihte giriş kaydı yok.' : 'Henüz giriş kaydı bulunmuyor.');
       } catch {
-        if (!modal.open) return;
+        if (request !== requestId || !modal.open) return;
         status.textContent = 'Kullanıcı kayıtları yüklenemedi.';
         more.textContent = 'Tekrar dene';
         more.hidden = false;
-      } finally { more.disabled = false; }
+      } finally { if (request === requestId) more.disabled = false; }
     }
+    function changeDate() {
+      cursor = undefined;
+      body.replaceChildren();
+      more.hidden = true;
+      void load();
+    }
+    day.onchange = changeDate;
+    reset.onclick = () => { day.value = ''; changeDate(); };
     more.onclick = load;
-    modal.append(header, note, status, wrap, more);
+    modal.append(header, filters, note, status, wrap, more);
     modal.addEventListener('close', () => {
       modal.remove();
       if (dialog === modal) dialog = null;
