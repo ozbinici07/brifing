@@ -180,3 +180,22 @@
   .app .reference-top .top-actions :is(#personnelBell, #overviewRefresh, #logoutBtn),
   .reference-top-account summary { font-size: 11px !important; padding-inline: 8px !important; }
 }
+
+/* The common pattern stays aligned across the two rounded navigation panels. */
+.app:has(> .reference-top) { background: #f3f6fa !important; }
+.bbs-theme-dark .app:has(> .reference-top) { background: #121f32 !important; }
+.app:has(> .reference-top) > :is(.side, header.top.reference-top) {
+  background: #062b50 url('../assets/panel-network.svg') center / cover no-repeat fixed !important;
+}
+.app:has(> .reference-top) > .side {
+  margin: 4px;
+  border-radius: 38px;
+}
+.app > header.top.reference-top {
+  margin: 4px 4px 4px 0;
+  border-radius: 28px;
+}
+@media (max-width: 650px) {
+  .app:has(> .reference-top) > .side { margin: 0 4px 4px; border-radius: 16px; width: auto !important; }
+  .app > header.top.reference-top { margin: 4px; border-radius: 18px; }
+}

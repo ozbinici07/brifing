@@ -677,3 +677,7 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Kullanıcı Kayıtları penceresine Türkiye saatine göre giriş tarihi filtresi ve Tüm tarihler düğmesi eklendi. Çıkış yazımı, mevcut kayıt alanlarını koruyan sunucu zamanlı belge güncellemesini kullanır. Yazma başarısız olursa giriş ekranı bunu bildirir. Geçmiş boş çıkış zamanları olduğu gibi kalır.
 - 147 işleyiş testi ve Hosting paketi geçti. İzole tarayıcıda onay iptalinde çubuk ve halka %100’den %0’a indi, taslak 1/1 olarak kaldı. Düğme rengi, tarih filtresinin gün sınırları ve filtre temizleme doğrulandı. Canlı dosya ve Firestore emülatör sonuçları yayın kapanışında kaydedilir.
 - Yayın kapanışı 3d584fd. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/42975657760 ve Birimler CI https://github.com/ozbinici07/brifing/actions/runs/42975657653 başarılı. Emülatör, uygulamanın kullandığı REST isteğiyle çıkış zamanının yazıldığını ve giriş kaydının korunduğunu doğruladı. Canlı ana sayfa ve altı dosya doğrulandı. Gerçek çıkış saati eksik olan eski satırlar güncellenmedi.
+
+## 11 Kasım 2026 — Üst çubuk ve sol menü köşeleri
+- Üst çubuk ve sol menü, aralarında ince boşluk olan yuvarlak köşeli paneller halinde düzenlendi. İki panelde mevcut mavi ağ deseni kullanılır. Mobilde köşeler daha küçük tutulur.
+- 1904px ve 390px Chromium görünümlerinde panel köşeleri, arama hizası ve düğmeler doğrulandı. Hosting paketi başarılı.
