@@ -682,3 +682,7 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Üst çubuk ve sol menü, aralarında ince boşluk olan yuvarlak köşeli paneller halinde düzenlendi. İki panelde mevcut mavi ağ deseni kullanılır. Mobilde köşeler daha küçük tutulur.
 - 1904px ve 390px Chromium görünümlerinde panel köşeleri, arama hizası ve düğmeler doğrulandı. Hosting paketi başarılı.
 - Yayın 7361b5d. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/42976301091 ve CI https://github.com/ozbinici07/brifing/actions/runs/42976301489 başarılı. Canlı ana sayfa ve panel stili doğrulandı.
+
+## 11 Kasım 2026 — Üst bannerın kartlara hizalanması
+- Ortak üst bannerın dış kenarları, içerik kartlarıyla aynı yatay boşluğa hizalandı. Daha dar masaüstü görünümlerinde düğmelerin taşmasını önlemek için mevcut iki satırlı yerleşim 1460 piksele kadar uygulanır.
+- 1904, 1461, 1401 ve 390 piksel genişlikte banner kenarları, arama hizası ve düğmeler Chromium ile doğrulandı. Hosting paketi hazırlandı.

@@ -156,7 +156,7 @@
   .app .reference-top .top-actions { gap: 6px !important; }
   .app .reference-top .top-actions :is(#personnelBell, #overviewRefresh, #logoutBtn) { padding-inline: 9px !important; }
 }
-@media (max-width: 1400px) {
+@media (max-width: 1460px) {
   .app header.top.reference-top {
     grid-template-columns: minmax(0, 1fr) minmax(160px, 384px) minmax(0, 1fr) !important;
   }
@@ -192,10 +192,10 @@
   border-radius: 38px;
 }
 .app > header.top.reference-top {
-  margin: 4px 4px 4px 0;
+  margin: 4px 14px;
   border-radius: 28px;
 }
 @media (max-width: 650px) {
   .app:has(> .reference-top) > .side { margin: 0 4px 4px; border-radius: 16px; width: auto !important; }
-  .app > header.top.reference-top { margin: 4px; border-radius: 18px; }
+  .app > header.top.reference-top { margin: 4px 8px; border-radius: 18px; }
 }
