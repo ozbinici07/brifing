@@ -686,3 +686,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 11 Kasım 2026 — Üst bannerın kartlara hizalanması
 - Ortak üst bannerın dış kenarları, içerik kartlarıyla aynı yatay boşluğa hizalandı. Daha dar masaüstü görünümlerinde düğmelerin taşmasını önlemek için mevcut iki satırlı yerleşim 1460 piksele kadar uygulanır.
 - 1904, 1461, 1401 ve 390 piksel genişlikte banner kenarları, arama hizası ve düğmeler Chromium ile doğrulandı. Hosting paketi hazırlandı.
+- Yayın 9b55100. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/42981480782 başarılı. Canlı ana sayfanın yeni stili yüklediği ve stilin GitHub sürümüyle eşleştiği doğrulandı. CI https://github.com/ozbinici07/brifing/actions/runs/42981480807
