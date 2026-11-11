@@ -47,8 +47,8 @@ function box(slide:Slide, x:number, y:number, w:number, h:number, fill:string, b
   slide.addShape('rect', {x,y,w,h,fill:{color:fill},line:{color:border || fill, width:border ? .7 : 0}});
 }
 
-function label(slide:Slide, text:string, x:number, y:number, w:number, h:number, fontSize:number, color=navy, bold=false) {
-  slide.addText(text, {x,y,w,h,fontFace:'Arial',fontSize,color,bold,margin:0,fit:'shrink',valign:'mid',lang:'tr-TR'});
+function label(slide:Slide, text:string, x:number, y:number, w:number, h:number, fontSize:number, color=navy, bold=false, valign:'top'|'mid'='mid') {
+  slide.addText(text, {x,y,w,h,fontFace:'Arial',fontSize,color,bold,margin:0,fit:'shrink',valign,lang:'tr-TR'});
 }
 
 function wrap(text:string, max:number):string[] {
@@ -167,8 +167,8 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
   const add = (title?:string, subtitle='') => {
     const slide = ppt.addSlide({masterName:'BRIFING'});
     if (title) {
-      box(slide,.40,1.20,12.54,5.71,'FFFFFF',navy);
-      label(slide,title,.54,1.24,12.08,.57,title.length > 90 ? 16.5 : 21,ink,true);
+      box(slide,.40,1.20,12.54,5.71,'FFFFFF');
+      label(slide,title,.54,1.24,12.08,.57,title.length > 90 ? 16.5 : 21,ink,true,'top');
       label(slide,subtitle,.54,1.85,11.88,.23,9.75,muted);
       box(slide,.54,2.09,.89,.04,red);
     }
@@ -176,9 +176,9 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
     return slide;
   };
   const cover = add();
-  box(cover,.40,1.59,12.54,5.21,'FFFFFF',navy);
+  box(cover,.40,1.59,12.54,5.21,'FFFFFF');
   label(cover,'BRİFİNG BİLGİ SİSTEMİ',.62,1.86,7.19,.36,15,red,true);
-  label(cover,name,.62,2.45,6.88,2.16,name.length > 65 ? 25.5 : 32.25,ink,true);
+  label(cover,name,.62,2.45,6.88,2.16,name.length > 65 ? 25.5 : 32.25,ink,true,'top');
   box(cover,.62,4.70,1.12,.05,red);
   label(cover,options.period + (options.draft ? ' · Güncel Taslaklar' : ''),.62,5,6.88,.42,18,navy,true);
   label(cover,pages.length+' BRİFİNG SAYFASI     •     '+options.unitCount+' BİRİM',.62,5.78,6.77,.42,16.5,navy,true);
