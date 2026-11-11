@@ -705,3 +705,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Görsel düzeltmesi d43dbb4. Chrome'da görsel içeren sunum indirilebilir dosya olarak üretildi. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43023817658 başarılı. Canlı sayfanın yeni kodu yüklediği doğrulandı.
 
 - PowerPoint onarım uyarısı, yinelenen slayt nesne kimlikleri ve tablo hücrelerindeki geçersiz dikey hizalama değeri giderilerek düzeltildi. Uzun tablolar daha sık yerleştirilir. Uygun dar tablolar aynı slaytta iki blok halinde gösterilir. Paylaşılan Personel Durumu örneğindeki 26 veri satırı, üç slayt yerine bir slayta sığdı. Üretilen dosya Microsoft PowerPoint 16'da onarım kullanılmadan açıldı. 148 test ve Hosting paketi geçti.
+- Onarım ve tablo yerleşimi yayını 072a353. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43026508335 başarılı. Canlı sayfa ve sunum kodu doğrulandı.
