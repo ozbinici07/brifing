@@ -708,3 +708,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Onarım ve tablo yerleşimi yayını 072a353. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43026508335 başarılı. Canlı sayfa ve sunum kodu doğrulandı.
 
 - Teşkilat Şeması görseli çıktıya dahilken Excel'deki Kurum Genel Bilgileri ve Okul/Kurum Müdürlükleri etiketleri ayrı slayt oluşturmaz. Şema görseli ve gerçek açıklamalar korunur. Örnek dosya PowerPoint'te kapak ve şema olarak açıldı. Görselsiz ve açıklamalı örnekler ile 148 işleyiş testi geçti.
+- Teşkilat Şeması yayını 5df0c21. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43027371523 başarılı. Canlı sayfa ve sunum kodu doğrulandı.
