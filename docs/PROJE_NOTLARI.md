@@ -706,3 +706,5 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 
 - PowerPoint onarım uyarısı, yinelenen slayt nesne kimlikleri ve tablo hücrelerindeki geçersiz dikey hizalama değeri giderilerek düzeltildi. Uzun tablolar daha sık yerleştirilir. Uygun dar tablolar aynı slaytta iki blok halinde gösterilir. Paylaşılan Personel Durumu örneğindeki 26 veri satırı, üç slayt yerine bir slayta sığdı. Üretilen dosya Microsoft PowerPoint 16'da onarım kullanılmadan açıldı. 148 test ve Hosting paketi geçti.
 - Onarım ve tablo yerleşimi yayını 072a353. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43026508335 başarılı. Canlı sayfa ve sunum kodu doğrulandı.
+
+- Teşkilat Şeması görseli çıktıya dahilken Excel'deki Kurum Genel Bilgileri ve Okul/Kurum Müdürlükleri etiketleri ayrı slayt oluşturmaz. Şema görseli ve gerçek açıklamalar korunur. Örnek dosya PowerPoint'te kapak ve şema olarak açıldı. Görselsiz ve açıklamalı örnekler ile 148 işleyiş testi geçti.

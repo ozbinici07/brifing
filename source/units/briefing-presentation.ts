@@ -1,7 +1,7 @@
 import PptxGenJS from 'pptxgenjs';
 import JSZip from 'jszip';
 import {download} from './export';
-import {bounds, display, includes} from './types';
+import {bounds, display, fold, includes} from './types';
 
 type Page = {id:string; title:string; unitNames:string; description?:string; rowOffset:number;
   rows:Parameters<typeof display>[0][][]; ranges:string[]; sheet:string; images?:string[]; charts?:any[]};
@@ -218,7 +218,11 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
   for (const [index,page] of pages.entries()) {
     const context = [page.unitNames, options.period, options.draft ? 'Taslak' : 'Onaylı'].filter(Boolean).join(' · ');
     const start = pageNumber;
-    const content = blocks(page);
+    const pictures = (page.ranges.includes('*') ? page.images || [] : [])
+      .filter(data => /^data:image\/(png|jpeg|jpg);base64,/.test(data));
+    const chartLabels = pictures.length && fold(page.title).trim() === 'teskilat semasi';
+    const content = blocks(page).filter(block => !chartLabels || !block.rows.every(([text,...other]) =>
+      !other.length && /^(?:kurum genel bilgileri|(?:okul\s*\/\s*kurum mudurlukleri\s*)+)$/.test(fold(text).trim())));
     if (page.description?.trim()) content.push({title:page.title, rows:[[page.description]], header:false});
     for (const block of content) {
       const newSlide = () => add(block.title, block.title === page.title ? context : page.title+' · '+context);
@@ -233,8 +237,7 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
         {x:.62,y:bodyTop,w:12.08,h:bodyHeight,chartColors:[navy,red,'198B63','B77917','7054A5'],
           showLegend:series.length > 1 || chart.type==='pie',legendFontFace:'Arial',catAxisLabelFontFace:'Arial',catAxisLabelFontSize:10});
     }
-    for (const data of page.ranges.includes('*') ? page.images || [] : []) {
-      if (!/^data:image\/(png|jpeg|jpg);base64,/.test(data)) continue;
+    for (const data of pictures) {
       const image = new Image();
       image.src = data;
       await image.decode();
