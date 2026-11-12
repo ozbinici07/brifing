@@ -1,23 +1,29 @@
 import PptxGenJS from 'pptxgenjs';
 import JSZip from 'jszip';
 import {download} from './export';
-import {bounds, display, fold, includes} from './types';
+import {bounds, colName, display, fold, includes} from './types';
 
 type Page = {id:string; title:string; unitNames:string; description?:string; rowOffset:number;
-  rows:Parameters<typeof display>[0][][]; ranges:string[]; sheet:string; images?:string[]; charts?:any[]};
+  rows:Parameters<typeof display>[0][][]; fields?:Record<string,unknown>; ranges:string[]; sheet:string; images?:string[]; charts?:any[]};
 type Options = {period:string; unitCount:number; draft:boolean; date?:string};
 type Images = {background:string; cover:string; logo:string};
 type Block = {title:string; rows:string[][]; header:boolean};
 type Slide = ReturnType<PptxGenJS['addSlide']>;
 const navy = '06376A', ink = '06275A', red = 'E50020', muted = '53708F', pale = 'F0F5FB';
-const bodyTop = 2.24, bodyHeight = 4.48;
+const bodyTop = 1.99, bodyHeight = 4.73;
+const blockHeadingHeight = .34;
+const blockHeight = bodyHeight-blockHeadingHeight;
+type PlaceBlock = (title:string,height:number,paint:(slide:Slide,y:number)=>void)=>void;
 
 function blocks(page:Page):Block[] {
   const groups:Page['rows'][] = [];
   let group:Page['rows'] = [];
+  const enteredRows = new Set<Page['rows'][number]>();
   const hasValue = (cell:Page['rows'][number][number]) => cell?.v != null && String(cell.v).trim() !== '';
   page.rows.forEach((row, index) => {
-    const scoped = row.map((cell, column) => includes(index + (page.rowOffset || 4), column, page.ranges) ? cell : {v:null});
+    const rowNumber = index + (page.rowOffset || 4);
+    const scoped = row.map((cell, column) => includes(rowNumber,column,page.ranges) ? cell : {v:null});
+    if (scoped.some((cell,column) => hasValue(cell) && page.fields?.[colName(column)+rowNumber])) enteredRows.add(scoped);
     if (scoped.some(hasValue)) group.push(scoped);
     else if (group.length) {groups.push(group); group = [];}
   });
@@ -26,7 +32,7 @@ function blocks(page:Page):Block[] {
   let heading = '';
   for (const rows of groups) {
     const first = rows[0].filter(hasValue);
-    if (first.length === 1 && typeof first[0].v === 'string' && first[0].v.length < 150 && (rows.length > 1 || groups.length > 1)) {
+    if (!enteredRows.has(rows[0]) && first.length === 1 && typeof first[0].v === 'string' && first[0].v.length < 150 && (rows.length > 1 || groups.length > 1)) {
       if (heading) result.push({title:page.title, rows:[[heading]], header:false});
       heading = display(first[0]);
       rows.shift();
@@ -35,13 +41,21 @@ function blocks(page:Page):Block[] {
     const columns = Array.from({length:Math.max(...rows.map(row => row.length))}, (_, column) => column)
       .filter(column => rows.some(row => hasValue(row[column])));
     const labels = rows[0].filter(hasValue);
-    const header = labels.length > 1 && labels.every(cell => typeof cell.v === 'string') &&
+    const header = !enteredRows.has(rows[0]) && labels.length > 1 && labels.every(cell => typeof cell.v === 'string') &&
       (labels.some(cell => cell.bold) || labels.some(cell => /^(bilgi|veri|gösterge|ilçe|sıra|branş|okul tür)/i.test(String(cell.v))));
     result.push({title:heading || page.title, rows:rows.map(row => columns.map(column => display(row[column]))), header});
     heading = '';
   }
   if (heading) result.push({title:page.title, rows:[[heading]], header:false});
-  return result;
+  const form = /brifing bilgi formu$/.test(fold(page.title).trim());
+  const templateLabel = (text:string) => /^(?:mugla il milli egitim mudurlugu|kaynak\s*\/\s*kayit ve veri donemi\s*:?|raporlama donemi(?:\s*\(baslangic[–—-]bitis\))?(?:\s*\/\s*guncel veri tarihi)?\s*:\s*(?:veri tarihi\s*:\s*)?hazirlayan\s*:)$/i.test(fold(text).trim());
+  return result.flatMap(block => {
+    if (form && block.header && block.rows.length===1 && /^tablo\s/i.test(block.title)) return [];
+    if (form && templateLabel(block.title)) block={...block,title:page.title};
+    if (block.rows[0].length!==1) return [block];
+    const rows = block.rows.filter(([text]) => text.trim() && (!form || (!templateLabel(text) && fold(text).trim()!==fold(page.title).trim())));
+    return rows.length ? [{...block,rows}] : [];
+  });
 }
 
 function box(slide:Slide, x:number, y:number, w:number, h:number, fill:string, border?:string) {
@@ -66,14 +80,14 @@ function wrap(text:string, max:number):string[] {
   });
 }
 
-function tables(block:Block, newSlide:()=>Slide) {
+function tables(block:Block, place:PlaceBlock) {
   const count = block.rows[0].length;
-  const dense = block.rows.length > 10;
+  const dense = block.rows.length > 7 || count > 6;
   const bodyFont = dense ? 11.5 : 15, headerFont = dense ? 11 : 13.5;
   const lineHeight = dense ? .173 : .23;
   const padding = dense ? .07 : .12;
   const minimumRowHeight = dense ? .27 : .43;
-  const bands = count <= 6 ? [Array.from({length:count}, (_, i) => i)] :
+  const bands = count <= 8 ? [Array.from({length:count}, (_, i) => i)] :
     Array.from({length:Math.ceil((count-1)/4)}, (_, band) => [0,...Array.from({length:Math.min(4,count-1-band*4)}, (_, i) => band*4+i+1)]);
   function layout(band:number[], frameWidth:number) {
     const weights = band.map(column => Math.pow(Math.max(8, ...block.rows.map(row => Math.min(55,row[column].length))), .6));
@@ -93,7 +107,7 @@ function tables(block:Block, newSlide:()=>Slide) {
   }
   type Layout = ReturnType<typeof layout>;
   const totalHeight = (rows:Layout['entries']) => rows.reduce((sum,row) => sum+row.h,0);
-  function draw(slide:Slide, table:Layout, rows:Layout['entries'], x:number) {
+  function draw(slide:Slide, table:Layout, rows:Layout['entries'], x:number,y:number) {
     const {header,widths,frameWidth} = table;
     const all = header ? [header,...rows] : rows;
     slide.addTable(all.map((row,i) => row.values.map(lines => ({
@@ -103,66 +117,55 @@ function tables(block:Block, newSlide:()=>Slide) {
         fill:{color:header && i===0 ? navy : i%2 ? 'FFFFFF' : pale},
         fontSize:header && i===0 ? (header.h >= 1.35 ? 10 : headerFont) : bodyFont,
       },
-    }))),{x,y:bodyTop,w:frameWidth,colW:widths,rowH:all.map(row => row.h),fontFace:'Arial',
+    }))),{x,y,w:frameWidth,colW:widths,rowH:all.map(row => row.h),fontFace:'Arial',
       margin:dense ? [2,6,2,6] : [4,6,4,6],valign:'middle',border:{type:'solid',pt:.6,color:'DEE7F0'},autoPage:false});
   }
   for (const band of bands) {
     const table = layout(band,12.08);
     const headerHeight = table.header?.h || 0;
-    if (block.header && count <= 4 && totalHeight(table.entries)+headerHeight > bodyHeight) {
+    if (block.header && count <= 4 && totalHeight(table.entries)+headerHeight > blockHeight) {
       const gap = .18, panel = layout(band,(12.08-gap)/2);
       const middle = Math.ceil(panel.entries.length/2);
       const left = panel.entries.slice(0,middle), right = panel.entries.slice(middle);
-      if (right.length && Math.max(totalHeight(left),totalHeight(right))+(panel.header?.h || 0) <= bodyHeight) {
-        const slide = newSlide();
-        draw(slide,panel,left,.62);
-        draw(slide,panel,right,.62+panel.frameWidth+gap);
+      const height = Math.max(totalHeight(left),totalHeight(right))+(panel.header?.h || 0);
+      if (right.length && height<=blockHeight) {
+        place(block.title,height,(slide,y)=>{
+          draw(slide,panel,left,.62,y);
+          draw(slide,panel,right,.62+panel.frameWidth+gap,y);
+        });
         continue;
       }
     }
     let batch:Layout['entries'] = [];
     let used = headerHeight;
     for (const entry of table.entries) {
-      if (batch.length && used+entry.h > bodyHeight) {
-        draw(newSlide(),table,batch,.62);
+      if (batch.length && used+entry.h > blockHeight) {
+        place(block.title,used,(slide,y)=>draw(slide,table,batch,.62,y));
         batch = [];
         used = headerHeight;
       }
       batch.push(entry);
       used += entry.h;
     }
-    if (batch.length || table.header) draw(newSlide(),table,batch,.62);
+    if (batch.length || table.header) place(block.title,used,(slide,y)=>draw(slide,table,batch,.62,y));
   }
 }
 
-function narrative(block:Block, newSlide:()=>Slide) {
-  const lines = block.rows.flatMap(([text]) => [...wrap(text, 92), '']);
-  for (let i=0; i<lines.length; i+=13) {
-    const text = lines.slice(i,i+13).join('\n').trim();
+function narrative(block:Block, place:PlaceBlock) {
+  const lines = block.rows.flatMap(([text]) => wrap(text,112));
+  const lineHeight = .22, padding = .21;
+  const maxLines = Math.floor((blockHeight-padding)/lineHeight);
+  for (let i=0;i<lines.length;i+=maxLines) {
+    const part = lines.slice(i,i+maxLines);
+    const text = part.join('\n').trim();
     if (!text) continue;
-    const slide = newSlide();
-    box(slide,.54,bodyTop,12.08,bodyHeight,'F5F8FC','DEE7F0');
-    box(slide,.54,bodyTop,.04,bodyHeight,red);
-    label(slide,text,.70,bodyTop+.12,11.73,bodyHeight-.24,18);
-  }
-}
-
-function indicators(block:Block, newSlide:()=>Slide) {
-  const rows = block.rows.slice(block.header ? 1 : 0);
-  if (!rows.length || rows.some(([name,value]) => !name || !value || name.length > 120 || value.length > 60)) return false;
-  const columns = rows.some(([name,value]) => name.length > 55 || value.length > 25) ? 2 : 3;
-  const w = (12.08 - .18*(columns-1))/columns;
-  for (let start=0; start<rows.length; start+=columns*2) {
-    const slide = newSlide();
-    rows.slice(start,start+columns*2).forEach(([name,value],i) => {
-      const x = .62+i%columns*(w+.18), y=bodyTop+Math.floor(i/columns)*2.12, color=i%2 ? navy : red;
-      box(slide,x,y,w,1.96,pale,'DEE7F0');
-      box(slide,x,y,.05,1.96,color);
-      label(slide,name,x+.18,y+.12,w-.36,.72,16,navy,true);
-      label(slide,value,x+.18,y+.87,w-.36,.94,value.length > 18 ? 18 : 26,color,true);
+    const height = part.length*lineHeight+padding;
+    place(block.title,height,(slide,y)=>{
+      box(slide,.62,y,12.08,height,'F5F8FC','DEE7F0');
+      box(slide,.62,y,.04,height,red);
+      label(slide,text,.77,y+.10,11.73,height-.20,14,navy,false,'top');
     });
   }
-  return true;
 }
 
 function chartData(chart:any, page:Page, pages:Page[]) {
@@ -358,7 +361,7 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
     if (title) {
       box(slide,.40,1.20,12.54,5.71,'FFFFFF');
       label(slide,title,.54,1.24,12.08,.57,title.length > 90 ? 16.5 : 21,ink,true,'top');
-      box(slide,.54,2.09,.89,.04,red);
+      box(slide,.54,1.89,.89,.04,red);
     }
     label(slide,String(++pageNumber),12.45,7.17,.40,.21,10.5,navy,true);
     return slide;
@@ -381,10 +384,21 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
     const content = blocks(page).filter(block => !chartLabels || !block.rows.every(([text,...other]) =>
       !other.length && /^(?:kurum genel bilgileri|(?:okul\s*\/\s*kurum mudurlukleri\s*)+)$/.test(fold(text).trim())));
     if (page.description?.trim()) content.push({title:page.title, rows:[[page.description]], header:false});
+    let contentSlide:Slide|undefined;
+    let cursor = bodyTop;
+    const place:PlaceBlock = (title,height,paint) => {
+      const heading = fold(title).trim()===fold(page.title).trim() ? 0 : blockHeadingHeight;
+      if (!contentSlide || cursor+heading+height > bodyTop+bodyHeight+.001) {
+        contentSlide = add(page.title);
+        cursor = bodyTop;
+      }
+      if (heading) label(contentSlide,title,.64,cursor,12.02,.27,12,navy,true);
+      paint(contentSlide,cursor+heading);
+      cursor += heading+height+.13;
+    };
     for (const block of content) {
-      const newSlide = () => add(block.title);
-      if (block.rows[0].length === 1) narrative(block,newSlide);
-      else if (block.rows[0].length !== 2 || !indicators(block,newSlide)) tables(block,newSlide);
+      if (block.rows[0].length===1) narrative(block,place);
+      else tables(block,place);
     }
     for (const chart of page.charts || []) {
       const series = chartData(chart,page,pages);

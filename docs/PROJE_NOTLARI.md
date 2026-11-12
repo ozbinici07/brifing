@@ -716,3 +716,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 12 Kasım 2026 — PowerPoint kapak tasarımı (yerel)
 - Kullanıcının verdiği sınıf temalı görsel kapakta kullanıldı. Orijinal MEB amblemi ve filigranı uygulandı. Sunum başlığı ve seçilen dönem düzenlenebilir metin olarak üretilir. Örnek PowerPoint'te kapak, farklı dönem ve İçindekiler bağlantısı kontrol edildi. 148 test ve Hosting paketi geçti. Kullanıcının isteğiyle yayın beklemede.
 - Yayın 07fdcae. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43174464141 başarılı. Canlı sayfanın yeni kodu yüklediği, kapak görseli ve orijinal MEB logosunun kaynak dosyalarla eşleştiği doğrulandı.
+
+## 12 Kasım 2026 — PowerPoint slayt yerleşimi
+- İndirilen 519 slaytlık sunumda kısa tabloların ve form etiketlerinin ayrı slayt oluşturduğu, geniş tabloların erken bölündüğü görüldü. Aynı kaynak sayfanın kısa tabloları ve açıklamaları, yükseklikleri ölçüsünde ortak slayta yerleştirilir. Uygun genişlikte tablolar daha çok sütunla birlikte kalır.
+- Formlardaki boş tablo başlıkları ve belirli şablon etiketleri ayıklanır. Doldurulmuş alanlar, sıfırlar ve gerçek açıklamalar korunur. İçindekiler, üretilen slaytların sırasına göre yeniden hesaplanır.
+- 148 test ve Hosting paketi geçti. PowerPoint denemesinde iki kısa tablo ve açıklama tek slaytta kaldı; 34 satırlı sekiz sütunlu tabloda tüm satırlar ve sıfır değeri korundu. 519 slaytlık sunumun tamamı yeni üreticiyle yeniden oluşturulmadı.
