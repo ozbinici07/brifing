@@ -733,3 +733,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Öğrenci Bilgileri ekranına Tablolar düğmesi ve iki Excel dosyasındaki beş sekme için ayrı kartlar eklendi. İlçe, sınıf, kademe, tür, resmî/özel, derslik ve oranlar seçili dönemin sistem kayıtlarından hesaplanır. Türler kayıtlara göre değişir; geniş tablolar kendi alanında kaydırılır.
 - Derslik ve öğretmen sayıları okul/kurum başına bir kez alınır. Eksik payda çizgiyle gösterilir. Oranların kapsamı ekranda açıklanır. Kaynak Excel dosyaları depoya eklenmedi.
 - Ekim kaynak dosyalarıyla beş rapor, 161.382 toplam, 144.371 resmî ve 17.011 özel öğrenci doğrulandı. Chrome'da dönem yenilemesi, mobil kaydırma ve sekme geçişi denendi. 148 test ve Hosting paketi geçti.
+- Yayın 0510ce6. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43226272044 başarılı. Canlı ana sayfa, tablo kodu ve stili doğrulandı.
