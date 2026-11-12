@@ -738,3 +738,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Excel görünümü revizyonu. Beş kaynak sekmenin özgün adları, tablo düzeni, birleşimleri, stilleri ve dipnotları kullanılır. Ekranda yalnız açılan sekme gösterilir. Sağ üstte Excel İndir ve Yazdır yer alır. Excel çıktısı, yalnız biçim ve sabit başlıkları içeren tek sekmeli şablona seçili dönem değerlerini yazar. Kaynak Excel dosyaları depoya alınmadı.
 - Chrome beş ekran tablosu, beş indirme ve yazdırma içeriği testini geçti. İndirilen Excel dosyalarında beş sekmenin stilleri, birleşimleri, genişlikleri ve notları kaynakla eşleşti. 161.382 öğrenci toplamı beşinde doğrulandı. Örnek dönem derslik toplamı sistem girdilerinde 6.444, referans dosyada 8.857. Çıktı sistem girdilerini kullanır. 148 test ve Hosting paketi geçti.
 - Yayın f42d370. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43229198394. Canlı sayfa, stiller, çalışma sayfası düzenleri ve beş Excel şablonu doğrulandı.
+
+## 12 Kasım 2026 — Okul / Kurum Tabloları
+- Okul / Kurum Bilgileri ekranına Tablolar düğmesi eklendi. Yazdırmaya Uygun, İlçe Bazlı Okul Sayısı, Okul Sayısı ve Kurum Sayısı kartları kaynak sekme adlarını, tablo biçimlerini, birleşimleri ve notları kullanır.
+- Sayılar seçili dönem kayıtlarından hesaplanır. İl MEM satırı ve Büyükşehir kayıtlı Ölçme Değerlendirme Merkezi kaynak raporun ilçe yerleşimine göre işlenir. Excel İndir makrosuz tek sekmeli .xlsx üretir. Kaynak çalışma kitapları ve kayıtları depoya eklenmedi.
+- Chrome mobil genişlikte dört tablo, dört Excel indirme ve yazdırma içeriğini doğruladı. Ekim verilerinde 1.221 genel ve 817 okul toplamı kaynak raporlarla eşleşti. Öğrenci kataloğunda beş tablo ve Excel çıktısı, 148 otomatik test ve Hosting paketi de geçti.

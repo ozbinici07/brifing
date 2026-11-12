@@ -1,6 +1,6 @@
-#studentCatalogPanel[hidden] { display: none !important; }
+#studentCatalogPanel[hidden], #institutionCatalogPanel[hidden] { display: none !important; }
 #students:has(#studentCatalogTab.active) .student-header-actions { display: none !important; }
-#studentCatalogPanel h3 { margin: 0 0 16px; padding-bottom: 11px; border-bottom: 1px solid #d7e4f2; color: #143f66; }
+#studentCatalogPanel h3, #institutionCatalogPanel h3 { margin: 0 0 16px; padding-bottom: 11px; border-bottom: 1px solid #d7e4f2; color: #143f66; }
 .student-catalog-cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(250px,100%),1fr)); gap: 16px; }
 .student-catalog-card {
   display: grid; grid-template-columns: 56px 1fr auto; align-items: center; gap: 14px;
@@ -30,3 +30,6 @@
 .bbs-theme-dark .student-catalog-card[aria-pressed=true] { background: #274a69; }
 .bbs-theme-dark #studentCatalogPanel h3,.bbs-theme-dark .student-catalog-report p { color: #d4e9fa; }
 @media(max-width:650px) { .student-catalog-cards { gap: 9px; } .student-catalog-card { min-height: 78px; } }
+
+#institutionsSystem:has([data-tab="catalog"].active) > .filters,
+#institutionsSystem:has([data-tab="catalog"].active) .student-header-actions { display: none !important; }

@@ -174,7 +174,7 @@
     const selected=document.getElementById('periodSelect')?.selectedOptions[0]?.textContent?.replace(/\s*[—–-]\s*Aktif\s*$/i,'').trim();
     if(!selected||!text||!text.includes('2026'))return text;
     return text.replace(/2026\s*[-–]\s*2027\s*EĞİTİM ÖĞRETİM YILI\s*(?:I|1)\.\s*DÖNEM\s*/u,selected.toLocaleUpperCase('tr')+' ')
-      .replace(/(?:I|1)\.\s*DÖNEM\s*2026\s*[-–]\s*2027/u,selected.toLocaleUpperCase('tr'));
+      .replace(/(?:I|1)\.\s*D[Öö][Nn][Ee][Mm]\s*2026\s*[-–]\s*2027/u,selected.toLocaleUpperCase('tr'));
   }
 
   function sheetTable(sheet,values) {
@@ -290,23 +290,23 @@
     return node;
   }
 
-  const panel = document.getElementById('studentCatalogPanel');
-  if (!panel) return;
+  function mountWorkbookCatalog({panel,layouts,cards,createModel,valuesFor,hasRecords,empty}) {
+  if (!panel) return null;
   const catalog = panel.querySelector('.student-catalog-cards');
   const output = panel.querySelector('.student-catalog-report');
   let dataRef, model, selectedId;
   function refresh() {
     if (panel.hidden || !selectedId) return;
     if (dataRef !== D || !model) {
-      model = makeModel(D ? window.studentQueryGradeRows() : [], [...(D?.basic || []), ...(D?.secondary || [])]);
+      model = createModel(D);
       dataRef = D;
     }
     output.replaceChildren();
-    if (!model.hasStudents) {
-      output.append(element('p', 'Seçili dönemde öğrenci kaydı bulunamadı.'));
+    if (!hasRecords(model)) {
+      output.append(element('p',empty));
       return;
     }
-    const sheet = window.StudentSheetLayouts.find(item => item.id===selectedId);
+    const sheet = layouts.find(item => item.id===selectedId);
     const values = valuesFor(sheet,model);
     const table = sheetTable(sheet,values);
     const toolbar = element('div',null,'student-sheet-toolbar');
@@ -326,7 +326,7 @@
     toolbar.append(element('h4',sheet.title),status,excel,print);
     output.append(toolbar,table);
   }
-  for (const [id, title, subtitle, symbol, color] of definitions) {
+  for (const [id, title, subtitle, symbol, color] of cards) {
     const card = element('button', null, 'student-catalog-card');
     card.type = 'button';
     const icon = element('span', symbol, 'student-catalog-icon ' + color);
@@ -347,5 +347,13 @@
     };
     catalog.append(card);
   }
-  window.StudentCatalog = {refresh};
+  return {refresh};
+  }
+
+  window.mountWorkbookCatalog=mountWorkbookCatalog;
+  window.StudentCatalog=mountWorkbookCatalog({
+    panel:document.getElementById('studentCatalogPanel'),layouts:window.StudentSheetLayouts,cards:definitions,
+    createModel:data=>makeModel(data ? window.studentQueryGradeRows() : [],[...(data?.basic || []),...(data?.secondary || [])]),
+    valuesFor,hasRecords:model=>model.hasStudents,empty:'Seçili dönemde öğrenci kaydı bulunamadı.',
+  });
 })();
