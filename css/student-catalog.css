@@ -20,16 +20,13 @@
 .student-catalog-report { display: grid; gap: 14px; margin-top: 18px; min-width: 0; }
 .student-catalog-report p { margin: 0; color: #466380; font-size: 12px; }
 .student-catalog-scroll { max-width: 100%; overflow: auto; border: 1px solid #c9dcef; border-radius: 10px; background: #fff; }
-.student-catalog-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-.student-catalog-table caption { text-align: left; padding: 12px 14px; font-weight: 700; color: #12385e; }
-.student-catalog-table thead th { text-align: center; min-width: 64px; }
-.student-catalog-table thead tr:first-child th { background: #174b78; color: white; border-right: 1px solid #ffffff2e; }
-.student-catalog-table thead tr:nth-child(2) th { background: #e7f2fd; color: #133e68; }
-.student-catalog-table td { text-align: right; font-variant-numeric: tabular-nums; }
-.student-catalog-table tbody th,.student-catalog-table tfoot th { position: sticky; left: 0; white-space: nowrap; text-align: left; background: #f2f7fc; }
-.student-catalog-table tfoot td,.student-catalog-table tfoot th { background: #e1eefb; font-weight: 700; }
-.bbs-theme-dark .student-catalog-card,.bbs-theme-dark .student-catalog-scroll { background: #1d3047; color: #e5efff; border-color: #44617d; }
+.student-sheet-grid { border-collapse: collapse; table-layout: fixed; color: #000; background: #fff; }
+.student-sheet-grid td { padding: 1px 3px; overflow-wrap: anywhere; }
+.student-sheet-toolbar { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.student-sheet-toolbar h4 { margin: 0 auto 0 0; }
+.student-sheet-toolbar p:empty { display: none; }
+.student-sheet-print-frame { position: fixed; width: 1px; height: 1px; border: 0; opacity: 0; pointer-events: none; }
+.bbs-theme-dark .student-catalog-card { background: #1d3047; color: #e5efff; border-color: #44617d; }
 .bbs-theme-dark .student-catalog-card[aria-pressed=true] { background: #274a69; }
-.bbs-theme-dark .student-catalog-table caption,.bbs-theme-dark #studentCatalogPanel h3,.bbs-theme-dark .student-catalog-report p { color: #d4e9fa; }
-.bbs-theme-dark .student-catalog-table tbody th,.bbs-theme-dark .student-catalog-table tfoot th,.bbs-theme-dark .student-catalog-table tfoot td { background: #274360; color: #e5efff; }
+.bbs-theme-dark #studentCatalogPanel h3,.bbs-theme-dark .student-catalog-report p { color: #d4e9fa; }
 @media(max-width:650px) { .student-catalog-cards { gap: 9px; } .student-catalog-card { min-height: 78px; } }

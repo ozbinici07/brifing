@@ -734,3 +734,6 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Derslik ve öğretmen sayıları okul/kurum başına bir kez alınır. Eksik payda çizgiyle gösterilir. Oranların kapsamı ekranda açıklanır. Kaynak Excel dosyaları depoya eklenmedi.
 - Ekim kaynak dosyalarıyla beş rapor, 161.382 toplam, 144.371 resmî ve 17.011 özel öğrenci doğrulandı. Chrome'da dönem yenilemesi, mobil kaydırma ve sekme geçişi denendi. 148 test ve Hosting paketi geçti.
 - Yayın 0510ce6. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43226272044 başarılı. Canlı ana sayfa, tablo kodu ve stili doğrulandı.
+
+- Excel görünümü revizyonu. Beş kaynak sekmenin özgün adları, tablo düzeni, birleşimleri, stilleri ve dipnotları kullanılır. Ekranda yalnız açılan sekme gösterilir. Sağ üstte Excel İndir ve Yazdır yer alır. Excel çıktısı, yalnız biçim ve sabit başlıkları içeren tek sekmeli şablona seçili dönem değerlerini yazar. Kaynak Excel dosyaları depoya alınmadı.
+- Chrome beş ekran tablosu, beş indirme ve yazdırma içeriği testini geçti. İndirilen Excel dosyalarında beş sekmenin stilleri, birleşimleri, genişlikleri ve notları kaynakla eşleşti. 161.382 öğrenci toplamı beşinde doğrulandı. Örnek dönem derslik toplamı sistem girdilerinde 6.444, referans dosyada 8.857. Çıktı sistem girdilerini kullanır. 148 test ve Hosting paketi geçti.
