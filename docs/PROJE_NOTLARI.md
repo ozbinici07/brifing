@@ -728,3 +728,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Sunum oluşturucuya Word Oluştur eklendi. Kullanıcının örneğinden kapak grafiği, sayfa çerçevesi ve Word stilleri kullanıldı. Dönem, İçindekiler ve düzenlenebilir tablolar seçili veriden oluşturulur; grafik değerleri Word'de tablo olarak gösterilir. Örnekteki tarihsel veriler ve diğer medya şablona alınmadı. Belge bölüm ve satır sayısına göre yeniden akışa girer.
 - Chrome ile PDF ve DOCX üretildi. PDF metin çıkarma ve görsel inceleme, Word'de açılış, örnek kapak, İçindekiler, tablo ve seçili aralık denetimleri geçti. 148 mevcut test ve Hosting paketi başarılı.
 - Yayın 30f0e20. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43177053440 başarılı. Canlı sayfa, dışa aktarma kodu ve temiz Word şablonu doğrulandı.
+
+## 12 Kasım 2026 — Öğrenci Tabloları
+- Öğrenci Bilgileri ekranına Tablolar düğmesi ve iki Excel dosyasındaki beş sekme için ayrı kartlar eklendi. İlçe, sınıf, kademe, tür, resmî/özel, derslik ve oranlar seçili dönemin sistem kayıtlarından hesaplanır. Türler kayıtlara göre değişir; geniş tablolar kendi alanında kaydırılır.
+- Derslik ve öğretmen sayıları okul/kurum başına bir kez alınır. Eksik payda çizgiyle gösterilir. Oranların kapsamı ekranda açıklanır. Kaynak Excel dosyaları depoya eklenmedi.
+- Ekim kaynak dosyalarıyla beş rapor, 161.382 toplam, 144.371 resmî ve 17.011 özel öğrenci doğrulandı. Chrome'da dönem yenilemesi, mobil kaydırma ve sekme geçişi denendi. 148 test ve Hosting paketi geçti.
