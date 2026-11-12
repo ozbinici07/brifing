@@ -6,7 +6,7 @@ import {bounds, display, fold, includes} from './types';
 type Page = {id:string; title:string; unitNames:string; description?:string; rowOffset:number;
   rows:Parameters<typeof display>[0][][]; ranges:string[]; sheet:string; images?:string[]; charts?:any[]};
 type Options = {period:string; unitCount:number; draft:boolean; date?:string};
-type Images = {background:string; cover:string};
+type Images = {background:string; cover:string; logo:string};
 type Block = {title:string; rows:string[][]; header:boolean};
 type Slide = ReturnType<PptxGenJS['addSlide']>;
 const navy = '06376A', ink = '06275A', red = 'E50020', muted = '53708F', pale = 'F0F5FB';
@@ -188,51 +188,208 @@ function chartData(chart:any, page:Page, pages:Page[]) {
   });
 }
 
+// Clear only light background connected to the image edges, preserving enclosed artwork.
+function transparentChart(image:HTMLImageElement) {
+  const maxSize = 2400;
+  const scale = Math.min(1,maxSize / Math.max(image.naturalWidth,image.naturalHeight));
+  const width = Math.max(1,Math.round(image.naturalWidth * scale));
+  const height = Math.max(1,Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d',{willReadFrequently:true})!;
+  ctx.drawImage(image,0,0,width,height);
+  const pixels = ctx.getImageData(0,0,width,height);
+  const rgba = pixels.data;
+  const queue = new Uint32Array(width * height);
+  const visited = new Uint8Array(queue.length);
+  let head = 0, tail = 0;
+  function enqueue(index:number) {
+    if (visited[index]) return;
+    visited[index] = 1;
+    const offset = index * 4;
+    const min = Math.min(rgba[offset],rgba[offset+1],rgba[offset+2]);
+    const max = Math.max(rgba[offset],rgba[offset+1],rgba[offset+2]);
+    if (rgba[offset+3] && (min < 244 || max-min > 9)) return;
+    rgba[offset+3] = 0;
+    queue[tail++] = index;
+  }
+  for (let x=0; x<width; x++) {
+    enqueue(x);
+    enqueue((height-1)*width+x);
+  }
+  for (let y=1; y<height-1; y++) {
+    enqueue(y*width);
+    enqueue(y*width+width-1);
+  }
+  while (head<tail) {
+    const index=queue[head++], x=index%width;
+    if (x>0) enqueue(index-1);
+    if (x+1<width) enqueue(index+1);
+    if (index>=width) enqueue(index-width);
+    if (index+width<queue.length) enqueue(index+width);
+  }
+  let left=width, right=-1, top=height, bottom=-1;
+  for (let index=0; index<queue.length; index++) {
+    if (!rgba[index*4+3]) continue;
+    const x=index%width, y=Math.floor(index/width);
+    left=Math.min(left,x); right=Math.max(right,x);
+    top=Math.min(top,y); bottom=Math.max(bottom,y);
+  }
+  if (right<left || bottom<top) return {data:image.src,width:image.naturalWidth,height:image.naturalHeight};
+  const cropped = document.createElement('canvas');
+  cropped.width = right-left+1;
+  cropped.height = bottom-top+1;
+  cropped.getContext('2d')!.putImageData(pixels,-left,-top);
+  return {data:cropped.toDataURL('image/png'),width:cropped.width,height:cropped.height};
+}
+
+async function backgroundWithWatermark(background:string, logo:string, cover=false) {
+  const theme = new Image(), emblem = new Image();
+  theme.src = background;
+  emblem.src = logo;
+  await Promise.all([theme.decode(),emblem.decode()]);
+  const canvas = document.createElement('canvas');
+  canvas.width = theme.naturalWidth;
+  canvas.height = theme.naturalHeight;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(theme,0,0);
+  if (cover) {
+    // The example's title and month become editable PowerPoint text.
+    for (const [x,y,w,h,edge,rightEdge] of [[65,360,845,330,24,65],[218,716,273,55,5,5]]) {
+      const sx=canvas.width/1671, sy=canvas.height/941;
+      const left=Math.round(x*sx), top=Math.round(y*sy);
+      const text=ctx.getImageData(left,top,Math.round(w*sx),Math.round(h*sy));
+      const {data,width,height}=text;
+      const rightColors = Array.from({length:height},(_,row) => {
+        const radius = edge;
+        const first = Math.max(0,row-radius), last = Math.min(height-1,row+radius);
+        return [0,1,2].map(channel => {
+          let sum = 0;
+          for (let line=first;line<=last;line++) sum+=data[(line*width+width-1)*4+channel];
+          return sum/(last-first+1);
+        });
+      });
+      for (let row=0;row<height;row++) {
+        const a=row*width*4;
+        for (let column=1;column<width-1;column++) {
+          const amount=(column/(width-1))**(edge>5 ? 2.2 : 1);
+          const blend=Math.min(1,column/edge,(width-1-column)/rightEdge,row/edge,(height-1-row)/edge);
+          const offset=a+column*4;
+          for (let channel=0;channel<3;channel++) {
+            const background=data[a+channel]*(1-amount)+rightColors[row][channel]*amount;
+            data[offset+channel]=data[offset+channel]*(1-blend)+background*blend;
+          }
+        }
+      }
+      ctx.putImageData(text,left,top);
+    }
+  }
+  ctx.scale(canvas.width/1672,canvas.height/941);
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cover ? 1043 : 1071,0);
+  ctx.lineTo(1672,0);
+  ctx.lineTo(1672,cover ? 638 : 608);
+  if (cover) {
+    ctx.lineTo(1424,386);
+    ctx.quadraticCurveTo(1409,373,1385,377);
+    ctx.lineTo(1340,377);
+    ctx.quadraticCurveTo(1323,378,1310,361);
+  } else ctx.lineTo(1178,168);
+  ctx.closePath();
+  ctx.clip();
+  const redGradient = ctx.createLinearGradient(1190,0,1660,485);
+  redGradient.addColorStop(0,'#A30716');
+  redGradient.addColorStop(.48,'#CF091B');
+  redGradient.addColorStop(1,'#8C0716');
+  ctx.fillStyle = redGradient;
+  ctx.fillRect(1040,0,632,640);
+  ctx.fillStyle = '#FF344533';
+  ctx.beginPath();
+  ctx.moveTo(1485,0);
+  ctx.lineTo(1672,0);
+  ctx.lineTo(1672,225);
+  ctx.closePath();
+  ctx.fill();
+
+  // Use the original emblem as the watermark mask so its lettering stays intact.
+  const watermark = document.createElement('canvas');
+  watermark.width = watermark.height = 350;
+  const stamp = watermark.getContext('2d')!;
+  stamp.drawImage(emblem,0,0,350,350);
+  stamp.globalCompositeOperation = 'source-in';
+  stamp.fillStyle = '#FFFFFF';
+  stamp.fillRect(0,0,350,350);
+  ctx.globalAlpha = .22;
+  ctx.drawImage(watermark,1230,cover ? 18 : 10);
+  ctx.globalAlpha = 1;
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.moveTo(1474,281);
+  ctx.lineTo(1646,420);
+  if (!cover) ctx.stroke();
+  ctx.restore();
+  return canvas.toDataURL('image/png');
+}
+
 export async function buildBriefingPresentation(pages:Page[], name:string, options:Options, images:Images, progress=(n:number)=>{}) {
   const ppt = new PptxGenJS();
   ppt.layout = 'LAYOUT_WIDE';
   ppt.author = 'Muğla İl Millî Eğitim Müdürlüğü';
   ppt.title = name;
-  ppt.defineSlideMaster({title:'BRIFING',background:{data:images.background}});
-  let pageNumber = 0;
-  const add = (title?:string, subtitle='') => {
+  const [background,coverBackground] = await Promise.all([
+    backgroundWithWatermark(images.background,images.logo),
+    backgroundWithWatermark(images.cover,images.logo,true),
+  ]);
+  ppt.defineSlideMaster({title:'BRIFING',background:{data:background},objects:[
+    {rect:{x:.43,y:.20,w:1.01,h:1.00,fill:{color:'FAFAFA'},line:{transparency:100}}},
+    {image:{data:images.logo,x:.45,y:.22,w:.96,h:.96,altText:'Millî Eğitim Bakanlığı logosu'}},
+  ]});
+  ppt.defineSlideMaster({title:'BRIFING_COVER',background:{data:coverBackground},objects:[
+    {rect:{x:.36,y:.25,w:1.07,h:1.07,fill:{color:'FAFAFA'},line:{transparency:100}}},
+    {image:{data:images.logo,x:.39,y:.28,w:1.01,h:1.01,altText:'Millî Eğitim Bakanlığı logosu'}},
+  ]});
+  let pageNumber = 1;
+  const add = (title?:string) => {
     const slide = ppt.addSlide({masterName:'BRIFING'});
     if (title) {
       box(slide,.40,1.20,12.54,5.71,'FFFFFF');
       label(slide,title,.54,1.24,12.08,.57,title.length > 90 ? 16.5 : 21,ink,true,'top');
-      label(slide,subtitle,.54,1.85,11.88,.23,9.75,muted);
       box(slide,.54,2.09,.89,.04,red);
     }
     label(slide,String(++pageNumber),12.45,7.17,.40,.21,10.5,navy,true);
     return slide;
   };
-  const cover = add();
-  box(cover,.40,1.59,12.54,5.21,'FFFFFF');
-  label(cover,'BRİFİNG BİLGİ SİSTEMİ',.62,1.86,7.19,.36,15,red,true);
-  label(cover,name,.62,2.45,6.88,2.16,name.length > 65 ? 25.5 : 32.25,ink,true,'top');
-  box(cover,.62,4.70,1.12,.05,red);
-  label(cover,options.period + (options.draft ? ' · Güncel Taslaklar' : ''),.62,5,6.88,.42,18,navy,true);
-  label(cover,pages.length+' BRİFİNG SAYFASI     •     '+options.unitCount+' BİRİM',.62,5.78,6.77,.42,16.5,navy,true);
-  label(cover,options.date || new Intl.DateTimeFormat('tr-TR',{timeZone:'Europe/Istanbul',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date()),.62,6.35,6.77,.26,12.75,muted);
-  cover.addImage({data:images.cover,x:7.92,y:2.71,w:4.64,h:2.80});
+  const cover = ppt.addSlide({masterName:'BRIFING_COVER'});
+  const coverTitle = name.trim().replace(/^(Muğla İl Millî Eğitim) (Müdürlüğü) (Brifingi)$/i,'$1\n$2\n$3');
+  label(cover,coverTitle,.70,3.13,6.18,2.15,coverTitle.length > 75 ? 37 : 47,ink,true,'top');
+  const period = options.period.replace(/\s*[—–-]\s*Aktif\s*$/i,'');
+  label(cover,period,1.89,5.73,2.23,.43,26,ink,true);
+  if (options.draft) label(cover,'Güncel Taslaklar',.76,6.39,4,.26,12,muted,true);
+  const entriesPerSlide = 10;
+  const contents = Array.from({length:Math.ceil(pages.length/entriesPerSlide)},() => add('İçindekiler'));
+  const sections:{title:string;first:number;last:number}[] = [];
   for (const [index,page] of pages.entries()) {
-    const context = [page.unitNames, options.period, options.draft ? 'Taslak' : 'Onaylı'].filter(Boolean).join(' · ');
     const start = pageNumber;
     const pictures = (page.ranges.includes('*') ? page.images || [] : [])
       .filter(data => /^data:image\/(png|jpeg|jpg);base64,/.test(data));
-    const chartLabels = pictures.length && fold(page.title).trim() === 'teskilat semasi';
+    const isOrganizationChart = fold(page.title).trim() === 'teskilat semasi';
+    const chartLabels = pictures.length && isOrganizationChart;
     const content = blocks(page).filter(block => !chartLabels || !block.rows.every(([text,...other]) =>
       !other.length && /^(?:kurum genel bilgileri|(?:okul\s*\/\s*kurum mudurlukleri\s*)+)$/.test(fold(text).trim())));
     if (page.description?.trim()) content.push({title:page.title, rows:[[page.description]], header:false});
     for (const block of content) {
-      const newSlide = () => add(block.title, block.title === page.title ? context : page.title+' · '+context);
+      const newSlide = () => add(block.title);
       if (block.rows[0].length === 1) narrative(block,newSlide);
       else if (block.rows[0].length !== 2 || !indicators(block,newSlide)) tables(block,newSlide);
     }
     for (const chart of page.charts || []) {
       const series = chartData(chart,page,pages);
       if (!series.length) continue;
-      const slide = add(chart.title || page.title,context);
+      const slide = add(chart.title || page.title);
       slide.addChart(chart.type==='pie' ? 'pie' : chart.type==='line' ? 'line' : 'bar',series,
         {x:.62,y:bodyTop,w:12.08,h:bodyHeight,chartColors:[navy,red,'198B63','B77917','7054A5'],
           showLegend:series.length > 1 || chart.type==='pie',legendFontFace:'Arial',catAxisLabelFontFace:'Arial',catAxisLabelFontSize:10});
@@ -241,15 +398,30 @@ export async function buildBriefingPresentation(pages:Page[], name:string, optio
       const image = new Image();
       image.src = data;
       await image.decode();
-      const frameWidth = 12.08;
-      const scale = Math.min(frameWidth / image.naturalWidth, bodyHeight / image.naturalHeight);
-      const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
-      const slide = add(page.title,context);
-      slide.addImage({data,x:.62+(frameWidth-w)/2,y:bodyTop+(bodyHeight-h)/2,w,h});
+      const picture = isOrganizationChart ? transparentChart(image) : {data,width:image.naturalWidth,height:image.naturalHeight};
+      const frame = isOrganizationChart ? {x:.32,y:1.18,w:12.69,h:5.86} : {x:.62,y:bodyTop,w:12.08,h:bodyHeight};
+      const scale = Math.min(frame.w / picture.width, frame.h / picture.height);
+      const w = picture.width * scale, h = picture.height * scale;
+      const slide = isOrganizationChart ? add() : add(page.title);
+      slide.addImage({data:picture.data,x:frame.x+(frame.w-w)/2,y:frame.y+(frame.h-h)/2,w,h,altText:page.title});
     }
-    if (pageNumber === start) label(add(page.title,context),'Seçili aralıkta gösterilecek veri bulunamadı.',.62,bodyTop,12,.40,15);
+    if (pageNumber === start) label(add(page.title),'Seçili aralıkta gösterilecek veri bulunamadı.',.62,bodyTop,12,.40,15);
+    sections.push({title:page.title,first:start+1,last:pageNumber});
     progress(Math.round((index+1)/pages.length*90));
     await new Promise(resolve => setTimeout(resolve,0));
+  }
+  for (const [index,slide] of contents.entries()) {
+    const start = index*entriesPerSlide;
+    label(slide,'Bölüm',.76,bodyTop,10,.28,11,navy,true);
+    label(slide,'Slayt',11.56,bodyTop,1.02,.28,11,navy,true);
+    for (const [row,section] of sections.slice(start,start+entriesPerSlide).entries()) {
+      const y = bodyTop+.36+row*.40;
+      if (row%2===0) box(slide,.62,y,12.08,.40,pale);
+      slide.addText(section.title,{x:.76,y:y+.03,w:10.55,h:.34,fontFace:'Arial',fontSize:14,
+        color:navy,margin:0,fit:'shrink',valign:'mid',hyperlink:{slide:section.first}});
+      const range = section.first===section.last ? String(section.first) : section.first+'–'+section.last;
+      label(slide,range,11.56,y,1.02,.40,13,navy,true);
+    }
   }
   return ppt;
 }
@@ -289,8 +461,10 @@ export async function writeBriefingPresentation(ppt:PptxGenJS) {
 }
 
 export async function exportBriefingPresentation(pages:Page[], name:string, options:Options, progress:(n:number)=>void) {
-  const [background,cover] = await Promise.all([imageData('briefing-slide-background.png'),imageData('briefing-cover-mugla.jpg')]);
-  const ppt = await buildBriefingPresentation(pages,name,options,{background,cover},progress);
+  const [background,cover,logo] = await Promise.all([
+    imageData('briefing-slide-background.png'),imageData('briefing-cover-reference.png'),imageData('briefing-meb-logo.png'),
+  ]);
+  const ppt = await buildBriefingPresentation(pages,name,options,{background,cover,logo},progress);
   progress(94);
   const blob = await writeBriefingPresentation(ppt);
   download(blob,name.replace(/[<>:"/\\|?*]/g,'-').slice(0,100)+'.pptx');

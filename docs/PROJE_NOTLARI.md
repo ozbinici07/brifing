@@ -709,3 +709,9 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 
 - Teşkilat Şeması görseli çıktıya dahilken Excel'deki Kurum Genel Bilgileri ve Okul/Kurum Müdürlükleri etiketleri ayrı slayt oluşturmaz. Şema görseli ve gerçek açıklamalar korunur. Örnek dosya PowerPoint'te kapak ve şema olarak açıldı. Görselsiz ve açıklamalı örnekler ile 148 işleyiş testi geçti.
 - Teşkilat Şeması yayını 5df0c21. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43027371523 başarılı. Canlı sayfa ve sunum kodu doğrulandı.
+- Yerel hazırlık. PowerPoint'in sol üst amblemi ve sağ üst kırmızı alandaki filigran, kullanıcının verdiği orijinal şeffaf MEB logosuyla değiştirildi. Teşkilat Şeması'nın kenarlara bağlı açık renk zemini şeffaflaştırıldı ve görsel büyütüldü. Chrome'dan üretilen örnek Microsoft PowerPoint'te uyarısız açıldı. Kullanıcının isteğiyle yayın beklemede.
+- Yerel hazırlık. PowerPoint içerik slaytlarında birim, dönem ve onay durumu satırı kaldırıldı. Kapaktaki dönem bilgisi ve içerik başlıkları örnek dosyada PowerPoint ile doğrulandı. Yayın beklemede.
+- Yerel hazırlık. PowerPoint kapağından sonra dinamik İçindekiler slaytları eklendi. Yalnız seçili bölümler, gerçek slayt numaraları ve ilk slayta bağlantılarıyla gösterilir. 11 bölüm ve iki İçindekiler slaytı olan örnek PowerPoint'te doğrulandı. Yayın beklemede.
+
+## 12 Kasım 2026 — PowerPoint kapak tasarımı (yerel)
+- Kullanıcının verdiği sınıf temalı görsel kapakta kullanıldı. Orijinal MEB amblemi ve filigranı uygulandı. Sunum başlığı ve seçilen dönem düzenlenebilir metin olarak üretilir. Örnek PowerPoint'te kapak, farklı dönem ve İçindekiler bağlantısı kontrol edildi. 148 test ve Hosting paketi geçti. Kullanıcının isteğiyle yayın beklemede.
