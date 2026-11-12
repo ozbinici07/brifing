@@ -715,3 +715,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 
 ## 12 Kasım 2026 — PowerPoint kapak tasarımı (yerel)
 - Kullanıcının verdiği sınıf temalı görsel kapakta kullanıldı. Orijinal MEB amblemi ve filigranı uygulandı. Sunum başlığı ve seçilen dönem düzenlenebilir metin olarak üretilir. Örnek PowerPoint'te kapak, farklı dönem ve İçindekiler bağlantısı kontrol edildi. 148 test ve Hosting paketi geçti. Kullanıcının isteğiyle yayın beklemede.
+- Yayın 07fdcae. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43174464141 başarılı. Canlı sayfanın yeni kodu yüklediği, kapak görseli ve orijinal MEB logosunun kaynak dosyalarla eşleştiği doğrulandı.
