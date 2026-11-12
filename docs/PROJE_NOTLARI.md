@@ -722,3 +722,8 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Formlardaki boş tablo başlıkları ve belirli şablon etiketleri ayıklanır. Doldurulmuş alanlar, sıfırlar ve gerçek açıklamalar korunur. İçindekiler, üretilen slaytların sırasına göre yeniden hesaplanır.
 - 148 test ve Hosting paketi geçti. PowerPoint denemesinde iki kısa tablo ve açıklama tek slaytta kaldı; 34 satırlı sekiz sütunlu tabloda tüm satırlar ve sıfır değeri korundu. 519 slaytlık sunumun tamamı yeni üreticiyle yeniden oluşturulmadı.
 - Yayın ccd5ef1. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43175271801 başarılı. Canlı sayfanın yeni sunum kodunu yüklediği doğrulandı.
+
+## 12 Kasım 2026 — Sunumlar PDF ve Word çıktıları
+- Sunumlar PDF dışa aktarımı, ekran görüntüleri yerine seçilen kaynak verilerini doğrudan A4 metin, tablo ve çubuk grafikleri olarak yazar. Kaynak görseller ayrı eklenir. Birimler ekranındaki mevcut PDF akışı bu değişikliğin dışındadır.
+- Sunum oluşturucuya Word Oluştur eklendi. Kullanıcının örneğinden kapak grafiği, sayfa çerçevesi ve Word stilleri kullanıldı. Dönem, İçindekiler ve düzenlenebilir tablolar seçili veriden oluşturulur; grafik değerleri Word'de tablo olarak gösterilir. Örnekteki tarihsel veriler ve diğer medya şablona alınmadı. Belge bölüm ve satır sayısına göre yeniden akışa girer.
+- Chrome ile PDF ve DOCX üretildi. PDF metin çıkarma ve görsel inceleme, Word'de açılış, örnek kapak, İçindekiler, tablo ve seçili aralık denetimleri geçti. 148 mevcut test ve Hosting paketi başarılı.

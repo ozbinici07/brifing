@@ -3,7 +3,7 @@ import JSZip from 'jszip';
 import {download} from './export';
 import {bounds, colName, display, fold, includes} from './types';
 
-type Page = {id:string; title:string; unitNames:string; description?:string; rowOffset:number;
+export type BriefingPage = {id:string; title:string; unitNames:string; description?:string; rowOffset:number;
   rows:Parameters<typeof display>[0][][]; fields?:Record<string,unknown>; ranges:string[]; sheet:string; images?:string[]; charts?:any[]};
 type Options = {period:string; unitCount:number; draft:boolean; date?:string};
 type Images = {background:string; cover:string; logo:string};
@@ -15,11 +15,11 @@ const blockHeadingHeight = .34;
 const blockHeight = bodyHeight-blockHeadingHeight;
 type PlaceBlock = (title:string,height:number,paint:(slide:Slide,y:number)=>void)=>void;
 
-function blocks(page:Page):Block[] {
-  const groups:Page['rows'][] = [];
-  let group:Page['rows'] = [];
-  const enteredRows = new Set<Page['rows'][number]>();
-  const hasValue = (cell:Page['rows'][number][number]) => cell?.v != null && String(cell.v).trim() !== '';
+export function blocks(page:BriefingPage):Block[] {
+  const groups:BriefingPage['rows'][] = [];
+  let group:BriefingPage['rows'] = [];
+  const enteredRows = new Set<BriefingPage['rows'][number]>();
+  const hasValue = (cell:BriefingPage['rows'][number][number]) => cell?.v != null && String(cell.v).trim() !== '';
   page.rows.forEach((row, index) => {
     const rowNumber = index + (page.rowOffset || 4);
     const scoped = row.map((cell, column) => includes(rowNumber,column,page.ranges) ? cell : {v:null});
@@ -168,7 +168,7 @@ function narrative(block:Block, place:PlaceBlock) {
   }
 }
 
-function chartData(chart:any, page:Page, pages:Page[]) {
+export function chartData(chart:any, page:BriefingPage, pages:BriefingPage[]) {
   function read(reference:string, fallback:unknown[]) {
     const match = reference?.match(/^(?:'(.+)'|([^!]+))!(.+)$/);
     const source = match ? (page.sheet === (match[1] || match[2]).replace(/''/g,"'") ? page :
@@ -338,7 +338,7 @@ async function backgroundWithWatermark(background:string, logo:string, cover=fal
   return canvas.toDataURL('image/png');
 }
 
-export async function buildBriefingPresentation(pages:Page[], name:string, options:Options, images:Images, progress=(n:number)=>{}) {
+export async function buildBriefingPresentation(pages:BriefingPage[], name:string, options:Options, images:Images, progress=(n:number)=>{}) {
   const ppt = new PptxGenJS();
   ppt.layout = 'LAYOUT_WIDE';
   ppt.author = 'Muğla İl Millî Eğitim Müdürlüğü';
@@ -474,7 +474,7 @@ export async function writeBriefingPresentation(ppt:PptxGenJS) {
     mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation'});
 }
 
-export async function exportBriefingPresentation(pages:Page[], name:string, options:Options, progress:(n:number)=>void) {
+export async function exportBriefingPresentation(pages:BriefingPage[], name:string, options:Options, progress:(n:number)=>void) {
   const [background,cover,logo] = await Promise.all([
     imageData('briefing-slide-background.png'),imageData('briefing-cover-reference.png'),imageData('briefing-meb-logo.png'),
   ]);
