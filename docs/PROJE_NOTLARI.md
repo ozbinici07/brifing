@@ -748,3 +748,4 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 ## 13 Kasım 2026 — Okul ve öğrenci tabloları tam ekran
 - Her tablo kartı uygulama içinde tam ekran açılır. Tablo genişliğe ve yüksekliğe sığar. Gerçek Boyut ile kaydırmalı görünüm açılır, Ekrana Sığdır ile başlangıç görünümüne dönülür. Tablolara Dön veya Escape kart listesini açar.
 - Chrome'da 390 ve 1920 piksel genişlikte dokuz tablo, ekran sınırları, boyut geçişleri, geri dönüş, Excel indirme ve yazdırma kontrol edildi. 148 otomatik test ve Hosting paketi geçti.
+- Yayın 21a7292. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43399212067 başarılı. Canlı ana sayfa, görüntüleyici kodu, stili ve okul modülü doğrulandı.
