@@ -291,63 +291,104 @@
   }
 
   function mountWorkbookCatalog({panel,layouts,cards,createModel,valuesFor,hasRecords,empty}) {
-  if (!panel) return null;
-  const catalog = panel.querySelector('.student-catalog-cards');
-  const output = panel.querySelector('.student-catalog-report');
-  let dataRef, model, selectedId;
-  function refresh() {
-    if (panel.hidden || !selectedId) return;
-    if (dataRef !== D || !model) {
-      model = createModel(D);
-      dataRef = D;
-    }
-    output.replaceChildren();
-    if (!hasRecords(model)) {
-      output.append(element('p',empty));
-      return;
-    }
-    const sheet = layouts.find(item => item.id===selectedId);
-    const values = valuesFor(sheet,model);
-    const table = sheetTable(sheet,values);
-    const toolbar = element('div',null,'student-sheet-toolbar');
+    if (!panel) return null;
+    const catalog = panel.querySelector('.student-catalog-cards');
+    const viewer = element('dialog',null,'student-sheet-viewer');
+    const toolbar = element('header',null,'student-sheet-toolbar');
+    const heading = element('h4');
+    heading.id = panel.id+'Title';
+    viewer.setAttribute('aria-labelledby',heading.id);
+    const back = element('button','‹ Tablolara Dön','btn light');
+    back.autofocus = true;
+    back.type = 'button';
+    back.onclick = () => viewer.close();
+    const actions = element('div',null,'student-sheet-actions');
     const status = element('p');
     status.setAttribute('role','status');
-    const excel = element('button','Excel İndir','btn excel');
-    const print = element('button','Yazdır','btn light');
-    excel.type=print.type='button';
-    excel.onclick=async()=>{
-      excel.disabled=true;
-      status.textContent='';
-      try{await downloadSheet(sheet,values);}
-      catch(error){status.textContent=error.message||'Excel dosyası hazırlanamadı.';}
-      finally{excel.disabled=false;}
-    };
-    print.onclick=()=>printSheet(sheet,table.querySelector('table'));
-    toolbar.append(element('h4',sheet.title),status,excel,print);
-    output.append(toolbar,table);
-  }
-  for (const [id, title, subtitle, symbol, color] of cards) {
-    const card = element('button', null, 'student-catalog-card');
-    card.type = 'button';
-    const icon = element('span', symbol, 'student-catalog-icon ' + color);
-    icon.setAttribute('aria-hidden', 'true');
-    const copy = element('span');
-    copy.append(element('strong', title), element('small', subtitle));
-    const arrow = element('span', '›', 'student-catalog-arrow');
-    arrow.setAttribute('aria-hidden', 'true');
-    card.append(icon, copy, arrow);
-    card.setAttribute('aria-pressed', 'false');
-    card.onclick = () => {
-      selectedId = id;
-      catalog.querySelector('[aria-pressed=true]')?.setAttribute('aria-pressed', 'false');
-      card.setAttribute('aria-pressed', 'true');
-      refresh();
-      output.focus({preventScroll:true});
-      output.scrollIntoView({block:'nearest'});
-    };
-    catalog.append(card);
-  }
-  return {refresh};
+    const output = element('div',null,'student-catalog-report');
+    toolbar.append(back,heading,actions,status);
+    viewer.append(toolbar,output);
+    panel.append(viewer);
+
+    let dataRef, model, sheet, resizeObserver;
+    viewer.addEventListener('close',()=>{
+      resizeObserver?.disconnect();
+      output.replaceChildren();
+    });
+
+    function refresh() {
+      if (!viewer.open || panel.hidden) return;
+      if (dataRef !== D || !model) {
+        model = createModel(D);
+        dataRef = D;
+      }
+      resizeObserver?.disconnect();
+      output.replaceChildren();
+      actions.replaceChildren();
+      status.textContent = '';
+      if (!hasRecords(model)) {
+        output.append(element('p',empty));
+        return;
+      }
+      const values = valuesFor(sheet,model);
+      const viewport = sheetTable(sheet,values);
+      const table = viewport.querySelector('table');
+      const canvas = element('div',null,'student-sheet-canvas');
+      canvas.append(table);
+      viewport.append(canvas);
+      const zoom = element('button','Gerçek Boyut','btn light');
+      const excel = element('button','Excel İndir','btn excel');
+      const print = element('button','Yazdır','btn light');
+      zoom.type = excel.type = print.type = 'button';
+      let fit = true;
+      function resize() {
+        const width = table.offsetWidth;
+        const height = table.offsetHeight;
+        const scale = fit ? Math.min(1,viewport.clientWidth/width,viewport.clientHeight/height) : 1;
+        canvas.style.width = Math.ceil(width*scale)+'px';
+        canvas.style.height = Math.ceil(height*scale)+'px';
+        canvas.style.setProperty('--sheet-zoom',scale);
+      }
+      zoom.onclick = () => {
+        fit = !fit;
+        zoom.textContent = fit ? 'Gerçek Boyut' : 'Ekrana Sığdır';
+        resize();
+        if (fit) viewport.scrollTo(0,0);
+      };
+      excel.onclick = async () => {
+        excel.disabled = true;
+        status.textContent = '';
+        try { await downloadSheet(sheet,values); }
+        catch(error) { if (excel.isConnected) status.textContent = error.message||'Excel dosyası hazırlanamadı.'; }
+        finally { excel.disabled = false; }
+      };
+      print.onclick = () => printSheet(sheet,table);
+      actions.append(zoom,excel,print);
+      output.append(viewport);
+      resize();
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(viewport);
+    }
+    for (const [id, title, subtitle, symbol, color] of cards) {
+      const card = element('button', null, 'student-catalog-card');
+      card.type = 'button';
+      card.setAttribute('aria-haspopup','dialog');
+      const icon = element('span', symbol, 'student-catalog-icon ' + color);
+      icon.setAttribute('aria-hidden', 'true');
+      const copy = element('span');
+      copy.append(element('strong', title), element('small', subtitle));
+      const arrow = element('span', '›', 'student-catalog-arrow');
+      arrow.setAttribute('aria-hidden', 'true');
+      card.append(icon, copy, arrow);
+      card.onclick = () => {
+        sheet = layouts.find(item => item.id===id);
+        heading.textContent = title;
+        viewer.showModal();
+        refresh();
+      };
+      catalog.append(card);
+    }
+    return {refresh};
   }
 
   window.mountWorkbookCatalog=mountWorkbookCatalog;

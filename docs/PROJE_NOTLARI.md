@@ -744,3 +744,7 @@ Bu dosyaya kişisel bilgiler, şifreler veya sohbetin tamamını eklemeyin; yaln
 - Sayılar seçili dönem kayıtlarından hesaplanır. İl MEM satırı ve Büyükşehir kayıtlı Ölçme Değerlendirme Merkezi kaynak raporun ilçe yerleşimine göre işlenir. Excel İndir makrosuz tek sekmeli .xlsx üretir. Kaynak çalışma kitapları ve kayıtları depoya eklenmedi.
 - Chrome mobil genişlikte dört tablo, dört Excel indirme ve yazdırma içeriğini doğruladı. Ekim verilerinde 1.221 genel ve 817 okul toplamı kaynak raporlarla eşleşti. Öğrenci kataloğunda beş tablo ve Excel çıktısı, 148 otomatik test ve Hosting paketi de geçti.
 - Yayın b4e8ea5. Firebase Hosting https://github.com/ozbinici07/brifing/actions/runs/43240595981 başarılı. Canlı ana sayfa, ilgili kod ve stil dosyaları ile dört Excel şablonu doğrulandı.
+
+## 13 Kasım 2026 — Okul ve öğrenci tabloları tam ekran
+- Her tablo kartı uygulama içinde tam ekran açılır. Tablo genişliğe ve yüksekliğe sığar. Gerçek Boyut ile kaydırmalı görünüm açılır, Ekrana Sığdır ile başlangıç görünümüne dönülür. Tablolara Dön veya Escape kart listesini açar.
+- Chrome'da 390 ve 1920 piksel genişlikte dokuz tablo, ekran sınırları, boyut geçişleri, geri dönüş, Excel indirme ve yazdırma kontrol edildi. 148 otomatik test ve Hosting paketi geçti.
